@@ -20,6 +20,37 @@ class DatabaseSeeder extends Seeder
             'email' => 'agent@example.com',
         ]);
 
+        User::factory()->create([
+            'name' => 'Pierre',
+            'email' => 'pierre.mazariegos@carrousel.com.gt',
+        ]);
+
+        User::factory()->create([
+            'name' => 'Luis',
+            'email' => 'luis@carrousel.com.gt',
+        ]);
+
+        User::factory()->create([
+            'name' => 'Diego Velasquez',
+            'email' => 'diego2402alejandrov@gmail.com',
+        ]);
+
+        User::factory()->create([
+            'name' => 'Rocio',
+            'email' => 'rocio@carrousel.com.gt',
+        ]);
+        
+        User::factory()->create([
+            'name' => 'Ad',
+            'email' => 'ad.com',
+            'password' => '123',
+            'role' => 'agent'
+        ]);
+
+        
+
         Vehicle::factory()->count(8)->create();
     }
 }
+
+// comunicacion.interna@carrousel.com.gt
