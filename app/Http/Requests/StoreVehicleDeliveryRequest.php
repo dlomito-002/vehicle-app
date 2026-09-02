@@ -40,9 +40,6 @@ class StoreVehicleDeliveryRequest extends FormRequest
 
             'documentation' => ['required', 'array'],
 
-            'photos' => ['nullable', 'array'],
-            'photos.*' => ['image', 'max:10240', 'mimes:jpg,jpeg,png,webp'],
-
             'anomaly_photos' => ['required_if:has_anomaly,1', 'nullable', 'array'],
             'anomaly_photos.*' => ['image', 'max:10240', 'mimes:jpg,jpeg,png,webp'],
         ];
@@ -73,7 +70,7 @@ class StoreVehicleDeliveryRequest extends FormRequest
                 $validator->errors()->add('reception', 'Esta recepción ya fue cerrada por otra devolución.');
             }
 
-            $total = count($this->file('position_photos', []) ?? [])
+            $total = count(array_filter($this->file('position_photos', []) ?? []))
                 + count($this->file('anomaly_photos', []) ?? []);
 
             if ($total > 10) {

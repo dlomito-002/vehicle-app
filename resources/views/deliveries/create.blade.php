@@ -15,7 +15,8 @@
         recibido el {{ $reception->reception_date->format('d/m/Y') }} por {{ $reception->received_by_name }}.
     </p>
 
-    <form method="POST" action="{{ route('deliveries.store', $reception) }}" enctype="multipart/form-data" class="space-y-6 max-w-3xl">
+        <form method="POST" action="{{ route('deliveries.store', $reception) }}" enctype="multipart/form-data"
+            data-compress-images class="space-y-6 max-w-3xl">
         @csrf
 
         <section class="bg-white border border-slate-200 rounded-lg p-5 border-l-4 border-l-brand-magenta">
