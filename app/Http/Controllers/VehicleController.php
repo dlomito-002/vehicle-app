@@ -1,0 +1,38 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Requests\StoreVehicleRequest;
+use App\Models\Vehicle;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
+
+class VehicleController extends Controller
+{
+    public function index(Request $request): View
+    {
+        $this->authorize('viewAny', Vehicle::class);
+
+        $vehicles = Vehicle::query()
+            ->withCount(['receptions', 'deliveries'])
+            ->orderBy('make')
+            ->paginate(20);
+
+        return view('vehicles.index', compact('vehicles'));
+    }
+
+    public function create(): View
+    {
+        $this->authorize('create', Vehicle::class);
+
+        return view('vehicles.create');
+    }
+
+    public function store(StoreVehicleRequest $request): RedirectResponse
+    {
+        Vehicle::create($request->validated());
+
+        return redirect()->route('vehicles.index')->with('status', 'Vehículo agregado.');
+    }
+}

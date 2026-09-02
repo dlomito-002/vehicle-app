@@ -1,0 +1,87 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Enums\DocumentType;
+use App\Enums\ReceptionStatus;
+use App\Http\Controllers\Concerns\HandlesVehicleFormUploads;
+use App\Http\Requests\StoreVehicleReceptionRequest;
+use App\Models\Vehicle;
+use App\Models\VehicleReception;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
+
+class VehicleReceptionController extends Controller
+{
+    use HandlesVehicleFormUploads;
+
+    public function index(Request $request): View
+    {
+        $this->authorize('viewAny', VehicleReception::class);
+
+        $query = VehicleReception::query()->with(['vehicle', 'creator', 'delivery']);
+
+        if (! $request->user()->isAdmin()) {
+            $query->where('created_by', $request->user()->id);
+        }
+
+        $receptions = $query->latest('reception_date')->paginate(20);
+
+        return view('receptions.index', compact('receptions'));
+    }
+
+    public function create(): View
+    {
+        $this->authorize('create', VehicleReception::class);
+
+        $vehicles = Vehicle::orderBy('make')->get();
+
+        return view('receptions.create', compact('vehicles'));
+    }
+
+    public function store(StoreVehicleReceptionRequest $request): RedirectResponse
+    {
+        $this->authorize('create', VehicleReception::class);
+
+        $data = $request->validated();
+
+        $reception = DB::transaction(function () use ($request, $data) {
+            $reception = VehicleReception::create([
+                'vehicle_id' => $data['vehicle_id'],
+                'created_by' => $request->user()->id,
+                'received_by_name' => $data['received_by_name'],
+                'trip_reason' => $data['trip_reason'],
+                'reception_date' => $data['reception_date'],
+                'reception_time' => $data['reception_time'],
+                'initial_mileage' => $data['initial_mileage'],
+                'fuel_level' => $data['fuel_level'],
+                'general_condition' => $data['general_condition'],
+                'windows_mirrors_lights' => $data['windows_mirrors_lights'],
+                'tires_condition' => $data['tires_condition'],
+                'dashboard_indicators' => $data['dashboard_indicators'],
+                'cleanliness' => $data['cleanliness'],
+                'has_anomaly' => $data['has_anomaly'],
+                'anomaly_description' => $data['anomaly_description'] ?? null,
+                'status' => ReceptionStatus::Open,
+            ]);
+
+            $this->storeDocumentation($reception, $data['documentation'], DocumentType::forReception());
+            $this->storePhotos($reception, $request);
+
+            return $reception;
+        });
+
+        return redirect()->route('receptions.show', $reception)->with('status', 'Recepción registrada.');
+    }
+
+    public function show(VehicleReception $reception): View
+    {
+        $this->authorize('view', $reception);
+
+        $reception->load(['vehicle', 'creator', 'photos', 'documentation', 'delivery']);
+
+        return view('receptions.show', compact('reception'));
+    }
+}
