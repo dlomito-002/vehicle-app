@@ -52,6 +52,7 @@
                             @php
                                 $navLinks = [
                                     ['route' => 'dashboard', 'label' => 'Panel'],
+                                    ['route' => 'calendar.index', 'label' => 'Calendario'],
                                     ['route' => 'receptions.index', 'label' => 'Recepciones'],
                                     ['route' => 'deliveries.index', 'label' => 'Devoluciones'],
                                 ];

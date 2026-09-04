@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\VehicleComparisonController;
 use App\Http\Controllers\VehicleController;
@@ -17,6 +18,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');
 
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Availability calendar — verify which vehicles are free/in-use by date.
+    Route::get('/calendar', [CalendarController::class, 'index'])->name('calendar.index');
 
     // Vehicle master data — admin only.
     Route::middleware('admin')->group(function () {

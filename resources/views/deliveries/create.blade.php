@@ -62,6 +62,11 @@
                 </div>
             </div>
             <x-fuel-level-selector />
+            <x-fuel-type-selector />
+        </section>
+
+        <section class="bg-white border border-slate-200 rounded-lg p-5 border-l-4 border-l-brand-cyan">
+            <x-equipment-checklist />
         </section>
 
         <section class="bg-white border border-slate-200 rounded-lg p-5 border-l-4 border-l-brand-olive space-y-5">
@@ -83,6 +88,10 @@
             @foreach (ConditionStatus::fieldLabels() as $field => $label)
                 <x-condition-field :field="$field" :label="$label" />
             @endforeach
+
+            <div class="pt-2 border-t border-slate-100">
+                <x-condition-checklist />
+            </div>
         </section>
 
         <section class="bg-white border border-slate-200 rounded-lg p-5 border-l-4 border-l-brand-orange">

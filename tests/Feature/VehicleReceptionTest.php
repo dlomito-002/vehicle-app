@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Enums\ConditionComponent;
+use App\Enums\EquipmentItem;
 use App\Models\User;
 use App\Models\Vehicle;
 use App\Models\VehicleReception;
@@ -24,6 +26,7 @@ class VehicleReceptionTest extends TestCase
             'reception_time' => '09:30',
             'initial_mileage' => 1000,
             'fuel_level' => 'full',
+            'fuel_type' => 'gasoline',
             'general_condition' => 'ok',
             'windows_mirrors_lights' => 'ok',
             'tires_condition' => 'ok',
@@ -34,7 +37,14 @@ class VehicleReceptionTest extends TestCase
                 'registration_card' => '1',
                 'vehicle_sticker' => '1',
                 'drivers_license' => '1',
+                'insurance_papers' => '1',
             ],
+            'equipment_checks' => collect(EquipmentItem::cases())
+                ->mapWithKeys(fn ($item) => [$item->value => '1'])
+                ->all(),
+            'condition_items' => collect(ConditionComponent::cases())
+                ->mapWithKeys(fn ($item) => [$item->value => 'ok'])
+                ->all(),
         ], $overrides);
     }
 
@@ -55,7 +65,41 @@ class VehicleReceptionTest extends TestCase
         ]);
 
         $reception = VehicleReception::first();
-        $this->assertCount(3, $reception->documentation);
+        $this->assertCount(4, $reception->documentation);
+        $this->assertCount(count(EquipmentItem::cases()), $reception->equipmentChecks);
+        $this->assertCount(count(ConditionComponent::cases()), $reception->conditionItems);
+    }
+
+    public function test_vehicle_with_open_reception_is_not_offered_again(): void
+    {
+        Storage::fake('public');
+
+        $user = User::factory()->create();
+        $vehicle = Vehicle::factory()->create();
+
+        $this->actingAs($user)->post(route('receptions.store'), $this->validPayload($vehicle));
+
+        $response = $this->actingAs($user)->get(route('receptions.create'));
+
+        $response->assertOk();
+        $response->assertViewHas('vehicles', fn ($vehicles) => ! $vehicles->contains('id', $vehicle->id));
+    }
+
+    public function test_vehicle_already_checked_out_cannot_be_requested_again(): void
+    {
+        Storage::fake('public');
+
+        $user = User::factory()->create();
+        $vehicle = Vehicle::factory()->create();
+
+        $this->actingAs($user)->post(route('receptions.store'), $this->validPayload($vehicle));
+
+        // Direct resubmission (bypassing the filtered dropdown) must still
+        // be rejected server-side.
+        $response = $this->actingAs($user)->post(route('receptions.store'), $this->validPayload($vehicle));
+
+        $response->assertSessionHasErrors('vehicle_id');
+        $this->assertCount(1, VehicleReception::where('vehicle_id', $vehicle->id)->get());
     }
 
     public function test_reception_requires_anomaly_description_when_anomaly_reported(): void

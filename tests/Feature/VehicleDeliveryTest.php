@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Enums\ConditionComponent;
+use App\Enums\EquipmentItem;
 use App\Enums\ReceptionStatus;
 use App\Models\User;
 use App\Models\Vehicle;
@@ -25,6 +27,7 @@ class VehicleDeliveryTest extends TestCase
             'reception_time' => '09:00',
             'initial_mileage' => 1000,
             'fuel_level' => 'full',
+            'fuel_type' => 'gasoline',
             'general_condition' => 'ok',
             'windows_mirrors_lights' => 'ok',
             'tires_condition' => 'ok',
@@ -44,6 +47,7 @@ class VehicleDeliveryTest extends TestCase
             'return_time' => '17:00',
             'final_mileage' => 1200,
             'fuel_level' => 'half',
+            'fuel_type' => 'gasoline',
             'washed' => '0',
             'general_condition' => 'ok',
             'windows_mirrors_lights' => 'ok',
@@ -54,7 +58,14 @@ class VehicleDeliveryTest extends TestCase
             'documentation' => [
                 'registration_card' => '1',
                 'vehicle_sticker' => '1',
+                'insurance_papers' => '1',
             ],
+            'equipment_checks' => collect(EquipmentItem::cases())
+                ->mapWithKeys(fn ($item) => [$item->value => '1'])
+                ->all(),
+            'condition_items' => collect(ConditionComponent::cases())
+                ->mapWithKeys(fn ($item) => [$item->value => 'ok'])
+                ->all(),
         ], $overrides);
     }
 
@@ -151,6 +162,22 @@ class VehicleDeliveryTest extends TestCase
         $delivery = $reception->fresh()->delivery;
         $types = $delivery->documentation->pluck('document_type')->map->value->all();
 
-        $this->assertEqualsCanonicalizing(['registration_card', 'vehicle_sticker'], $types);
+        $this->assertEqualsCanonicalizing(['registration_card', 'vehicle_sticker', 'insurance_papers'], $types);
+    }
+
+    public function test_delivery_stores_equipment_and_condition_checklists(): void
+    {
+        Storage::fake('public');
+
+        $user = User::factory()->create();
+        $vehicle = Vehicle::factory()->create();
+        $reception = $this->createOpenReception($vehicle, $user);
+
+        $this->actingAs($user)->post(route('deliveries.store', $reception), $this->deliveryPayload());
+
+        $delivery = $reception->fresh()->delivery;
+
+        $this->assertCount(count(EquipmentItem::cases()), $delivery->equipmentChecks);
+        $this->assertCount(count(ConditionComponent::cases()), $delivery->conditionItems);
     }
 }
