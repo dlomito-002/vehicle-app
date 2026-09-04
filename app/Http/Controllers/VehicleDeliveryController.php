@@ -109,6 +109,7 @@ class VehicleDeliveryController extends Controller
                 'return_time' => $data['return_time'],
                 'final_mileage' => $data['final_mileage'],
                 'fuel_level' => $data['fuel_level'],
+                'fuel_type' => $data['fuel_type'],
                 'washed' => $data['washed'],
                 'general_condition' => $data['general_condition'],
                 'windows_mirrors_lights' => $data['windows_mirrors_lights'],
@@ -120,6 +121,8 @@ class VehicleDeliveryController extends Controller
             ]);
 
             $this->storeDocumentation($delivery, $data['documentation'], DocumentType::forDelivery());
+            $this->storeEquipmentChecks($delivery, $data['equipment_checks'], $request);
+            $this->storeConditionItems($delivery, $data['condition_items'], $request);
             $this->storePhotos($delivery, $request);
 
             // Closing the reception happens atomically with delivery creation
@@ -138,7 +141,7 @@ class VehicleDeliveryController extends Controller
     {
         $this->authorize('view', $delivery);
 
-        $delivery->load(['vehicle', 'reception', 'creator', 'photos', 'documentation']);
+        $delivery->load(['vehicle', 'reception', 'creator', 'photos', 'documentation', 'equipmentChecks', 'conditionItems']);
 
         return view('deliveries.show', compact('delivery'));
     }

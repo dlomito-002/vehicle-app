@@ -2,9 +2,12 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\ConditionComponent;
 use App\Enums\ConditionStatus;
 use App\Enums\DocumentType;
+use App\Enums\EquipmentItem;
 use App\Enums\FuelLevel;
+use App\Enums\FuelType;
 use App\Enums\PhotoPosition;
 use App\Enums\ReceptionStatus;
 use Illuminate\Foundation\Http\FormRequest;
@@ -33,12 +36,16 @@ class StoreVehicleDeliveryRequest extends FormRequest
             'final_mileage' => ['required', 'integer', 'min:' . $reception->initial_mileage],
 
             'fuel_level' => ['required', Rule::enum(FuelLevel::class)],
+            'fuel_type' => ['required', Rule::enum(FuelType::class)],
             'washed' => ['required', 'boolean'],
 
             'has_anomaly' => ['required', 'boolean'],
             'anomaly_description' => ['required_if:has_anomaly,1', 'nullable', 'string', 'max:1000'],
 
             'documentation' => ['required', 'array'],
+
+            'equipment_checks' => ['required', 'array'],
+            'condition_items' => ['required', 'array'],
 
             'anomaly_photos' => ['required_if:has_anomaly,1', 'nullable', 'array'],
             'anomaly_photos.*' => ['image', 'max:10240', 'mimes:jpg,jpeg,png,webp'],
@@ -55,6 +62,18 @@ class StoreVehicleDeliveryRequest extends FormRequest
 
         foreach (PhotoPosition::standardPositions() as $position) {
             $rules["position_photos.{$position->value}"] = ['nullable', 'image', 'max:10240', 'mimes:jpg,jpeg,png,webp'];
+        }
+
+        // 26-item "chequeo general" equipment checklist, each Sí/No with an optional photo.
+        foreach (EquipmentItem::cases() as $item) {
+            $rules["equipment_checks.{$item->value}"] = ['required', 'boolean'];
+            $rules["equipment_photos.{$item->value}"] = ['nullable', 'image', 'max:10240', 'mimes:jpg,jpeg,png,webp'];
+        }
+
+        // 12-component "estado general del vehículo" checklist, each rated with an optional photo.
+        foreach (ConditionComponent::cases() as $component) {
+            $rules["condition_items.{$component->value}"] = ['required', Rule::enum(ConditionStatus::class)];
+            $rules["condition_photos.{$component->value}"] = ['nullable', 'image', 'max:10240', 'mimes:jpg,jpeg,png,webp'];
         }
 
         return $rules;
@@ -92,3 +111,4 @@ class StoreVehicleDeliveryRequest extends FormRequest
         ];
     }
 }
+

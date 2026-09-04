@@ -2,10 +2,14 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\ConditionComponent;
 use App\Enums\ConditionStatus;
 use App\Enums\DocumentType;
+use App\Enums\EquipmentItem;
 use App\Enums\FuelLevel;
+use App\Enums\FuelType;
 use App\Enums\PhotoPosition;
+use App\Models\Vehicle;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
@@ -32,11 +36,15 @@ class StoreVehicleReceptionRequest extends FormRequest
             'initial_mileage' => ['required', 'integer', 'min:0'],
 
             'fuel_level' => ['required', Rule::enum(FuelLevel::class)],
+            'fuel_type' => ['required', Rule::enum(FuelType::class)],
 
             'has_anomaly' => ['required', 'boolean'],
             'anomaly_description' => ['required_if:has_anomaly,1', 'nullable', 'string', 'max:1000'],
 
             'documentation' => ['required', 'array'],
+
+            'equipment_checks' => ['required', 'array'],
+            'condition_items' => ['required', 'array'],
 
             'photos' => ['nullable', 'array'],
             'photos.*' => ['image', 'max:10240', 'mimes:jpg,jpeg,png,webp'],
@@ -61,6 +69,18 @@ class StoreVehicleReceptionRequest extends FormRequest
             $rules["position_photos.{$position->value}"] = ['nullable', 'image', 'max:10240', 'mimes:jpg,jpeg,png,webp'];
         }
 
+        // 26-item "chequeo general" equipment checklist, each Sí/No with an optional photo.
+        foreach (EquipmentItem::cases() as $item) {
+            $rules["equipment_checks.{$item->value}"] = ['required', 'boolean'];
+            $rules["equipment_photos.{$item->value}"] = ['nullable', 'image', 'max:10240', 'mimes:jpg,jpeg,png,webp'];
+        }
+
+        // 12-component "estado general del vehículo" checklist, each rated with an optional photo.
+        foreach (ConditionComponent::cases() as $component) {
+            $rules["condition_items.{$component->value}"] = ['required', Rule::enum(ConditionStatus::class)];
+            $rules["condition_photos.{$component->value}"] = ['nullable', 'image', 'max:10240', 'mimes:jpg,jpeg,png,webp'];
+        }
+
         return $rules;
     }
 
@@ -77,6 +97,13 @@ class StoreVehicleReceptionRequest extends FormRequest
             if ($this->boolean('has_anomaly') && empty($this->file('anomaly_photos'))) {
                 $validator->errors()->add('anomaly_photos', 'Adjunta al menos una fotografía de la anomalía reportada.');
             }
+
+            // A vehicle can't be requested again until it's returned.
+            $vehicle = $this->filled('vehicle_id') ? Vehicle::find($this->input('vehicle_id')) : null;
+
+            if ($vehicle && ! $vehicle->isAvailable()) {
+                $validator->errors()->add('vehicle_id', 'Este vehículo ya está en uso y no puede solicitarse hasta que sea devuelto.');
+            }
         });
     }
 
@@ -88,3 +115,4 @@ class StoreVehicleReceptionRequest extends FormRequest
         ];
     }
 }
+

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\ReceptionStatus;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -34,8 +35,24 @@ class Vehicle extends Model
         return $this->receptions()->where('status', ReceptionStatus::Open);
     }
 
+    /**
+     * A vehicle can't be requested again until it's returned: it's only
+     * available when it has no open reception.
+     */
+    public function isAvailable(): bool
+    {
+        return ! $this->openReceptions()->exists();
+    }
+
+    /** Scope: only vehicles with no open reception right now. */
+    public function scopeAvailable(Builder $query): Builder
+    {
+        return $query->whereDoesntHave('receptions', fn ($q) => $q->where('status', ReceptionStatus::Open));
+    }
+
     public function displayName(): string
     {
         return trim("{$this->make} {$this->license_plate}");
     }
 }
+

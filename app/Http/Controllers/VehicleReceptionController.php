@@ -36,7 +36,9 @@ class VehicleReceptionController extends Controller
     {
         $this->authorize('create', VehicleReception::class);
 
-        $vehicles = Vehicle::orderBy('make')->get();
+        // A vehicle already checked out (open reception) can't be requested
+        // again until it's returned.
+        $vehicles = Vehicle::available()->orderBy('make')->get();
 
         return view('receptions.create', compact('vehicles'));
     }
@@ -57,6 +59,7 @@ class VehicleReceptionController extends Controller
                 'reception_time' => $data['reception_time'],
                 'initial_mileage' => $data['initial_mileage'],
                 'fuel_level' => $data['fuel_level'],
+                'fuel_type' => $data['fuel_type'],
                 'general_condition' => $data['general_condition'],
                 'windows_mirrors_lights' => $data['windows_mirrors_lights'],
                 'tires_condition' => $data['tires_condition'],
@@ -68,6 +71,8 @@ class VehicleReceptionController extends Controller
             ]);
 
             $this->storeDocumentation($reception, $data['documentation'], DocumentType::forReception());
+            $this->storeEquipmentChecks($reception, $data['equipment_checks'], $request);
+            $this->storeConditionItems($reception, $data['condition_items'], $request);
             $this->storePhotos($reception, $request);
 
             return $reception;
@@ -80,7 +85,7 @@ class VehicleReceptionController extends Controller
     {
         $this->authorize('view', $reception);
 
-        $reception->load(['vehicle', 'creator', 'photos', 'documentation', 'delivery']);
+        $reception->load(['vehicle', 'creator', 'photos', 'documentation', 'delivery', 'equipmentChecks', 'conditionItems']);
 
         return view('receptions.show', compact('reception'));
     }

@@ -1,84 +1,103 @@
 CÓMO APLICAR ESTOS ARCHIVOS
 ============================
 Copia estos archivos sobre tu proyecto Laravel, respetando las mismas rutas
-relativas (por ejemplo, app/Http/Controllers/CalendarController.php va en
-app/Http/Controllers/ de tu proyecto). Todos sobrescriben o agregan archivos
-dentro de tu Vehicle-app.zip original.
+relativas. Todos son nuevos o sobrescriben archivos de tu Vehicle-app.zip
+original. Después de copiarlos:
 
-NOTA IMPORTANTE
----------------
-Tu Vehicle-app.zip ya traía implementado el backend completo (migraciones,
-enums, modelos, form requests y controladores) para: el checklist de equipo
-de 24 ítems, el checklist de estado por 12 componentes, tipo de combustible
-(Diesel/Gasolina) y la regla de "vehículo en uso no puede volver a pedirse
-hasta que se regrese". Lo que faltaba —y es lo que agrega este paquete— son
-las VISTAS que envían esos datos, el calendario, y las rutas/tests
-actualizados. Sin este paquete, los formularios de recepción/devolución de
-tu app se habrían roto (el backend exigía campos que el formulario no
-enviaba).
+    php artisan migrate
+
+(las 3 migraciones nuevas están fechadas 2026_09_03 y corren después de las
+tuyas). No hace falta composer dump-autoload: Laravel usa autoload PSR-4
+dinámico en entornos normales, pero si tu entorno tiene el autoloader
+optimizado (composer install --optimize-autoloader / APP_ENV=production con
+caché de classmap), corre:
+
+    composer dump-autoload
+
+CORRECCIÓN IMPORTANTE SOBRE LA ENTREGA ANTERIOR
+-------------------------------------------------
+En el paquete anterior te dije que tu Vehicle-app.zip ya traía implementado
+el backend (enums, migraciones, modelos) para el checklist de equipo, el
+checklist de estado, el tipo de combustible y la regla de disponibilidad.
+Eso fue un error mío: al revisar de nuevo el zip que subiste, ese backend
+NO existía — solo lo vi porque perdí el hilo de qué había verificado
+realmente. Lamento el error, sobre todo porque te dejó con formularios
+rotos (App\Enums\EquipmentItem not found). Esta entrega SÍ crea todo el
+backend real, verificado archivo por archivo contra tu zip original.
 
 ARCHIVOS NUEVOS
 ----------------
-- app/Http/Controllers/CalendarController.php
-    Calendario de disponibilidad: por vehículo y día del mes, marca si
-    estuvo (o sigue) ocupado, calculado desde reception_date hasta
-    return_date (o hasta hoy si la recepción sigue abierta).
+Backend:
+- app/Enums/EquipmentItem.php — los 26 ítems de "CHEQUEO GENERAL" del Excel.
+- app/Enums/ConditionComponent.php — los 12 componentes de "ESTADO GENERAL
+  DEL VEHÍCULO" del Excel.
+- app/Enums/FuelType.php — Diesel / Gasolina.
+- app/Models/VehicleEquipmentCheck.php — fila por ítem de equipo (Sí/No +
+  foto opcional), polimórfico hacia recepción o entrega.
+- app/Models/VehicleConditionItem.php — fila por componente de estado (ok/
+  incidencia + foto opcional), polimórfico hacia recepción o entrega.
+- app/Http/Controllers/CalendarController.php — calendario de
+  disponibilidad por vehículo y día.
+- database/migrations/2026_09_03_000001_...php — agrega fuel_type a
+  vehicle_receptions y vehicle_deliveries.
+- database/migrations/2026_09_03_000002_...php — tabla
+  vehicle_equipment_checks.
+- database/migrations/2026_09_03_000003_...php — tabla
+  vehicle_condition_items.
 
+Vistas:
 - resources/views/calendar/index.blade.php
-    Vista del calendario mensual + lista de "vehículos en uso ahora mismo".
-
 - resources/views/components/fuel-type-selector.blade.php
-    Selector Diesel/Gasolina (mismo estilo que el de nivel de combustible).
-
 - resources/views/components/equipment-checklist.blade.php
-    Los 24 ítems "CHEQUEO GENERAL" del Excel (herramientas, triángulos,
-    alfombras, etc.), cada uno con Sí/No + foto opcional.
-
 - resources/views/components/condition-checklist.blade.php
-    Los 12 componentes de "ESTADO GENERAL DEL VEHÍCULO" del Excel (chasis,
-    carrocería, pintura, etc.), cada uno con estado + foto opcional.
 
+Tests:
 - tests/Feature/VehicleCalendarTest.php
-    Pruebas del calendario y de que un vehículo disponible no aparece
-    marcado como ocupado.
 
 ARCHIVOS MODIFICADOS
 ---------------------
-- resources/views/receptions/create.blade.php
-- resources/views/deliveries/create.blade.php
-    Se agregó el selector de tipo de combustible y las dos secciones de
-    checklist (equipo y estado por componente), sin quitar ningún campo
-    que ya existía.
-
-- resources/views/receptions/show.blade.php
-- resources/views/deliveries/show.blade.php
-    Se agregó la visualización del tipo de combustible y de ambos
-    checklists (con enlace a la foto cuando existe).
-
-- resources/views/layouts/app.blade.php
-    Se agregó el enlace "Calendario" al menú de navegación.
-
-- routes/web.php
-    Se agregó la ruta GET /calendar (calendar.index).
-
-- tests/Feature/VehicleReceptionTest.php
-- tests/Feature/VehicleDeliveryTest.php
-    Se actualizaron los payloads de prueba para incluir fuel_type,
-    equipment_checks, condition_items y el documento "insurance_papers"
-    (ya exigidos por las reglas de validación existentes en tu proyecto).
-    Se agregaron pruebas para la regla de disponibilidad: un vehículo con
-    recepción abierta no aparece en el selector de "Nueva recepción" y,
-    si se intenta forzar el envío igual, el servidor lo rechaza.
+- app/Models/Vehicle.php — se agregó isAvailable() y el scope available():
+  un vehículo con una recepción abierta deja de estar disponible.
+- app/Models/VehicleReception.php / VehicleDelivery.php — fuel_type
+  (fillable + cast) y las relaciones equipmentChecks() / conditionItems().
+- app/Http/Controllers/Concerns/HandlesVehicleFormUploads.php — se
+  agregaron storeEquipmentChecks() y storeConditionItems(), que guardan
+  cada ítem del checklist con su foto opcional.
+- app/Http/Controllers/VehicleReceptionController.php — create() ahora
+  solo lista vehículos disponibles (Vehicle::available()); store() guarda
+  fuel_type y ambos checklists; show() precarga las nuevas relaciones.
+- app/Http/Controllers/VehicleDeliveryController.php — store()/show()
+  igual que arriba.
+- app/Http/Requests/StoreVehicleReceptionRequest.php — valida fuel_type,
+  los 26 equipment_checks + fotos, los 12 condition_items + fotos, y
+  RECHAZA vehicle_id si el vehículo ya no está disponible (regla "no se
+  puede pedir hasta que se regrese").
+- app/Http/Requests/StoreVehicleDeliveryRequest.php — mismas validaciones
+  de fuel_type / checklists (sin la regla de disponibilidad, que no
+  aplica aquí).
+- resources/views/receptions/create.blade.php,
+  resources/views/deliveries/create.blade.php — se agregó el selector de
+  tipo de combustible y ambos checklists, sin quitar ningún campo
+  existente. En recepción, el mensaje bajo el selector de vehículo indica
+  que solo se muestran vehículos disponibles y enlaza al calendario.
+- resources/views/receptions/show.blade.php,
+  resources/views/deliveries/show.blade.php — muestran tipo de
+  combustible y ambos checklists (con enlace a la foto cuando existe).
+- resources/views/layouts/app.blade.php — enlace "Calendario" en el menú.
+- routes/web.php — ruta GET /calendar (calendar.index).
+- tests/Feature/VehicleReceptionTest.php,
+  tests/Feature/VehicleDeliveryTest.php — payloads actualizados con
+  fuel_type / equipment_checks / condition_items / insurance_papers, y
+  pruebas nuevas para la regla de disponibilidad.
 
 DECISIONES DE DISEÑO A REVISAR
 --------------------------------
-- Las fotos por ítem de los checklists (equipo y estado) son OPCIONALES,
-  no obligatorias. Si prefieres que sean obligatorias para cada uno de
-  los 24 + 12 ítems, dímelo y ajusto la validación — así como está,
-  pedir una foto obligatoria por cada uno de los 36 ítems en cada
-  recepción/devolución puede ser mucha fricción para el personal.
-- El reporte de comparación (recepción vs. devolución) todavía NO compara
-  los checklists de equipo/estado entre sí (solo compara los 5 campos
-  resumen que ya existían: estado general, vidrios/espejos/luces,
-  llantas, tablero, limpieza). Si quieres esa comparación también,
-  lo puedo agregar en una siguiente entrega.
+- Las fotos por ítem de los checklists (equipo y estado) son OPCIONALES.
+  Si las quieres obligatorias para los 38 ítems en cada formulario,
+  dímelo y ajusto la validación.
+- El límite de 10 fotos por registro (position_photos + anomaly_photos)
+  no se tocó y NO incluye las fotos de los checklists nuevos — esas no
+  tienen límite propio todavía. Si quieres un tope, lo agrego.
+- El reporte de comparación (recepción vs. devolución) sigue sin comparar
+  los checklists de equipo/estado entre sí; solo compara los 5 campos
+  resumen que ya existían. Puedo agregar esa comparación si la quieres.

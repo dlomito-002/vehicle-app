@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Concerns;
 
+use App\Enums\ConditionComponent;
+use App\Enums\EquipmentItem;
 use App\Enums\PhotoPosition;
 use App\Models\VehicleDocumentation;
 use App\Models\VehiclePhoto;
@@ -68,4 +70,69 @@ trait HandlesVehicleFormUploads
             ]);
         }
     }
+
+    /**
+     * Store one row per item of the 26-item "chequeo general" equipment
+     * checklist, with its optional supporting photo.
+     *
+     * @param  array<string, string>  $checks  ['herramientas' => '1', ...]
+     */
+    protected function storeEquipmentChecks(Model $owner, array $checks, Request $request): void
+    {
+        foreach (EquipmentItem::cases() as $item) {
+            $data = [
+                'item' => $item,
+                'is_present' => (bool) ($checks[$item->value] ?? false),
+            ];
+
+            /** @var UploadedFile|null $file */
+            $file = $request->file("equipment_photos.{$item->value}");
+
+            if ($file) {
+                $data = array_merge($data, $this->storeChecklistPhoto($owner, $file, 'equipment-checks'));
+            }
+
+            $owner->equipmentChecks()->create($data);
+        }
+    }
+
+    /**
+     * Store one row per component of the 12-item "estado general del
+     * vehículo" checklist, with its optional supporting photo.
+     *
+     * @param  array<string, string>  $items  ['chasis' => 'ok', ...]
+     */
+    protected function storeConditionItems(Model $owner, array $items, Request $request): void
+    {
+        foreach (ConditionComponent::cases() as $component) {
+            $data = [
+                'item' => $component,
+                'status' => $items[$component->value] ?? 'ok',
+            ];
+
+            /** @var UploadedFile|null $file */
+            $file = $request->file("condition_photos.{$component->value}");
+
+            if ($file) {
+                $data = array_merge($data, $this->storeChecklistPhoto($owner, $file, 'condition-items'));
+            }
+
+            $owner->conditionItems()->create($data);
+        }
+    }
+
+    private function storeChecklistPhoto(Model $owner, UploadedFile $file, string $folder): array
+    {
+        $ownerType = str($owner::class)->afterLast('\\')->snake()->plural()->toString();
+        $path = $file->store("vehicle-{$folder}/{$ownerType}/{$owner->getKey()}", 'public');
+
+        return [
+            'photo_disk' => 'public',
+            'photo_path' => $path,
+            'photo_original_filename' => $file->getClientOriginalName(),
+            'photo_size' => $file->getSize(),
+            'photo_mime_type' => $file->getClientMimeType(),
+        ];
+    }
 }
+

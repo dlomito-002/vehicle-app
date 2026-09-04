@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\ConditionStatus;
 use App\Enums\FuelLevel;
+use App\Enums\FuelType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -24,6 +25,7 @@ class VehicleDelivery extends Model
         'return_time',
         'final_mileage',
         'fuel_level',
+        'fuel_type',
         'washed',
         'general_condition',
         'windows_mirrors_lights',
@@ -40,6 +42,7 @@ class VehicleDelivery extends Model
             'return_date' => 'date',
             'final_mileage' => 'integer',
             'fuel_level' => FuelLevel::class,
+            'fuel_type' => FuelType::class,
             'washed' => 'boolean',
             'general_condition' => ConditionStatus::class,
             'windows_mirrors_lights' => ConditionStatus::class,
@@ -75,9 +78,22 @@ class VehicleDelivery extends Model
         return $this->morphMany(VehicleDocumentation::class, 'documentable');
     }
 
+    /** The 26-item "chequeo general" equipment checklist. */
+    public function equipmentChecks(): MorphMany
+    {
+        return $this->morphMany(VehicleEquipmentCheck::class, 'checkable');
+    }
+
+    /** The 12-component "estado general del vehículo" detail checklist. */
+    public function conditionItems(): MorphMany
+    {
+        return $this->morphMany(VehicleConditionItem::class, 'conditionable');
+    }
+
     /** Mileage driven during this checkout, computed from the linked reception. */
     public function mileageDelta(): int
     {
         return $this->final_mileage - $this->reception->initial_mileage;
     }
 }
+

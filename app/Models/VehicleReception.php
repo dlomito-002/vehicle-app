@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\ConditionStatus;
 use App\Enums\FuelLevel;
+use App\Enums\FuelType;
 use App\Enums\ReceptionStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -25,6 +26,7 @@ class VehicleReception extends Model
         'reception_time',
         'initial_mileage',
         'fuel_level',
+        'fuel_type',
         'general_condition',
         'windows_mirrors_lights',
         'tires_condition',
@@ -41,6 +43,7 @@ class VehicleReception extends Model
             'reception_date' => 'date',
             'initial_mileage' => 'integer',
             'fuel_level' => FuelLevel::class,
+            'fuel_type' => FuelType::class,
             'general_condition' => ConditionStatus::class,
             'windows_mirrors_lights' => ConditionStatus::class,
             'tires_condition' => ConditionStatus::class,
@@ -76,6 +79,18 @@ class VehicleReception extends Model
         return $this->morphMany(VehicleDocumentation::class, 'documentable');
     }
 
+    /** The 26-item "chequeo general" equipment checklist. */
+    public function equipmentChecks(): MorphMany
+    {
+        return $this->morphMany(VehicleEquipmentCheck::class, 'checkable');
+    }
+
+    /** The 12-component "estado general del vehículo" detail checklist. */
+    public function conditionItems(): MorphMany
+    {
+        return $this->morphMany(VehicleConditionItem::class, 'conditionable');
+    }
+
     public function isOpen(): bool
     {
         return $this->status === ReceptionStatus::Open;
@@ -87,3 +102,4 @@ class VehicleReception extends Model
         return array_keys(ConditionStatus::fieldLabels());
     }
 }
+
