@@ -16,7 +16,7 @@
     </p>
 
         <form method="POST" action="{{ route('deliveries.store', $reception) }}" enctype="multipart/form-data"
-            data-compress-images class="space-y-6 max-w-3xl">
+            data-compress-images data-delivery-form class="space-y-6 max-w-3xl">
         @csrf
 
         <section class="bg-white border border-slate-200 rounded-lg p-5 border-l-4 border-l-brand-magenta">

@@ -35,28 +35,28 @@ const compressImage = (file) => new Promise((resolve, reject) => {
 
 document.querySelectorAll('form[data-compress-images]').forEach((form) => {
 	form.addEventListener('submit', async (event) => {
-		if (form.dataset.imagesCompressed === 'true') {
-			delete form.dataset.imagesCompressed;
+		if (form.dataset.imagesPrepared === 'true') {
+			return;
+		}
+
+		const fileInputs = [...form.querySelectorAll('input[type="file"]')];
+		const selectedFileInputs = fileInputs.filter((input) => input.files.length);
+		if (!selectedFileInputs.length) {
 			return;
 		}
 
 		event.preventDefault();
-		const fileInputs = [...form.querySelectorAll('input[type="file"]')];
 		const submitButton = form.querySelector('button[type="submit"]');
 		submitButton?.setAttribute('disabled', 'disabled');
 
 		try {
-			await Promise.all(fileInputs.map(async (input) => {
-				if (!input.files.length) {
-					return;
-				}
-
+			await Promise.all(selectedFileInputs.map(async (input) => {
 				const compressedFiles = await Promise.all([...input.files].map(compressImage));
 				const dataTransfer = new DataTransfer();
 				compressedFiles.forEach((file) => dataTransfer.items.add(file));
 				input.files = dataTransfer.files;
 			}));
-			form.dataset.imagesCompressed = 'true';
+			form.dataset.imagesPrepared = 'true';
 			form.requestSubmit();
 		} catch (error) {
 			submitButton?.removeAttribute('disabled');
