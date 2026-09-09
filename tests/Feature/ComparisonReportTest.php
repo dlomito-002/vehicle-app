@@ -95,4 +95,68 @@ class ComparisonReportTest extends TestCase
                 && $comparison['new_anomaly'] === true;
         });
     }
+
+    public function test_comparison_report_diffs_every_equipment_and_condition_item(): void
+    {
+        $user = User::factory()->create();
+        $vehicle = Vehicle::factory()->create();
+
+        $reception = VehicleReception::create([
+            'vehicle_id' => $vehicle->id,
+            'created_by' => $user->id,
+            'received_by_name' => 'Jane Doe',
+            'trip_reason' => 'Client visit',
+            'reception_date' => now()->toDateString(),
+            'reception_time' => '09:00',
+            'initial_mileage' => 1000,
+            'fuel_level' => 'full',
+            'general_condition' => 'ok',
+            'windows_mirrors_lights' => 'ok',
+            'tires_condition' => 'ok',
+            'dashboard_indicators' => 'ok',
+            'cleanliness' => 'ok',
+            'has_anomaly' => false,
+            'status' => ReceptionStatus::Closed,
+        ]);
+
+        $reception->equipmentChecks()->create(['item' => 'extinguidor', 'is_present' => true]);
+        $reception->conditionItems()->create(['item' => 'llantas', 'status' => 'ok']);
+
+        $delivery = VehicleDelivery::create([
+            'vehicle_reception_id' => $reception->id,
+            'vehicle_id' => $vehicle->id,
+            'created_by' => $user->id,
+            'returned_by_name' => 'John Smith',
+            'keys_received_by_name' => 'Front Desk',
+            'return_date' => now()->toDateString(),
+            'return_time' => '17:00',
+            'final_mileage' => 1250,
+            'fuel_level' => 'quarter',
+            'washed' => false,
+            'general_condition' => 'ok',
+            'windows_mirrors_lights' => 'ok',
+            'tires_condition' => 'ok',
+            'dashboard_indicators' => 'ok',
+            'cleanliness' => 'ok',
+            'has_anomaly' => false,
+        ]);
+
+        $delivery->equipmentChecks()->create(['item' => 'extinguidor', 'is_present' => false]);
+        $delivery->conditionItems()->create(['item' => 'llantas', 'status' => 'issue']);
+
+        $response = $this->actingAs($user)->get(route('comparisons.show', $reception));
+
+        $response->assertOk();
+        $response->assertViewHas('comparison', function ($comparison) {
+            // All 26 equipment items and all 12 condition components must be
+            // present in the diff, not just the items that were recorded.
+            $extinguidor = collect($comparison['equipment'])->firstWhere('item', 'extinguidor');
+            $llantas = collect($comparison['condition_items'])->firstWhere('item', 'llantas');
+
+            return count($comparison['equipment']) === 26
+                && count($comparison['condition_items']) === 12
+                && $extinguidor['worsened'] === true
+                && $llantas['worsened'] === true;
+        });
+    }
 }

@@ -45,4 +45,5 @@ Route::middleware('auth')->group(function () {
 
     // Reception vs. delivery comparison report.
     Route::get('/comparisons/{reception}', [VehicleComparisonController::class, 'show'])->name('comparisons.show');
+    Route::get('/comparisons/{reception}/pdf', [VehicleComparisonController::class, 'pdf'])->name('comparisons.pdf');
 });
