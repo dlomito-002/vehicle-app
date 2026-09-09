@@ -33,7 +33,7 @@
         recibido el {{ $reception->reception_date->format('d/m/Y') }} por {{ $reception->received_by_name }}.
     </p>
 
-    <form method="POST" action="{{ route('deliveries.store', $reception) }}" enctype="multipart/form-data"
+    <form method="POST" action="{{ route('deliveries.store', $reception) }}" enctype="multipart/form-data" novalidate
           data-compress-images data-delivery-form x-data="{ step: {{ $initialStep }} }" class="max-w-3xl">
         @csrf
 
