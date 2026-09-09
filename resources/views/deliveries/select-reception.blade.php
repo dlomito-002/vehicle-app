@@ -10,9 +10,9 @@
 
     <div class="space-y-3">
         @foreach ($openReceptions as $reception)
-            <a href="{{ route('deliveries.create', $reception) }}"
-               class="flex items-center justify-between bg-white border border-slate-200 rounded-lg p-4 hover:border-brand-cyan transition-colors">
-                <div>
+                <a href="{{ route('deliveries.create', $reception) }}"
+                    class="flex flex-wrap items-center justify-between gap-3 bg-white border border-slate-200 rounded-lg p-4 hover:border-brand-cyan transition-colors">
+                     <div class="min-w-0">
                     <p class="font-medium text-slate-900">
                         Recibido el {{ $reception->reception_date->format('d/m/Y') }} a las {{ $reception->reception_time }}
                     </p>

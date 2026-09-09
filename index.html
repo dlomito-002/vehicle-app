@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="refresh" content="1;url=public/">
+    <title>Vehicle App</title>
+    <style>
+        :root {
+            color-scheme: light;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: #f4f7f5;
+            color: #19332b;
+        }
+
+        body {
+            display: grid;
+            min-height: 100vh;
+            margin: 0;
+            place-items: center;
+        }
+
+        main {
+            width: min(90%, 32rem);
+            padding: 2.5rem;
+            text-align: center;
+            background: #fff;
+            border: 1px solid #d8e5df;
+            border-radius: 12px;
+            box-shadow: 0 1rem 3rem rgb(25 51 43 / 10%);
+        }
+
+        h1 {
+            margin: 0 0 .75rem;
+            font-size: clamp(1.75rem, 5vw, 2.5rem);
+        }
+
+        p {
+            margin: 0 0 1.5rem;
+            color: #557067;
+        }
+
+        a {
+            display: inline-block;
+            padding: .75rem 1.25rem;
+            color: #fff;
+            background: #26735b;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        a:hover,
+        a:focus-visible {
+            background: #1d5d4a;
+        }
+    </style>
+    <script>
+        window.setTimeout(function () {
+            window.location.replace('public/');
+        }, 1000);
+    </script>
+</head>
+<body>
+    <main>
+        <h1>Vehicle App</h1>
+        <p>Abriendo la aplicacion...</p>
+        <a href="public/">Entrar a la aplicacion</a>
+    </main>
+</body>
+</html>

@@ -55,7 +55,7 @@
 
     <div class="bg-white border border-slate-200 rounded-lg p-5 mb-6">
         <h2 class="text-sm font-semibold text-slate-900 mb-3">Comparación del estado</h2>
-        <table class="w-full text-sm">
+        <table class="responsive-table w-full text-sm">
             <thead class="text-slate-500 text-left">
                 <tr>
                     <th class="py-2 font-medium">Elemento</th>
@@ -66,13 +66,13 @@
             <tbody class="divide-y divide-slate-100">
                 @foreach ($comparison['conditions'] as $field => $diff)
                     <tr>
-                        <td class="py-2.5 text-slate-700">{{ ConditionStatus::fieldLabels()[$field] }}</td>
-                        <td class="py-2.5">
+                        <td data-label="Elemento" class="py-2.5 text-slate-700">{{ ConditionStatus::fieldLabels()[$field] }}</td>
+                        <td data-label="Recepción" class="py-2.5">
                             <x-status-badge :status="$diff['reception']->value === 'ok' ? 'ok' : 'anomaly'">
                                 {{ $diff['reception']->label($field) }}
                             </x-status-badge>
                         </td>
-                        <td class="py-2.5">
+                        <td data-label="Devolución" class="py-2.5">
                             <x-status-badge :status="$diff['delivery']->value === 'ok' ? 'ok' : 'anomaly'">
                                 {{ $diff['delivery']->label($field) }}
                             </x-status-badge>
@@ -89,7 +89,7 @@
     <div class="bg-white border border-slate-200 rounded-lg p-5 mb-6">
         <h2 class="text-sm font-semibold text-slate-900 mb-1">Comparación de equipo (26 ítems)</h2>
         <p class="text-xs text-slate-500 mb-3">Chequeo general de equipo, elemento por elemento.</p>
-        <table class="w-full text-sm">
+        <table class="responsive-table w-full text-sm">
             <thead class="text-slate-500 text-left">
                 <tr>
                     <th class="py-2 font-medium">Elemento</th>
@@ -100,8 +100,8 @@
             <tbody class="divide-y divide-slate-100">
                 @foreach ($comparison['equipment'] as $diff)
                     <tr>
-                        <td class="py-2.5 text-slate-700">{{ $diff['label'] }}</td>
-                        <td class="py-2.5">
+                        <td data-label="Elemento" class="py-2.5 text-slate-700">{{ $diff['label'] }}</td>
+                        <td data-label="Recepción" class="py-2.5">
                             @if ($diff['reception_present'] === null)
                                 <span class="text-xs text-slate-400">No registrado</span>
                             @else
@@ -115,7 +115,7 @@
                                 </a>
                             @endif
                         </td>
-                        <td class="py-2.5">
+                        <td data-label="Devolución" class="py-2.5">
                             @if ($diff['delivery_present'] === null)
                                 <span class="text-xs text-slate-400">No registrado</span>
                             @else
@@ -143,7 +143,7 @@
     <div class="bg-white border border-slate-200 rounded-lg p-5 mb-6">
         <h2 class="text-sm font-semibold text-slate-900 mb-1">Comparación de estado por componente (12 ítems)</h2>
         <p class="text-xs text-slate-500 mb-3">Detalle del estado general del vehículo, componente por componente.</p>
-        <table class="w-full text-sm">
+        <table class="responsive-table w-full text-sm">
             <thead class="text-slate-500 text-left">
                 <tr>
                     <th class="py-2 font-medium">Componente</th>
@@ -154,8 +154,8 @@
             <tbody class="divide-y divide-slate-100">
                 @foreach ($comparison['condition_items'] as $diff)
                     <tr>
-                        <td class="py-2.5 text-slate-700">{{ $diff['label'] }}</td>
-                        <td class="py-2.5">
+                        <td data-label="Componente" class="py-2.5 text-slate-700">{{ $diff['label'] }}</td>
+                        <td data-label="Recepción" class="py-2.5">
                             @if ($diff['reception'] === null)
                                 <span class="text-xs text-slate-400">No registrado</span>
                             @else
@@ -169,7 +169,7 @@
                                 </a>
                             @endif
                         </td>
-                        <td class="py-2.5">
+                        <td data-label="Devolución" class="py-2.5">
                             @if ($diff['delivery'] === null)
                                 <span class="text-xs text-slate-400">No registrado</span>
                             @else
@@ -196,7 +196,7 @@
 
     <div class="bg-white border border-slate-200 rounded-lg p-5 mb-6">
         <h2 class="text-sm font-semibold text-slate-900 mb-3">Comparación de documentación</h2>
-        <table class="w-full text-sm">
+        <table class="responsive-table w-full text-sm">
             <thead class="text-slate-500 text-left">
                 <tr>
                     <th class="py-2 font-medium">Documento</th>
@@ -207,9 +207,9 @@
             <tbody class="divide-y divide-slate-100">
                 @foreach ($comparison['documentation'] as $doc)
                     <tr>
-                        <td class="py-2.5 text-slate-700">{{ \App\Enums\DocumentType::from($doc['document_type'])->label() }}</td>
-                        <td class="py-2.5">{{ $doc['reception'] === null ? '—' : ($doc['reception'] ? 'Sí' : 'No') }}</td>
-                        <td class="py-2.5">
+                        <td data-label="Documento" class="py-2.5 text-slate-700">{{ \App\Enums\DocumentType::from($doc['document_type'])->label() }}</td>
+                        <td data-label="Recepción" class="py-2.5">{{ $doc['reception'] === null ? '—' : ($doc['reception'] ? 'Sí' : 'No') }}</td>
+                        <td data-label="Devolución" class="py-2.5">
                             {{ $doc['delivery'] === null ? 'No se comprobó en la devolución' : ($doc['delivery'] ? 'Sí' : 'No') }}
                             @if ($doc['changed'])
                                 <span class="text-xs text-brand-orange ml-1">cambió</span>

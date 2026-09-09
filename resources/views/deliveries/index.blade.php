@@ -3,7 +3,7 @@
 @section('title', 'Devoluciones')
 
 @section('content')
-    <div class="flex items-center justify-between mb-6">
+    <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
         <h1 class="text-xl font-semibold text-slate-900">Devoluciones de vehículos</h1>
         <a href="{{ route('deliveries.select-vehicle') }}"
            class="inline-flex items-center px-3 py-1.5 rounded-md text-sm font-medium text-white bg-brand-magenta hover:bg-brand-magenta/90">
@@ -12,7 +12,7 @@
     </div>
 
     <div class="bg-white border border-slate-200 rounded-lg overflow-hidden">
-        <table class="w-full text-sm">
+        <table class="responsive-table w-full text-sm">
             <thead class="bg-slate-50 text-slate-500 text-left">
                 <tr>
                     <th class="px-4 py-2 font-medium">Vehículo</th>
@@ -24,10 +24,10 @@
             <tbody class="divide-y divide-slate-100">
                 @forelse ($deliveries as $delivery)
                     <tr>
-                        <td class="px-4 py-3">{{ $delivery->vehicle->displayName() }}</td>
-                        <td class="px-4 py-3">{{ $delivery->return_date->format('d/m/Y') }} · {{ $delivery->return_time }}</td>
-                        <td class="px-4 py-3">{{ $delivery->returned_by_name }}</td>
-                        <td class="px-4 py-3 text-right space-x-3">
+                        <td data-label="Vehículo" class="px-4 py-3">{{ $delivery->vehicle->displayName() }}</td>
+                        <td data-label="Fecha de devolución" class="px-4 py-3">{{ $delivery->return_date->format('d/m/Y') }} · {{ $delivery->return_time }}</td>
+                        <td data-label="Devuelto por" class="px-4 py-3">{{ $delivery->returned_by_name }}</td>
+                        <td data-label="" class="space-x-3 px-4 py-3 text-right">
                             <a href="{{ route('deliveries.show', $delivery) }}" class="text-brand-cyan hover:underline">Ver</a>
                             <a href="{{ route('comparisons.show', $delivery->reception) }}" class="text-brand-cyan hover:underline">Comparar</a>
                         </td>
