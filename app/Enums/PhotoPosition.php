@@ -11,6 +11,7 @@ enum PhotoPosition: string
     case Dashboard = 'dashboard';
     case Interior = 'interior';
     case Anomaly = 'anomaly';
+    case Signature = 'signature';
 
     public function label(): string
     {
@@ -22,6 +23,7 @@ enum PhotoPosition: string
             self::Dashboard => 'Tablero',
             self::Interior => 'Interior',
             self::Anomaly => 'Evidencia de anomalía',
+            self::Signature => 'Firma',
         };
     }
 

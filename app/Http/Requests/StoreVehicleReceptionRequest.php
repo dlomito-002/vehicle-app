@@ -30,16 +30,20 @@ class StoreVehicleReceptionRequest extends FormRequest
             'received_by_name' => ['required', 'string', 'max:255'],
 
             'trip_reason' => ['required', 'string', 'max:500'],
+            'location' => ['required', 'string', 'max:255'],
 
             'reception_date' => ['required', 'date'],
             'reception_time' => ['required', 'date_format:H:i'],
             'initial_mileage' => ['required', 'integer', 'min:0'],
+            'washed' => ['required', 'boolean'],
 
             'fuel_level' => ['required', Rule::enum(FuelLevel::class)],
             'fuel_type' => ['required', Rule::enum(FuelType::class)],
 
             'has_anomaly' => ['required', 'boolean'],
             'anomaly_description' => ['required_if:has_anomaly,1', 'nullable', 'string', 'max:1000'],
+
+            'signature_data' => ['required', 'string', 'starts_with:data:image/'],
 
             'documentation' => ['required', 'array'],
 
@@ -112,6 +116,7 @@ class StoreVehicleReceptionRequest extends FormRequest
         return [
             'anomaly_description.required_if' => 'Describe el daño, falla o anomalía.',
             'anomaly_photos.required_if' => 'Adjunta al menos una fotografía de la anomalía reportada.',
+            'signature_data.required' => 'Se requiere la firma de la persona que recibe el vehículo.',
         ];
     }
 }

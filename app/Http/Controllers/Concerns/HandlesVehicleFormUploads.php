@@ -10,6 +10,8 @@ use App\Models\VehiclePhoto;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 /**
  * Shared logic for the file-handling steps common to both the reception and
@@ -37,6 +39,50 @@ trait HandlesVehicleFormUploads
                 $this->persistPhoto($owner, $file, PhotoPosition::Anomaly);
             }
         }
+    }
+
+    /**
+     * Store the hand-drawn signature pad capture (a base64 PNG data URI)
+     * against the given owner, if one was submitted.
+     */
+    protected function storeSignature(Model $owner, Request $request): void
+    {
+        $dataUri = $request->input('signature_data');
+
+        if (! $dataUri || ! str_starts_with($dataUri, 'data:image/')) {
+            return;
+        }
+
+        [$meta, $base64] = explode(',', $dataUri, 2) + [null, null];
+
+        if (! $base64) {
+            return;
+        }
+
+        $contents = base64_decode($base64, true);
+
+        if ($contents === false) {
+            return;
+        }
+
+        preg_match('/data:image\/(\w+);base64/', $meta, $matches);
+        $extension = $matches[1] ?? 'png';
+        $mimeType = "image/{$extension}";
+
+        $ownerType = str($owner::class)->afterLast('\\')->snake()->plural()->toString();
+        $filename = 'firma-'.Str::random(10).'.'.$extension;
+        $path = "vehicle-photos/{$ownerType}/{$owner->getKey()}/{$filename}";
+
+        Storage::disk('public')->put($path, $contents);
+
+        $owner->photos()->create([
+            'position' => PhotoPosition::Signature,
+            'disk' => 'public',
+            'path' => $path,
+            'original_filename' => $filename,
+            'size' => strlen($contents),
+            'mime_type' => $mimeType,
+        ]);
     }
 
     private function persistPhoto(Model $owner, UploadedFile $file, PhotoPosition $position): VehiclePhoto

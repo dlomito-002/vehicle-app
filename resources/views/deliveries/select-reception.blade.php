@@ -10,7 +10,7 @@
 
     <div class="space-y-3">
         @foreach ($openReceptions as $reception)
-                <a href="{{ route('deliveries.create', $reception) }}"
+                <a href="{{ route('deliveries.damage-report', $reception) }}"
                     class="flex flex-wrap items-center justify-between gap-3 bg-white border border-slate-200 rounded-lg p-4 hover:border-brand-cyan transition-colors">
                      <div class="min-w-0">
                     <p class="font-medium text-slate-900">

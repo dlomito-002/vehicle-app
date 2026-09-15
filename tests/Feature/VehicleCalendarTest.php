@@ -23,6 +23,7 @@ class VehicleCalendarTest extends TestCase
             'created_by' => $user->id,
             'received_by_name' => 'Jane Doe',
             'trip_reason' => 'Client visit',
+            'location' => 'Oficina central',
             'reception_date' => now()->toDateString(),
             'reception_time' => '09:00',
             'initial_mileage' => 1000,

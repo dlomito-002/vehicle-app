@@ -42,6 +42,8 @@ class StoreVehicleDeliveryRequest extends FormRequest
             'has_anomaly' => ['required', 'boolean'],
             'anomaly_description' => ['required_if:has_anomaly,1', 'nullable', 'string', 'max:1000'],
 
+            'signature_data' => ['required', 'string', 'starts_with:data:image/'],
+
             'documentation' => ['required', 'array'],
 
             'equipment_checks' => ['required', 'array'],
@@ -108,6 +110,7 @@ class StoreVehicleDeliveryRequest extends FormRequest
             'final_mileage.min' => 'El kilometraje final no puede ser menor que el kilometraje inicial registrado.',
             'anomaly_description.required_if' => 'Describe el daño, falla o anomalía.',
             'anomaly_photos.required_if' => 'Adjunta al menos una fotografía de la anomalía reportada.',
+            'signature_data.required' => 'Se requiere la firma de la persona que devuelve el vehículo.',
         ];
     }
 }

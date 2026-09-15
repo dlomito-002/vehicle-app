@@ -16,6 +16,8 @@ class VehicleDeliveryTest extends TestCase
 {
     use RefreshDatabase;
 
+    private const TINY_SIGNATURE_PNG = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=';
+
     private function createOpenReception(Vehicle $vehicle, User $user, array $overrides = []): VehicleReception
     {
         return VehicleReception::create(array_merge([
@@ -23,9 +25,11 @@ class VehicleDeliveryTest extends TestCase
             'created_by' => $user->id,
             'received_by_name' => 'Jane Doe',
             'trip_reason' => 'Client visit',
+            'location' => 'Oficina central',
             'reception_date' => now()->toDateString(),
             'reception_time' => '09:00',
             'initial_mileage' => 1000,
+            'washed' => false,
             'fuel_level' => 'full',
             'fuel_type' => 'gasoline',
             'general_condition' => 'ok',
@@ -55,6 +59,7 @@ class VehicleDeliveryTest extends TestCase
             'dashboard_indicators' => 'ok',
             'cleanliness' => 'ok',
             'has_anomaly' => '0',
+            'signature_data' => self::TINY_SIGNATURE_PNG,
             'documentation' => [
                 'registration_card' => '1',
                 'vehicle_sticker' => '1',

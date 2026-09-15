@@ -51,6 +51,12 @@
                 Recepción: {{ $reception->has_anomaly ? 'Sí' : 'No' }} · Devolución: {{ $delivery->has_anomaly ? 'Sí' : 'No' }}
             </p>
         </div>
+        <div class="bg-white border border-slate-200 rounded-lg p-5">
+            <p class="text-sm text-slate-500 mb-1">Lavado (carwash)</p>
+            <p class="text-sm text-slate-900">
+                Recepción: {{ $reception->washed ? 'Sí' : 'No' }} · Devolución: {{ $delivery->washed ? 'Sí' : 'No' }}
+            </p>
+        </div>
     </div>
 
     <div class="bg-white border border-slate-200 rounded-lg p-5 mb-6">

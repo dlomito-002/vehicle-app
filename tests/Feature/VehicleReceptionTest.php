@@ -16,15 +16,19 @@ class VehicleReceptionTest extends TestCase
 {
     use RefreshDatabase;
 
+    private const TINY_SIGNATURE_PNG = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=';
+
     private function validPayload(Vehicle $vehicle, array $overrides = []): array
     {
         return array_merge([
             'vehicle_id' => $vehicle->id,
             'received_by_name' => 'Jane Doe',
             'trip_reason' => 'Client visit',
+            'location' => 'Oficina central',
             'reception_date' => now()->toDateString(),
             'reception_time' => '09:30',
             'initial_mileage' => 1000,
+            'washed' => '0',
             'fuel_level' => 'full',
             'fuel_type' => 'gasoline',
             'general_condition' => 'ok',
@@ -33,6 +37,7 @@ class VehicleReceptionTest extends TestCase
             'dashboard_indicators' => 'ok',
             'cleanliness' => 'ok',
             'has_anomaly' => '0',
+            'signature_data' => self::TINY_SIGNATURE_PNG,
             'documentation' => [
                 'registration_card' => '1',
                 'vehicle_sticker' => '1',
@@ -151,9 +156,9 @@ class VehicleReceptionTest extends TestCase
         $response->assertRedirect();
 
         $reception = VehicleReception::first();
-        $this->assertCount(1, $reception->photos);
-        $this->assertSame('front', $reception->photos->first()->position->value);
-        Storage::disk('public')->assertExists($reception->photos->first()->path);
+        $this->assertCount(1, $reception->photos->where('position', 'front'));
+        $this->assertSame('front', $reception->photos->firstWhere('position', 'front')->position->value);
+        Storage::disk('public')->assertExists($reception->photos->firstWhere('position', 'front')->path);
     }
 
     public function test_oversized_photo_is_rejected(): void

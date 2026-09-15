@@ -125,13 +125,24 @@
         </div>
     @endif
 
+    <div class="bg-white border border-slate-200 rounded-lg p-5 mb-6">
+        <h2 class="text-sm font-semibold text-slate-900 mb-3">Firma</h2>
+        @if ($delivery->signaturePhoto())
+            <img src="{{ $delivery->signaturePhoto()->url() }}" alt="Firma de {{ $delivery->returned_by_name }}"
+                 class="h-28 rounded-md border border-slate-200 bg-white">
+        @else
+            <p class="text-sm text-slate-500">No se capturó firma.</p>
+        @endif
+    </div>
+
     <div class="bg-white border border-slate-200 rounded-lg p-5">
         <h2 class="text-sm font-semibold text-slate-900 mb-3">Fotografías</h2>
-        @if ($delivery->photos->isEmpty())
+        @php $galleryPhotos = $delivery->photos->where('position', '!==', \App\Enums\PhotoPosition::Signature); @endphp
+        @if ($galleryPhotos->isEmpty())
             <p class="text-sm text-slate-500">No se cargaron fotografías.</p>
         @else
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                @foreach ($delivery->photos as $photo)
+                @foreach ($galleryPhotos as $photo)
                     <a href="{{ $photo->url() }}" target="_blank" class="block group">
                         <img src="{{ $photo->url() }}" alt="{{ $photo->position->label() }}"
                              class="w-full h-28 object-cover rounded-md border border-slate-200 group-hover:opacity-90">

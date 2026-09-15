@@ -14,7 +14,7 @@
             'washed', 'general_condition', 'windows_mirrors_lights', 'tires_condition',
             'dashboard_indicators', 'cleanliness', 'condition_items', 'condition_photos',
             'has_anomaly', 'anomaly_description', 'anomaly_photos',
-            'position_photos', 'photos', 'documentation',
+            'position_photos', 'photos', 'documentation', 'signature_data',
         ];
         $initialStep = 1;
         foreach ($errors->keys() as $errorKey) {
@@ -146,6 +146,10 @@
 
             <section class="bg-white border border-slate-200 rounded-lg p-5 border-l-4 border-l-brand-magenta">
                 <x-documentation-checklist :document-types="DocumentType::forDelivery()" />
+            </section>
+
+            <section class="bg-white border border-slate-200 rounded-lg p-5 border-l-4 border-l-brand-magenta">
+                <x-signature-pad />
             </section>
 
             <div class="flex justify-between">

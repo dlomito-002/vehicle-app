@@ -4,7 +4,8 @@ namespace App\Enums;
 
 /**
  * The "CHEQUEO GENERAL" equipment checklist from the paper bitácora —
- * 26 items, each answered Sí/No, optionally with a supporting photo.
+ * 25 items, each answered Sí/No, optionally with a supporting photo.
+ * (Aire acondicionado se eliminó en septiembre 2026 a solicitud del cliente.)
  */
 enum EquipmentItem: string
 {
@@ -16,7 +17,6 @@ enum EquipmentItem: string
     case Sunroof = 'sunroof';
     case CopiaTarjetaCirculacion = 'copia_tarjeta_circulacion';
     case LlantaRepuesto = 'llanta_repuesto';
-    case AireAcondicionado = 'aire_acondicionado';
     case Bocinas = 'bocinas';
     case RetrovisorIzquierdo = 'retrovisor_izquierdo';
     case TaponCombustible = 'tapon_combustible';
@@ -34,6 +34,7 @@ enum EquipmentItem: string
     case Aros = 'aros';
     case Antena = 'antena';
     case Extinguidor = 'extinguidor';
+    // Removed: AireAcondicionado (septiembre 2026, solicitud del cliente).
 
     public function label(): string
     {
@@ -46,7 +47,6 @@ enum EquipmentItem: string
             self::Sunroof => 'Sunroof',
             self::CopiaTarjetaCirculacion => 'Copia tarjeta de circulación',
             self::LlantaRepuesto => 'Llanta de repuesto',
-            self::AireAcondicionado => 'Aire acondicionado',
             self::Bocinas => 'Bocinas',
             self::RetrovisorIzquierdo => 'Retrovisor izquierdo',
             self::TaponCombustible => 'Tapón de combustible',

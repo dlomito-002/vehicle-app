@@ -14,7 +14,7 @@
             'general_condition', 'windows_mirrors_lights', 'tires_condition',
             'dashboard_indicators', 'cleanliness', 'condition_items', 'condition_photos',
             'has_anomaly', 'anomaly_description', 'anomaly_photos',
-            'position_photos', 'photos', 'documentation',
+            'position_photos', 'photos', 'documentation', 'signature_data',
         ];
         $initialStep = 1;
         foreach ($errors->keys() as $errorKey) {
@@ -81,6 +81,13 @@
                                class="w-full rounded-md border-slate-300 focus:border-brand-cyan focus:ring-brand-cyan text-sm">
                         @error('trip_reason')<p class="mt-1 text-sm text-brand-orange">{{ $message }}</p>@enderror
                     </div>
+                    <div class="sm:col-span-2">
+                        <label for="location" class="block text-sm font-medium text-slate-700 mb-1">Ubicación de recepción</label>
+                        <input id="location" name="location" value="{{ old('location') }}" required
+                               placeholder="Ej. Oficina central, aeropuerto, sitio del cliente..."
+                               class="w-full rounded-md border-slate-300 focus:border-brand-cyan focus:ring-brand-cyan text-sm">
+                        @error('location')<p class="mt-1 text-sm text-brand-orange">{{ $message }}</p>@enderror
+                    </div>
                 </div>
             </section>
 
@@ -106,6 +113,18 @@
                         @error('initial_mileage')<p class="mt-1 text-sm text-brand-orange">{{ $message }}</p>@enderror
                     </div>
                 </div>
+                <fieldset class="mb-4">
+                    <legend class="text-sm font-medium text-slate-700 mb-2">Vehículo lavado (carwash)</legend>
+                    <div class="flex gap-3">
+                        <label class="flex items-center gap-2 px-3 py-2 rounded-md border text-sm cursor-pointer border-slate-200 hover:bg-slate-50">
+                            <input type="radio" name="washed" value="1" @checked(old('washed') === '1') required class="text-brand-olive focus:ring-brand-olive"> Sí
+                        </label>
+                        <label class="flex items-center gap-2 px-3 py-2 rounded-md border text-sm cursor-pointer border-slate-200 hover:bg-slate-50">
+                            <input type="radio" name="washed" value="0" @checked(old('washed') === '0') class="text-brand-olive focus:ring-brand-olive"> No
+                        </label>
+                    </div>
+                    @error('washed')<p class="mt-1 text-sm text-brand-orange">{{ $message }}</p>@enderror
+                </fieldset>
                 <x-fuel-level-selector />
                 <x-fuel-type-selector />
             </section>
@@ -144,6 +163,10 @@
 
             <section class="bg-white border border-slate-200 rounded-lg p-5 border-l-4 border-l-brand-magenta">
                 <x-documentation-checklist :document-types="DocumentType::forReception()" />
+            </section>
+
+            <section class="bg-white border border-slate-200 rounded-lg p-5 border-l-4 border-l-brand-magenta">
+                <x-signature-pad />
             </section>
 
             <div class="flex justify-between">

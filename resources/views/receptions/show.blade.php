@@ -29,7 +29,7 @@
                     Ver comparación
                 </a>
             @elseif ($reception->isOpen())
-                <a href="{{ route('deliveries.create', $reception) }}"
+                <a href="{{ route('deliveries.damage-report', $reception) }}"
                    class="inline-flex items-center px-3 py-1.5 rounded-md text-sm font-medium text-white bg-brand-magenta hover:bg-brand-magenta/90">
                     Registrar devolución
                 </a>
@@ -42,9 +42,11 @@
             <h2 class="text-sm font-semibold text-slate-900 mb-3">Viaje y kilometraje</h2>
             <dl class="text-sm space-y-1.5">
                 <div class="flex justify-between"><dt class="text-slate-500">Motivo</dt><dd>{{ $reception->trip_reason }}</dd></div>
+                <div class="flex justify-between"><dt class="text-slate-500">Ubicación de recepción</dt><dd>{{ $reception->location }}</dd></div>
                 <div class="flex justify-between"><dt class="text-slate-500">Kilometraje inicial</dt><dd class="font-data">{{ number_format($reception->initial_mileage) }}</dd></div>
                 <div class="flex justify-between"><dt class="text-slate-500">Nivel de combustible</dt><dd>{{ $reception->fuel_level->label() }}</dd></div>
                 <div class="flex justify-between"><dt class="text-slate-500">Tipo de combustible</dt><dd>{{ $reception->fuel_type?->label() ?? '—' }}</dd></div>
+                <div class="flex justify-between"><dt class="text-slate-500">Lavado</dt><dd>{{ $reception->washed ? 'Sí' : 'No' }}</dd></div>
                 <div class="flex justify-between"><dt class="text-slate-500">Registrado por</dt><dd>{{ $reception->creator->name }}</dd></div>
             </dl>
         </div>
@@ -136,13 +138,24 @@
         </div>
     @endif
 
+    <div class="bg-white border border-slate-200 rounded-lg p-5 mb-6">
+        <h2 class="text-sm font-semibold text-slate-900 mb-3">Firma</h2>
+        @if ($reception->signaturePhoto())
+            <img src="{{ $reception->signaturePhoto()->url() }}" alt="Firma de {{ $reception->received_by_name }}"
+                 class="h-28 rounded-md border border-slate-200 bg-white">
+        @else
+            <p class="text-sm text-slate-500">No se capturó firma.</p>
+        @endif
+    </div>
+
     <div class="bg-white border border-slate-200 rounded-lg p-5">
         <h2 class="text-sm font-semibold text-slate-900 mb-3">Fotografías</h2>
-        @if ($reception->photos->isEmpty())
+        @php $galleryPhotos = $reception->photos->where('position', '!==', \App\Enums\PhotoPosition::Signature); @endphp
+        @if ($galleryPhotos->isEmpty())
             <p class="text-sm text-slate-500">No se cargaron fotografías.</p>
         @else
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                @foreach ($reception->photos as $photo)
+                @foreach ($galleryPhotos as $photo)
                     <a href="{{ $photo->url() }}" target="_blank" class="block group">
                         <img src="{{ $photo->url() }}" alt="{{ $photo->position->label() }}"
                              class="w-full h-28 object-cover rounded-md border border-slate-200 group-hover:opacity-90">

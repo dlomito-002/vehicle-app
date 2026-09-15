@@ -78,6 +78,12 @@
                     Recepción: {{ $reception->has_anomaly ? 'Sí' : 'No' }} &middot; Devolución: {{ $delivery->has_anomaly ? 'Sí' : 'No' }}
                 </p>
             </td>
+            <td>
+                <p class="label">Lavado (carwash)</p>
+                <p class="value" style="font-size:10.5px;">
+                    Recepción: {{ $reception->washed ? 'Sí' : 'No' }} &middot; Devolución: {{ $delivery->washed ? 'Sí' : 'No' }}
+                </p>
+            </td>
         </tr>
     </table>
 

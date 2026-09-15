@@ -55,9 +55,11 @@
                                     ['route' => 'calendar.index', 'label' => 'Calendario'],
                                     ['route' => 'receptions.index', 'label' => 'Recepciones'],
                                     ['route' => 'deliveries.index', 'label' => 'Devoluciones'],
+                                    ['route' => 'services.index', 'label' => 'Servicios'],
                                 ];
                                 if (auth()->user()->isAdmin()) {
                                     $navLinks[] = ['route' => 'vehicles.index', 'label' => 'Vehículos'];
+                                    $navLinks[] = ['route' => 'users.index', 'label' => 'Usuarios'];
                                 }
                             @endphp
                             @foreach ($navLinks as $link)

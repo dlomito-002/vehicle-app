@@ -55,9 +55,11 @@ class VehicleReceptionController extends Controller
                 'created_by' => $request->user()->id,
                 'received_by_name' => $data['received_by_name'],
                 'trip_reason' => $data['trip_reason'],
+                'location' => $data['location'],
                 'reception_date' => $data['reception_date'],
                 'reception_time' => $data['reception_time'],
                 'initial_mileage' => $data['initial_mileage'],
+                'washed' => $data['washed'],
                 'fuel_level' => $data['fuel_level'],
                 'fuel_type' => $data['fuel_type'],
                 'general_condition' => $data['general_condition'],
@@ -74,6 +76,7 @@ class VehicleReceptionController extends Controller
             $this->storeEquipmentChecks($reception, $data['equipment_checks'], $request);
             $this->storeConditionItems($reception, $data['condition_items'], $request);
             $this->storePhotos($reception, $request);
+            $this->storeSignature($reception, $request);
 
             return $reception;
         });
