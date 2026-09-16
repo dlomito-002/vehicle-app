@@ -33,8 +33,10 @@
         recibido el {{ $reception->reception_date->format('d/m/Y') }} por {{ $reception->received_by_name }}.
     </p>
 
-    <form method="POST" action="{{ route('deliveries.store', $reception) }}" enctype="multipart/form-data" novalidate
-          data-compress-images data-delivery-form x-data="{ step: {{ $initialStep }} }" class="max-w-3xl">
+        <form method="POST" action="{{ route('deliveries.store', $reception) }}" enctype="multipart/form-data" novalidate
+                    data-compress-images data-delivery-form x-data="{ step: {{ $initialStep }} }"
+                    @submit.prevent="const form = $event.currentTarget; if (form.reportValidity()) { form.querySelectorAll('fieldset').forEach(fieldset => fieldset.disabled = false); form.submit(); }"
+                    class="max-w-3xl">
         @csrf
 
         <div class="flex items-center gap-2 mb-6">
@@ -51,7 +53,7 @@
             </div>
         </div>
 
-        <div x-show="step === 1" class="space-y-6">
+        <fieldset x-show="step === 1" :disabled="step !== 1" class="space-y-6">
             <section class="bg-white border border-slate-200 rounded-lg p-5 border-l-4 border-l-brand-magenta">
                 <h2 class="text-sm font-semibold text-slate-900 mb-4">Personas</h2>
                 <div class="grid sm:grid-cols-2 gap-4">
@@ -103,14 +105,14 @@
             </section>
 
             <div class="flex justify-end">
-                <button type="button" @click="step = 2; window.scrollTo({top: 0, behavior: 'smooth'})"
+                <button type="button" @click="if ($el.closest('form').reportValidity()) { step = 2; window.scrollTo({top: 0, behavior: 'smooth'}) }"
                         class="inline-flex items-center px-5 py-2.5 rounded-md text-sm font-medium text-white bg-brand-cyan hover:bg-brand-cyan/90">
                     Siguiente: Estado y evidencia
                 </button>
             </div>
-        </div>
+        </fieldset>
 
-        <div x-show="step === 2" class="space-y-6">
+        <fieldset x-show="step === 2" :disabled="step !== 2" class="space-y-6">
             <section class="bg-white border border-slate-200 rounded-lg p-5 border-l-4 border-l-brand-olive space-y-5">
                 <h2 class="text-sm font-semibold text-slate-900">Estado a la devolución</h2>
 
@@ -162,6 +164,6 @@
                     Guardar devolución
                 </button>
             </div>
-        </div>
+        </fieldset>
     </form>
 @endsection

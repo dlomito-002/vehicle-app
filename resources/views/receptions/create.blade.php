@@ -30,8 +30,10 @@
     <h1 class="text-xl font-semibold text-slate-900 mb-1">Recepción del vehículo</h1>
     <p class="text-sm text-slate-500 mb-6">Registra el estado del vehículo al recibirlo.</p>
 
-    <form method="POST" action="{{ route('receptions.store') }}" enctype="multipart/form-data"
-          x-data="{ step: {{ $initialStep }} }" class="max-w-3xl">
+        <form method="POST" action="{{ route('receptions.store') }}" enctype="multipart/form-data"
+                    x-data="{ step: {{ $initialStep }} }" novalidate
+                    @submit.prevent="const form = $event.currentTarget; if (form.reportValidity()) { form.querySelectorAll('fieldset').forEach(fieldset => fieldset.disabled = false); form.submit(); }"
+                    class="max-w-3xl">
         @csrf
 
         <div class="flex items-center gap-2 mb-6">
@@ -48,7 +50,7 @@
             </div>
         </div>
 
-        <div x-show="step === 1" class="space-y-6">
+        <fieldset x-show="step === 1" :disabled="step !== 1" class="space-y-6">
             <section class="bg-white border border-slate-200 rounded-lg p-5 border-l-4 border-l-brand-magenta">
                 <h2 class="text-sm font-semibold text-slate-900 mb-4">Persona y viaje</h2>
                 <div class="grid sm:grid-cols-2 gap-4">
@@ -134,14 +136,14 @@
             </section>
 
             <div class="flex justify-end">
-                <button type="button" @click="step = 2; window.scrollTo({top: 0, behavior: 'smooth'})"
+                <button type="button" @click="if ($el.closest('form').reportValidity()) { step = 2; window.scrollTo({top: 0, behavior: 'smooth'}) }"
                         class="inline-flex items-center px-5 py-2.5 rounded-md text-sm font-medium text-white bg-brand-cyan hover:bg-brand-cyan/90">
                     Siguiente: Inspección y evidencia
                 </button>
             </div>
-        </div>
+        </fieldset>
 
-        <div x-show="step === 2" class="space-y-6">
+        <fieldset x-show="step === 2" :disabled="step !== 2" class="space-y-6">
             <section class="bg-white border border-slate-200 rounded-lg p-5 border-l-4 border-l-brand-olive space-y-5">
                 <h2 class="text-sm font-semibold text-slate-900">Inspección del vehículo</h2>
                 @foreach (ConditionStatus::fieldLabels() as $field => $label)
@@ -179,6 +181,6 @@
                     Guardar recepción
                 </button>
             </div>
-        </div>
+        </fieldset>
     </form>
 @endsection
