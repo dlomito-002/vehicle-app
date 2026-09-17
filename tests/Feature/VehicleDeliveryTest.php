@@ -47,6 +47,7 @@ class VehicleDeliveryTest extends TestCase
         return array_merge([
             'returned_by_name' => 'John Smith',
             'keys_received_by_name' => 'Front Desk',
+            'location' => 'Oficina central',
             'return_date' => now()->toDateString(),
             'return_time' => '17:00',
             'final_mileage' => 1200,

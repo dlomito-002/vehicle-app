@@ -22,6 +22,7 @@ class VehicleDelivery extends Model
         'created_by',
         'returned_by_name',
         'keys_received_by_name',
+        'location',
         'return_date',
         'return_time',
         'final_mileage',

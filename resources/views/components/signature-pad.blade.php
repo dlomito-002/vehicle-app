@@ -1,9 +1,11 @@
-@props(['fieldName' => 'signature_data'])
+@props(['fieldName' => 'signature_data', 'fileFieldName' => 'signature_file'])
 
 <div
     x-data="{
+        mode: 'draw',
         drawing: false,
         hasStroke: false,
+        fileName: '',
         ctx: null,
         init() {
             const canvas = this.$refs.canvas;
@@ -55,25 +57,69 @@
             this.$refs.input.value = '';
             this.hasStroke = false;
         },
+        useDrawMode() {
+            this.mode = 'draw';
+            // A previously chosen file must not be submitted alongside a
+            // drawn signature — only one of the two fields should reach
+            // the server.
+            this.$refs.fileInput.value = '';
+            this.fileName = '';
+        },
+        useUploadMode() {
+            this.mode = 'upload';
+            // Same in reverse: drop any drawn signature so it doesn't get
+            // submitted alongside the uploaded file.
+            this.clear();
+        },
+        onFileChosen(e) {
+            this.fileName = e.target.files[0]?.name ?? '';
+        },
     }"
 >
     <p class="text-sm font-medium text-slate-700 mb-1">Firma</p>
-    <p class="text-xs text-slate-500 mb-2">Firma con el dedo o el mouse dentro del recuadro.</p>
 
-    <div class="rounded-md border border-dashed border-slate-300 bg-white overflow-hidden">
-        <canvas
-            x-ref="canvas"
-            class="w-full h-40 touch-none cursor-crosshair"
-            @mousedown="start($event)" @mousemove="move($event)" @mouseup="end()" @mouseleave="end()"
-            @touchstart="start($event)" @touchmove="move($event)" @touchend="end()"
-        ></canvas>
+    <div class="flex items-center gap-1 mb-2">
+        <button type="button" @click="useDrawMode()"
+                class="px-2.5 py-1 rounded-md text-xs font-medium"
+                :class="mode === 'draw' ? 'bg-brand-cyan/10 text-brand-cyan' : 'text-slate-500 hover:bg-slate-100'">
+            Dibujar firma
+        </button>
+        <button type="button" @click="useUploadMode()"
+                class="px-2.5 py-1 rounded-md text-xs font-medium"
+                :class="mode === 'upload' ? 'bg-brand-cyan/10 text-brand-cyan' : 'text-slate-500 hover:bg-slate-100'">
+            Subir PNG
+        </button>
     </div>
 
-    <div class="flex items-center justify-between mt-2">
-        <button type="button" @click="clear()" class="text-xs text-brand-orange hover:underline">Borrar firma</button>
-        <span class="text-xs text-slate-400" x-show="!hasStroke">Sin firmar</span>
+    <div x-show="mode === 'draw'">
+        <p class="text-xs text-slate-500 mb-2">Firma con el dedo o el mouse dentro del recuadro.</p>
+
+        <div class="rounded-md border border-dashed border-slate-300 bg-white overflow-hidden">
+            <canvas
+                x-ref="canvas"
+                class="w-full h-40 touch-none cursor-crosshair"
+                @mousedown="start($event)" @mousemove="move($event)" @mouseup="end()" @mouseleave="end()"
+                @touchstart="start($event)" @touchmove="move($event)" @touchend="end()"
+            ></canvas>
+        </div>
+
+        <div class="flex items-center justify-between mt-2">
+            <button type="button" @click="clear()" class="text-xs text-brand-orange hover:underline">Borrar firma</button>
+            <span class="text-xs text-slate-400" x-show="!hasStroke">Sin firmar</span>
+        </div>
+    </div>
+
+    <div x-show="mode === 'upload'" x-cloak>
+        <p class="text-xs text-slate-500 mb-2">Sube la firma como un archivo PNG.</p>
+
+        <label class="flex items-center justify-center rounded-md border border-dashed border-slate-300 bg-white h-40 cursor-pointer text-sm text-slate-500 hover:border-brand-cyan">
+            <span x-text="fileName || 'Selecciona un archivo PNG…'"></span>
+            <input type="file" name="{{ $fileFieldName }}" x-ref="fileInput" accept="image/png,.png"
+                   data-skip-compress class="sr-only" @change="onFileChosen($event)">
+        </label>
     </div>
 
     <input type="hidden" name="{{ $fieldName }}" x-ref="input" value="{{ old($fieldName) }}">
     @error($fieldName)<p class="mt-1 text-sm text-brand-orange">{{ $message }}</p>@enderror
+    @error($fileFieldName)<p class="mt-1 text-sm text-brand-orange">{{ $message }}</p>@enderror
 </div>

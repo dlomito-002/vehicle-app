@@ -10,18 +10,22 @@
             </div>
         @endif
 
+        @if (session('status'))
+            <div class="mb-4 rounded-md border-l-4 border-brand-olive bg-brand-olive/10 px-4 py-3 text-sm text-slate-800">
+                {{ session('status') }}
+            </div>
+        @endif
+
+        <p class="text-sm text-slate-500 mb-4">
+            Ingresa tu correo electrónico. Te enviaremos un código de verificación para iniciar sesión.
+        </p>
+
         <form method="POST" action="{{ route('login') }}" class="space-y-4">
             @csrf
 
             <div>
                 <label for="email" class="block text-sm font-medium text-slate-700 mb-1">Email</label>
                 <input id="email" type="email" name="email" value="{{ old('email') }}" required autofocus
-                       class="w-full rounded-md border-slate-300 focus:border-brand-cyan focus:ring-brand-cyan text-sm">
-            </div>
-
-            <div>
-                <label for="password" class="block text-sm font-medium text-slate-700 mb-1">Contraseña</label>
-                <input id="password" type="password" name="password" required
                        class="w-full rounded-md border-slate-300 focus:border-brand-cyan focus:ring-brand-cyan text-sm">
             </div>
 
@@ -32,7 +36,7 @@
 
             <button type="submit"
                     class="w-full inline-flex justify-center px-4 py-2 rounded-md text-sm font-medium text-white bg-brand-magenta hover:bg-brand-magenta/90 transition-colors">
-                Iniciar sesión
+                Enviar código
             </button>
         </form>
     </div>

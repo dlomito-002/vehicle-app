@@ -30,6 +30,7 @@
             <h2 class="text-sm font-semibold text-slate-900 mb-3">Detalles de la devolución</h2>
             <dl class="text-sm space-y-1.5">
                 <div class="flex justify-between"><dt class="text-slate-500">Llaves recibidas por</dt><dd>{{ $delivery->keys_received_by_name }}</dd></div>
+                <div class="flex justify-between"><dt class="text-slate-500">Ubicación de devolución</dt><dd>{{ $delivery->location ?? '—' }}</dd></div>
                 <div class="flex justify-between"><dt class="text-slate-500">Kilometraje final</dt><dd class="font-data">{{ number_format($delivery->final_mileage) }}</dd></div>
                 <div class="flex justify-between"><dt class="text-slate-500">Distancia recorrida</dt><dd class="font-data">{{ number_format($delivery->mileageDelta()) }}</dd></div>
                 <div class="flex justify-between"><dt class="text-slate-500">Nivel de combustible</dt><dd>{{ $delivery->fuel_level->label() }}</dd></div>

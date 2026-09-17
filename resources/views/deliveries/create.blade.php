@@ -14,7 +14,7 @@
             'washed', 'general_condition', 'windows_mirrors_lights', 'tires_condition',
             'dashboard_indicators', 'cleanliness', 'condition_items', 'condition_photos',
             'has_anomaly', 'anomaly_description', 'anomaly_photos',
-            'position_photos', 'photos', 'documentation', 'signature_data',
+            'position_photos', 'photos', 'documentation', 'signature_data', 'signature_file',
         ];
         $initialStep = 1;
         foreach ($errors->keys() as $errorKey) {
@@ -94,6 +94,13 @@
                                class="w-full rounded-md border-slate-300 focus:border-brand-cyan focus:ring-brand-cyan text-sm font-data">
                         <p class="mt-1 text-xs text-slate-400">Inicial: {{ number_format($reception->initial_mileage) }}</p>
                         @error('final_mileage')<p class="mt-1 text-sm text-brand-orange">{{ $message }}</p>@enderror
+                    </div>
+                    <div class="sm:col-span-3">
+                        <label for="location" class="block text-sm font-medium text-slate-700 mb-1">Ubicación de devolución</label>
+                        <input id="location" name="location" value="{{ old('location') }}" required
+                               placeholder="Ej. Oficina central, aeropuerto, sitio del cliente..."
+                               class="w-full rounded-md border-slate-300 focus:border-brand-cyan focus:ring-brand-cyan text-sm">
+                        @error('location')<p class="mt-1 text-sm text-brand-orange">{{ $message }}</p>@enderror
                     </div>
                 </div>
                 <x-fuel-level-selector />

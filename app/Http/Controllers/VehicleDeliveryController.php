@@ -139,6 +139,7 @@ class VehicleDeliveryController extends Controller
                 'created_by' => $request->user()->id,
                 'returned_by_name' => $data['returned_by_name'],
                 'keys_received_by_name' => $data['keys_received_by_name'],
+                'location' => $data['location'],
                 'return_date' => $data['return_date'],
                 'return_time' => $data['return_time'],
                 'final_mileage' => $data['final_mileage'],

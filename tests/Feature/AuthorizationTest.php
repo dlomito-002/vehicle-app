@@ -2,10 +2,13 @@
 
 namespace Tests\Feature;
 
+use App\Mail\LoginVerificationCodeMail;
+use App\Models\LoginVerificationCode;
 use App\Models\User;
 use App\Models\Vehicle;
 use App\Models\VehicleReception;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;
 
 class AuthorizationTest extends TestCase
@@ -19,17 +22,47 @@ class AuthorizationTest extends TestCase
         $response->assertRedirect(route('login'));
     }
 
-    public function test_user_can_log_in_with_valid_credentials(): void
+    public function test_user_can_log_in_with_a_valid_verification_code(): void
     {
-        $user = User::factory()->create(['password' => bcrypt('secret123')]);
+        Mail::fake();
 
-        $response = $this->post(route('login'), [
-            'email' => $user->email,
-            'password' => 'secret123',
-        ]);
+        $user = User::factory()->create();
+
+        $this->post(route('login'), ['email' => $user->email])
+            ->assertRedirect(route('login.verify'));
+
+        Mail::assertSent(LoginVerificationCodeMail::class);
+
+        $code = LoginVerificationCode::where('email', $user->email)->latest('id')->first();
+
+        // The plain code isn't persisted (only its hash), so capture it the
+        // same way the mail transport would have received it.
+        $plainCode = null;
+        Mail::assertSent(LoginVerificationCodeMail::class, function (LoginVerificationCodeMail $mail) use (&$plainCode) {
+            $plainCode = $mail->code;
+
+            return true;
+        });
+
+        $response = $this->post(route('login.verify'), ['code' => $plainCode]);
 
         $response->assertRedirect(route('dashboard'));
         $this->assertAuthenticatedAs($user);
+        $this->assertNotNull($code->fresh()->consumed_at);
+    }
+
+    public function test_login_rejects_an_invalid_verification_code(): void
+    {
+        Mail::fake();
+
+        $user = User::factory()->create();
+
+        $this->post(route('login'), ['email' => $user->email]);
+
+        $response = $this->post(route('login.verify'), ['code' => '000000']);
+
+        $response->assertSessionHasErrors('code');
+        $this->assertGuest();
     }
 
     public function test_agent_cannot_access_vehicle_management(): void

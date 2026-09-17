@@ -14,7 +14,7 @@
             'general_condition', 'windows_mirrors_lights', 'tires_condition',
             'dashboard_indicators', 'cleanliness', 'condition_items', 'condition_photos',
             'has_anomaly', 'anomaly_description', 'anomaly_photos',
-            'position_photos', 'photos', 'documentation', 'signature_data',
+            'position_photos', 'photos', 'documentation', 'signature_data', 'signature_file',
         ];
         $initialStep = 1;
         foreach ($errors->keys() as $errorKey) {

@@ -3,17 +3,21 @@
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\HelpController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VehicleComparisonController;
 use App\Http\Controllers\VehicleController;
 use App\Http\Controllers\VehicleDeliveryController;
+use App\Http\Controllers\VehicleMaintenanceScheduleController;
 use App\Http\Controllers\VehicleReceptionController;
 use App\Http\Controllers\VehicleServiceController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'create'])->name('login');
-    Route::post('/login', [LoginController::class, 'store']);
+    Route::post('/login', [LoginController::class, 'sendCode']);
+    Route::get('/login/verify', [LoginController::class, 'showVerify'])->name('login.verify');
+    Route::post('/login/verify', [LoginController::class, 'verifyCode']);
 });
 
 Route::middleware('auth')->group(function () {
@@ -47,6 +51,14 @@ Route::middleware('auth')->group(function () {
     // Maintenance registry, visible to everyone; mutations are admin-only below.
     Route::get('/services', [VehicleServiceController::class, 'index'])->name('services.index');
 
+    // Fixed-interval maintenance schedules (basic/major/transmission),
+    // separate from the free-text service registry above.
+    Route::get('/maintenance-schedules', [VehicleMaintenanceScheduleController::class, 'index'])->name('maintenance-schedules.index');
+
+    // Help/support — send a problem report by email to the vehicle manager.
+    Route::get('/help', [HelpController::class, 'create'])->name('help.create');
+    Route::post('/help', [HelpController::class, 'store'])->name('help.store');
+
     // Vehicle master data, user management and service mutations — admin only.
     Route::middleware('admin')->group(function () {
         Route::get('/vehicles', [VehicleController::class, 'index'])->name('vehicles.index');
@@ -58,6 +70,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/services/{service}/edit', [VehicleServiceController::class, 'edit'])->name('services.edit');
         Route::put('/services/{service}', [VehicleServiceController::class, 'update'])->name('services.update');
         Route::delete('/services/{service}', [VehicleServiceController::class, 'destroy'])->name('services.destroy');
+
+        Route::post('/vehicles/{vehicle}/maintenance-schedules/{category}/complete', [VehicleMaintenanceScheduleController::class, 'complete'])->name('maintenance-schedules.complete');
 
         Route::resource('users', UserController::class)->except(['show']);
     });

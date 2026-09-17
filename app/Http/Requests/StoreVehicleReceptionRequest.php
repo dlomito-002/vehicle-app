@@ -43,7 +43,14 @@ class StoreVehicleReceptionRequest extends FormRequest
             'has_anomaly' => ['required', 'boolean'],
             'anomaly_description' => ['required_if:has_anomaly,1', 'nullable', 'string', 'max:1000'],
 
-            'signature_data' => ['required', 'string', 'starts_with:data:image/'],
+            // Signature can be either drawn on the canvas (a base64 PNG data
+            // URI) or uploaded as a standalone PNG file — exactly one of the
+            // two is required. 'nullable' here is what fixes the previous
+            // bug where an empty signature_data value always failed the
+            // starts_with rule with a validation.starts_with error instead
+            // of surfacing the real "signature is missing" message.
+            'signature_data' => ['nullable', 'required_without:signature_file', 'string', 'starts_with:data:image/'],
+            'signature_file' => ['nullable', 'required_without:signature_data', 'image', 'mimes:png', 'max:5120'],
 
             'documentation' => ['required', 'array'],
 
@@ -116,7 +123,9 @@ class StoreVehicleReceptionRequest extends FormRequest
         return [
             'anomaly_description.required_if' => 'Describe el daño, falla o anomalía.',
             'anomaly_photos.required_if' => 'Adjunta al menos una fotografía de la anomalía reportada.',
-            'signature_data.required' => 'Se requiere la firma de la persona que recibe el vehículo.',
+            'signature_data.required_without' => 'Se requiere la firma de la persona que recibe el vehículo (dibujada o en PNG).',
+            'signature_file.required_without' => 'Se requiere la firma de la persona que recibe el vehículo (dibujada o en PNG).',
+            'signature_file.mimes' => 'La firma subida debe ser un archivo PNG.',
         ];
     }
 }
