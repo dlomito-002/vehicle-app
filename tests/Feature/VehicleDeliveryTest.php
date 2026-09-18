@@ -186,4 +186,40 @@ class VehicleDeliveryTest extends TestCase
         $this->assertCount(count(EquipmentItem::cases()), $delivery->equipmentChecks);
         $this->assertCount(count(ConditionComponent::cases()), $delivery->conditionItems);
     }
+
+    public function test_blank_canvas_data_uri_is_rejected_with_a_friendly_message(): void
+    {
+        // Same "first use" regression as receptions: a canvas measured
+        // while hidden produces "data:," instead of a real PNG, and that
+        // must never surface as the raw "validation.starts_with" key.
+        Storage::fake('public');
+
+        $user = User::factory()->create();
+        $vehicle = Vehicle::factory()->create();
+        $reception = $this->createOpenReception($vehicle, $user);
+
+        $response = $this->actingAs($user)->post(route('deliveries.store', $reception), $this->deliveryPayload([
+            'signature_data' => 'data:,',
+        ]));
+
+        $response->assertSessionHasErrors('signature_data');
+        $errors = $response->getSession()->get('errors')->getBag('default')->get('signature_data');
+        $this->assertNotContains('validation.starts_with', $errors);
+    }
+
+    public function test_signature_data_with_valid_prefix_but_invalid_png_bytes_is_rejected(): void
+    {
+        Storage::fake('public');
+
+        $user = User::factory()->create();
+        $vehicle = Vehicle::factory()->create();
+        $reception = $this->createOpenReception($vehicle, $user);
+
+        $response = $this->actingAs($user)->post(route('deliveries.store', $reception), $this->deliveryPayload([
+            'signature_data' => 'data:image/png;base64,'.base64_encode('not a real png'),
+        ]));
+
+        $response->assertSessionHasErrors('signature_data');
+        $this->assertNull($reception->fresh()->delivery);
+    }
 }

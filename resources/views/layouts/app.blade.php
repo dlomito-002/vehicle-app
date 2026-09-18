@@ -55,7 +55,6 @@
                                     ['route' => 'calendar.index', 'label' => 'Calendario'],
                                     ['route' => 'receptions.index', 'label' => 'Recepciones'],
                                     ['route' => 'deliveries.index', 'label' => 'Devoluciones'],
-                                    ['route' => 'services.index', 'label' => 'Servicios'],
                                     ['route' => 'maintenance-schedules.index', 'label' => 'Mantenimiento'],
                                 ];
                                 if (auth()->user()->isAdmin()) {

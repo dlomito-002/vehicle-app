@@ -33,12 +33,15 @@
                     <option value="{{ $role->value }}" @selected(old('role', $user->role->value) === $role->value)>{{ $role->label() }}</option>
                 @endforeach
             </select>
+            @if ($user->is(auth()->user()))
+                <p class="mt-1 text-xs text-slate-400">No puedes cambiar tu propio rol.</p>
+            @endif
             @error('role')<p class="mt-1 text-sm text-brand-orange">{{ $message }}</p>@enderror
         </div>
 
         <div>
             <label for="password" class="block text-sm font-medium text-slate-700 mb-1">Nueva contraseña (opcional)</label>
-            <input type="password" id="password" name="password"
+            <input type="password" id="password" name="password" autocomplete="new-password"
                    class="w-full rounded-md border-slate-300 focus:border-brand-cyan focus:ring-brand-cyan text-sm">
             <p class="mt-1 text-xs text-slate-400">Déjalo en blanco para mantener la contraseña actual.</p>
             @error('password')<p class="mt-1 text-sm text-brand-orange">{{ $message }}</p>@enderror
@@ -46,7 +49,7 @@
 
         <div>
             <label for="password_confirmation" class="block text-sm font-medium text-slate-700 mb-1">Confirmar nueva contraseña</label>
-            <input type="password" id="password_confirmation" name="password_confirmation"
+            <input type="password" id="password_confirmation" name="password_confirmation" autocomplete="new-password"
                    class="w-full rounded-md border-slate-300 focus:border-brand-cyan focus:ring-brand-cyan text-sm">
         </div>
 

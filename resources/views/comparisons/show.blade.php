@@ -79,12 +79,14 @@
                             </x-status-badge>
                         </td>
                         <td data-label="Devolución" class="py-2.5">
-                            <x-status-badge :status="$diff['delivery']->value === 'ok' ? 'ok' : 'anomaly'">
-                                {{ $diff['delivery']->label($field) }}
-                            </x-status-badge>
-                            @if ($diff['worsened'])
-                                <span class="text-xs text-brand-orange ml-1">nuevo</span>
-                            @endif
+                            <span class="inline-flex flex-wrap items-center justify-end gap-1">
+                                <x-status-badge :status="$diff['delivery']->value === 'ok' ? 'ok' : 'anomaly'">
+                                    {{ $diff['delivery']->label($field) }}
+                                </x-status-badge>
+                                @if ($diff['worsened'])
+                                    <span class="text-xs text-brand-orange">nuevo</span>
+                                @endif
+                            </span>
                         </td>
                     </tr>
                 @endforeach
@@ -108,37 +110,43 @@
                     <tr>
                         <td data-label="Elemento" class="py-2.5 text-slate-700">{{ $diff['label'] }}</td>
                         <td data-label="Recepción" class="py-2.5">
-                            @if ($diff['reception_present'] === null)
-                                <span class="text-xs text-slate-400">No registrado</span>
-                            @else
-                                <x-status-badge :status="$diff['reception_present'] ? 'ok' : 'anomaly'">
-                                    {{ $diff['reception_present'] ? 'Sí' : 'No' }}
-                                </x-status-badge>
-                            @endif
-                            @if ($diff['reception_photo'])
-                                <a href="{{ $diff['reception_photo'] }}" target="_blank">
-                                    <img src="{{ $diff['reception_photo'] }}" class="mt-1 w-16 h-16 object-cover rounded border border-slate-200">
-                                </a>
-                            @endif
+                            <div class="flex flex-col items-end gap-1">
+                                @if ($diff['reception_present'] === null)
+                                    <span class="text-xs text-slate-400">No registrado</span>
+                                @else
+                                    <x-status-badge :status="$diff['reception_present'] ? 'ok' : 'anomaly'">
+                                        {{ $diff['reception_present'] ? 'Sí' : 'No' }}
+                                    </x-status-badge>
+                                @endif
+                                @if ($diff['reception_photo'])
+                                    <a href="{{ $diff['reception_photo'] }}" target="_blank">
+                                        <img src="{{ $diff['reception_photo'] }}" class="w-16 h-16 object-cover rounded border border-slate-200">
+                                    </a>
+                                @endif
+                            </div>
                         </td>
                         <td data-label="Devolución" class="py-2.5">
-                            @if ($diff['delivery_present'] === null)
-                                <span class="text-xs text-slate-400">No registrado</span>
-                            @else
-                                <x-status-badge :status="$diff['delivery_present'] ? 'ok' : 'anomaly'">
-                                    {{ $diff['delivery_present'] ? 'Sí' : 'No' }}
-                                </x-status-badge>
-                            @endif
-                            @if ($diff['worsened'])
-                                <span class="text-xs text-brand-orange ml-1">faltante</span>
-                            @elseif ($diff['changed'])
-                                <span class="text-xs text-brand-amber ml-1">cambió</span>
-                            @endif
-                            @if ($diff['delivery_photo'])
-                                <a href="{{ $diff['delivery_photo'] }}" target="_blank">
-                                    <img src="{{ $diff['delivery_photo'] }}" class="mt-1 w-16 h-16 object-cover rounded border border-slate-200">
-                                </a>
-                            @endif
+                            <div class="flex flex-col items-end gap-1">
+                                <span class="inline-flex flex-wrap items-center justify-end gap-1">
+                                    @if ($diff['delivery_present'] === null)
+                                        <span class="text-xs text-slate-400">No registrado</span>
+                                    @else
+                                        <x-status-badge :status="$diff['delivery_present'] ? 'ok' : 'anomaly'">
+                                            {{ $diff['delivery_present'] ? 'Sí' : 'No' }}
+                                        </x-status-badge>
+                                    @endif
+                                    @if ($diff['worsened'])
+                                        <span class="text-xs text-brand-orange">faltante</span>
+                                    @elseif ($diff['changed'])
+                                        <span class="text-xs text-brand-amber">cambió</span>
+                                    @endif
+                                </span>
+                                @if ($diff['delivery_photo'])
+                                    <a href="{{ $diff['delivery_photo'] }}" target="_blank">
+                                        <img src="{{ $diff['delivery_photo'] }}" class="w-16 h-16 object-cover rounded border border-slate-200">
+                                    </a>
+                                @endif
+                            </div>
                         </td>
                     </tr>
                 @endforeach
@@ -162,37 +170,43 @@
                     <tr>
                         <td data-label="Componente" class="py-2.5 text-slate-700">{{ $diff['label'] }}</td>
                         <td data-label="Recepción" class="py-2.5">
-                            @if ($diff['reception'] === null)
-                                <span class="text-xs text-slate-400">No registrado</span>
-                            @else
-                                <x-status-badge :status="$diff['reception']->value === 'ok' ? 'ok' : 'anomaly'">
-                                    {{ $diff['reception']->label($diff['item']) }}
-                                </x-status-badge>
-                            @endif
-                            @if ($diff['reception_photo'])
-                                <a href="{{ $diff['reception_photo'] }}" target="_blank">
-                                    <img src="{{ $diff['reception_photo'] }}" class="mt-1 w-16 h-16 object-cover rounded border border-slate-200">
-                                </a>
-                            @endif
+                            <div class="flex flex-col items-end gap-1">
+                                @if ($diff['reception'] === null)
+                                    <span class="text-xs text-slate-400">No registrado</span>
+                                @else
+                                    <x-status-badge :status="$diff['reception']->value === 'ok' ? 'ok' : 'anomaly'">
+                                        {{ $diff['reception']->label($diff['item']) }}
+                                    </x-status-badge>
+                                @endif
+                                @if ($diff['reception_photo'])
+                                    <a href="{{ $diff['reception_photo'] }}" target="_blank">
+                                        <img src="{{ $diff['reception_photo'] }}" class="w-16 h-16 object-cover rounded border border-slate-200">
+                                    </a>
+                                @endif
+                            </div>
                         </td>
                         <td data-label="Devolución" class="py-2.5">
-                            @if ($diff['delivery'] === null)
-                                <span class="text-xs text-slate-400">No registrado</span>
-                            @else
-                                <x-status-badge :status="$diff['delivery']->value === 'ok' ? 'ok' : 'anomaly'">
-                                    {{ $diff['delivery']->label($diff['item']) }}
-                                </x-status-badge>
-                            @endif
-                            @if ($diff['worsened'])
-                                <span class="text-xs text-brand-orange ml-1">nuevo</span>
-                            @elseif ($diff['changed'])
-                                <span class="text-xs text-brand-amber ml-1">cambió</span>
-                            @endif
-                            @if ($diff['delivery_photo'])
-                                <a href="{{ $diff['delivery_photo'] }}" target="_blank">
-                                    <img src="{{ $diff['delivery_photo'] }}" class="mt-1 w-16 h-16 object-cover rounded border border-slate-200">
-                                </a>
-                            @endif
+                            <div class="flex flex-col items-end gap-1">
+                                <span class="inline-flex flex-wrap items-center justify-end gap-1">
+                                    @if ($diff['delivery'] === null)
+                                        <span class="text-xs text-slate-400">No registrado</span>
+                                    @else
+                                        <x-status-badge :status="$diff['delivery']->value === 'ok' ? 'ok' : 'anomaly'">
+                                            {{ $diff['delivery']->label($diff['item']) }}
+                                        </x-status-badge>
+                                    @endif
+                                    @if ($diff['worsened'])
+                                        <span class="text-xs text-brand-orange">nuevo</span>
+                                    @elseif ($diff['changed'])
+                                        <span class="text-xs text-brand-amber">cambió</span>
+                                    @endif
+                                </span>
+                                @if ($diff['delivery_photo'])
+                                    <a href="{{ $diff['delivery_photo'] }}" target="_blank">
+                                        <img src="{{ $diff['delivery_photo'] }}" class="w-16 h-16 object-cover rounded border border-slate-200">
+                                    </a>
+                                @endif
+                            </div>
                         </td>
                     </tr>
                 @endforeach
@@ -216,10 +230,12 @@
                         <td data-label="Documento" class="py-2.5 text-slate-700">{{ \App\Enums\DocumentType::from($doc['document_type'])->label() }}</td>
                         <td data-label="Recepción" class="py-2.5">{{ $doc['reception'] === null ? '—' : ($doc['reception'] ? 'Sí' : 'No') }}</td>
                         <td data-label="Devolución" class="py-2.5">
-                            {{ $doc['delivery'] === null ? 'No se comprobó en la devolución' : ($doc['delivery'] ? 'Sí' : 'No') }}
-                            @if ($doc['changed'])
-                                <span class="text-xs text-brand-orange ml-1">cambió</span>
-                            @endif
+                            <span class="inline-flex flex-wrap items-center justify-end gap-1 text-right">
+                                <span>{{ $doc['delivery'] === null ? 'No se comprobó en la devolución' : ($doc['delivery'] ? 'Sí' : 'No') }}</span>
+                                @if ($doc['changed'])
+                                    <span class="text-xs text-brand-orange">cambió</span>
+                                @endif
+                            </span>
                         </td>
                     </tr>
                 @endforeach

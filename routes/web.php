@@ -10,7 +10,6 @@ use App\Http\Controllers\VehicleController;
 use App\Http\Controllers\VehicleDeliveryController;
 use App\Http\Controllers\VehicleMaintenanceScheduleController;
 use App\Http\Controllers\VehicleReceptionController;
-use App\Http\Controllers\VehicleServiceController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
@@ -48,11 +47,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/comparisons/{reception}', [VehicleComparisonController::class, 'show'])->name('comparisons.show');
     Route::get('/comparisons/{reception}/pdf', [VehicleComparisonController::class, 'pdf'])->name('comparisons.pdf');
 
-    // Maintenance registry, visible to everyone; mutations are admin-only below.
-    Route::get('/services', [VehicleServiceController::class, 'index'])->name('services.index');
-
-    // Fixed-interval maintenance schedules (basic/major/transmission),
-    // separate from the free-text service registry above.
+    // Fixed-interval maintenance schedules (basic/major/transmission).
     Route::get('/maintenance-schedules', [VehicleMaintenanceScheduleController::class, 'index'])->name('maintenance-schedules.index');
 
     // Help/support — send a problem report by email to the vehicle manager.
@@ -64,12 +59,6 @@ Route::middleware('auth')->group(function () {
         Route::get('/vehicles', [VehicleController::class, 'index'])->name('vehicles.index');
         Route::get('/vehicles/create', [VehicleController::class, 'create'])->name('vehicles.create');
         Route::post('/vehicles', [VehicleController::class, 'store'])->name('vehicles.store');
-
-        Route::get('/services/create', [VehicleServiceController::class, 'create'])->name('services.create');
-        Route::post('/services', [VehicleServiceController::class, 'store'])->name('services.store');
-        Route::get('/services/{service}/edit', [VehicleServiceController::class, 'edit'])->name('services.edit');
-        Route::put('/services/{service}', [VehicleServiceController::class, 'update'])->name('services.update');
-        Route::delete('/services/{service}', [VehicleServiceController::class, 'destroy'])->name('services.destroy');
 
         Route::post('/vehicles/{vehicle}/maintenance-schedules/{category}/complete', [VehicleMaintenanceScheduleController::class, 'complete'])->name('maintenance-schedules.complete');
 

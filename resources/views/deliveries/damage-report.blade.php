@@ -69,10 +69,10 @@
     @if ($conditionComponentIssues->isNotEmpty())
         <div class="bg-white border border-slate-200 rounded-lg p-5 mb-6">
             <h2 class="text-sm font-semibold text-slate-900 mb-3">Componentes con incidencia</h2>
-            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
                 @foreach ($conditionComponentIssues as $item)
                     <div class="flex items-center justify-between gap-2 px-3 py-2 rounded-md border border-slate-200 text-sm">
-                        <span class="text-slate-700">{{ $item->item->label() }}</span>
+                        <span class="text-slate-700 flex-1 min-w-0">{{ $item->item->label() }}</span>
                         <div class="flex items-center gap-2 shrink-0">
                             <x-status-badge status="anomaly">{{ $item->status->label($item->item->value) }}</x-status-badge>
                             @if ($item->hasPhoto())
@@ -88,10 +88,10 @@
     @if ($equipmentMissing->isNotEmpty())
         <div class="bg-white border border-slate-200 rounded-lg p-5 mb-6">
             <h2 class="text-sm font-semibold text-slate-900 mb-3">Equipo faltante</h2>
-            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
                 @foreach ($equipmentMissing as $check)
                     <div class="flex items-center justify-between gap-2 px-3 py-2 rounded-md border border-slate-200 text-sm">
-                        <span class="text-slate-700">{{ $check->item->label() }}</span>
+                        <span class="text-slate-700 flex-1 min-w-0">{{ $check->item->label() }}</span>
                         <div class="flex items-center gap-2 shrink-0">
                             <x-status-badge status="anomaly">Faltante</x-status-badge>
                             @if ($check->hasPhoto())

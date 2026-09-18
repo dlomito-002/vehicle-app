@@ -6,7 +6,6 @@ use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\View\View;
 
 class UserController extends Controller
@@ -31,10 +30,8 @@ class UserController extends Controller
     {
         $this->authorize('create', User::class);
 
-        $data = $request->validated();
-        $data['password'] = Hash::make($data['password']);
-
-        User::create($data);
+        // Hashing is the User model's 'password' => 'hashed' cast.
+        User::create($request->validated());
 
         return redirect()->route('users.index')->with('status', 'Usuario creado.');
     }
@@ -52,9 +49,8 @@ class UserController extends Controller
 
         $data = $request->validated();
 
-        if (! empty($data['password'])) {
-            $data['password'] = Hash::make($data['password']);
-        } else {
+        // An empty password field means "keep the current password".
+        if (blank($data['password'] ?? null)) {
             unset($data['password']);
         }
 

@@ -5,25 +5,6 @@
 @section('content')
     <h1 class="text-xl font-semibold text-slate-900 mb-6">Panel</h1>
 
-    @if ($serviceAlerts->isNotEmpty())
-        <div class="mb-6 rounded-md border-l-4 border-brand-orange bg-brand-orange/10 px-4 py-3">
-            <div class="flex items-center justify-between mb-1">
-                <p class="text-sm font-medium text-slate-800">Alertas de servicio</p>
-                <a href="{{ route('services.index') }}" class="text-xs text-brand-cyan hover:underline">Ver todos</a>
-            </div>
-            <ul class="text-sm text-slate-700 list-disc list-inside space-y-0.5">
-                @foreach ($serviceAlerts as $alert)
-                    <li>
-                        {{ $alert->vehicle->displayName() }} — {{ $alert->typeLabel() }}
-                        <span class="text-xs {{ $alert->alert_status === 'overdue' ? 'text-brand-orange' : 'text-amber-700' }}">
-                            ({{ $alert->alert_status === 'overdue' ? 'vencido' : 'próximo' }})
-                        </span>
-                    </li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
-
     <div class="grid sm:grid-cols-2 gap-6">
         <div>
             <h2 class="text-sm font-semibold text-slate-900 mb-3">Recepciones abiertas</h2>

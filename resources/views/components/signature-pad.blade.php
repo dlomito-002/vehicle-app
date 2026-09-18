@@ -7,24 +7,55 @@
         hasStroke: false,
         fileName: '',
         ctx: null,
+        resizeObserver: null,
+        pendingExisting: null,
         init() {
             const canvas = this.$refs.canvas;
+            this.ctx = canvas.getContext('2d');
+            this.pendingExisting = this.$refs.input.value || null;
+
+            // This component can mount while its step/section is still
+            // hidden behind x-show (display: none) — e.g. the signature
+            // pad lives on step 2 of a multi-step form. A hidden element
+            // reports offsetWidth/offsetHeight as 0, so sizing the canvas
+            // right away would leave it with a 0x0 backing bitmap: any
+            // later toDataURL() call on it returns the bare 'data:,' URI
+            // instead of a real PNG, which fails signature_data's
+            // starts_with validation on first use. Size it once it
+            // actually has a layout box instead of assuming it's visible
+            // at mount time.
+            if (!this.configureCanvas()) {
+                this.resizeObserver = new ResizeObserver(() => this.configureCanvas());
+                this.resizeObserver.observe(canvas);
+            }
+        },
+        configureCanvas() {
+            const canvas = this.$refs.canvas;
+            if (canvas.offsetWidth === 0 || canvas.offsetHeight === 0) {
+                return false;
+            }
+
             const ratio = window.devicePixelRatio || 1;
             canvas.width = canvas.offsetWidth * ratio;
             canvas.height = canvas.offsetHeight * ratio;
-            this.ctx = canvas.getContext('2d');
             this.ctx.scale(ratio, ratio);
             this.ctx.lineWidth = 2;
             this.ctx.lineCap = 'round';
             this.ctx.strokeStyle = '#1e293b';
 
-            const existing = this.$refs.input.value;
-            if (existing) {
+            if (this.pendingExisting) {
                 const img = new Image();
                 img.onload = () => this.ctx.drawImage(img, 0, 0, canvas.offsetWidth, canvas.offsetHeight);
-                img.src = existing;
+                img.src = this.pendingExisting;
                 this.hasStroke = true;
             }
+
+            if (this.resizeObserver) {
+                this.resizeObserver.disconnect();
+                this.resizeObserver = null;
+            }
+
+            return true;
         },
         point(e) {
             const rect = this.$refs.canvas.getBoundingClientRect();

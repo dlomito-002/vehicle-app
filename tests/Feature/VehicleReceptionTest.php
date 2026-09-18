@@ -178,6 +178,41 @@ class VehicleReceptionTest extends TestCase
         $response->assertSessionHasErrors('position_photos.front');
     }
 
+    public function test_blank_canvas_data_uri_is_rejected_with_a_friendly_message(): void
+    {
+        // Reproduces the "first use" bug: a canvas measured while hidden
+        // (0x0 backing bitmap) produces the bare "data:," URI instead of a
+        // real PNG. It must fail with a translated message, never the raw
+        // "validation.starts_with" key.
+        Storage::fake('public');
+
+        $user = User::factory()->create();
+        $vehicle = Vehicle::factory()->create();
+
+        $response = $this->actingAs($user)->post(route('receptions.store'), $this->validPayload($vehicle, [
+            'signature_data' => 'data:,',
+        ]));
+
+        $response->assertSessionHasErrors('signature_data');
+        $errors = $response->getSession()->get('errors')->getBag('default')->get('signature_data');
+        $this->assertNotContains('validation.starts_with', $errors);
+    }
+
+    public function test_signature_data_with_valid_prefix_but_invalid_png_bytes_is_rejected(): void
+    {
+        Storage::fake('public');
+
+        $user = User::factory()->create();
+        $vehicle = Vehicle::factory()->create();
+
+        $response = $this->actingAs($user)->post(route('receptions.store'), $this->validPayload($vehicle, [
+            'signature_data' => 'data:image/png;base64,'.base64_encode('not a real png'),
+        ]));
+
+        $response->assertSessionHasErrors('signature_data');
+        $this->assertDatabaseCount('vehicle_receptions', 0);
+    }
+
     public function test_guest_cannot_create_a_reception(): void
     {
         $vehicle = Vehicle::factory()->create();

@@ -84,7 +84,7 @@
                             </x-status-badge>
                         </td>
                         @if (auth()->user()->isAdmin())
-                            <td class="px-4 py-3">
+                            <td data-label="Registrar servicio" class="px-4 py-3">
                                 <form method="POST" action="{{ route('maintenance-schedules.complete', [$schedule->vehicle, $schedule->category->value]) }}"
                                       class="flex flex-wrap items-center gap-1.5">
                                     @csrf
