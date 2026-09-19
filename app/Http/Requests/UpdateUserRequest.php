@@ -8,7 +8,6 @@ use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\Validator;
 
 class UpdateUserRequest extends FormRequest
@@ -28,9 +27,6 @@ class UpdateUserRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', $this->uniqueEmailRule($user->id)],
-            // Optional on edit: an empty field means "keep the current
-            // password", handled in UserController::update().
-            'password' => ['nullable', 'confirmed', Password::defaults()],
             'role' => ['required', Rule::enum(UserRole::class)],
         ];
     }

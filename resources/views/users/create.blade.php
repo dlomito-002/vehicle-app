@@ -36,19 +36,6 @@
             @error('role')<p class="mt-1 text-sm text-brand-orange">{{ $message }}</p>@enderror
         </div>
 
-        <div>
-            <label for="password" class="block text-sm font-medium text-slate-700 mb-1">Contraseña</label>
-            <input type="password" id="password" name="password" required autocomplete="new-password"
-                   class="w-full rounded-md border-slate-300 focus:border-brand-cyan focus:ring-brand-cyan text-sm">
-            @error('password')<p class="mt-1 text-sm text-brand-orange">{{ $message }}</p>@enderror
-        </div>
-
-        <div>
-            <label for="password_confirmation" class="block text-sm font-medium text-slate-700 mb-1">Confirmar contraseña</label>
-            <input type="password" id="password_confirmation" name="password_confirmation" required autocomplete="new-password"
-                   class="w-full rounded-md border-slate-300 focus:border-brand-cyan focus:ring-brand-cyan text-sm">
-        </div>
-
         <button type="submit"
                 class="inline-flex items-center px-4 py-2 rounded-md text-sm font-medium text-white bg-brand-magenta hover:bg-brand-magenta/90">
             Guardar usuario

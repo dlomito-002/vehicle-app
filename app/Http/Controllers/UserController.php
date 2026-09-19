@@ -6,6 +6,7 @@ use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class UserController extends Controller
@@ -30,8 +31,9 @@ class UserController extends Controller
     {
         $this->authorize('create', User::class);
 
-        // Hashing is the User model's 'password' => 'hashed' cast.
-        User::create($request->validated());
+        // Login is email-code based, so no password is collected. The column is
+        // NOT NULL, so store a random unusable value (hashed by the model cast).
+        User::create($request->validated() + ['password' => Str::random(64)]);
 
         return redirect()->route('users.index')->with('status', 'Usuario creado.');
     }
@@ -47,14 +49,7 @@ class UserController extends Controller
     {
         $this->authorize('update', $user);
 
-        $data = $request->validated();
-
-        // An empty password field means "keep the current password".
-        if (blank($data['password'] ?? null)) {
-            unset($data['password']);
-        }
-
-        $user->update($data);
+        $user->update($request->validated());
 
         return redirect()->route('users.index')->with('status', 'Usuario actualizado.');
     }

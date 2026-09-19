@@ -22,8 +22,6 @@ class UserManagementTest extends TestCase
             'name' => 'New Agent',
             'email' => 'new.agent@example.com',
             'role' => 'agent',
-            'password' => 'password123',
-            'password_confirmation' => 'password123',
         ]);
 
         $response->assertRedirect(route('users.index'));
@@ -31,22 +29,15 @@ class UserManagementTest extends TestCase
         $this->assertDatabaseHas('users', ['email' => 'new.agent@example.com', 'role' => 'agent']);
     }
 
-    public function test_created_password_is_hashed_and_usable(): void
+    public function test_create_and_edit_forms_have_no_password_field(): void
     {
         $admin = User::factory()->admin()->create();
+        $agent = User::factory()->create();
 
-        $this->actingAs($admin)->post(route('users.store'), [
-            'name' => 'New Agent',
-            'email' => 'hashed@example.com',
-            'role' => 'agent',
-            'password' => 'password123',
-            'password_confirmation' => 'password123',
-        ]);
-
-        $created = User::where('email', 'hashed@example.com')->firstOrFail();
-
-        $this->assertNotSame('password123', $created->password);
-        $this->assertTrue(Hash::check('password123', $created->password));
+        $this->actingAs($admin)->get(route('users.create'))
+            ->assertOk()->assertDontSee('name="password', false);
+        $this->actingAs($admin)->get(route('users.edit', $agent))
+            ->assertOk()->assertDontSee('name="password', false);
     }
 
     public function test_create_rejects_missing_required_data(): void
@@ -57,10 +48,9 @@ class UserManagementTest extends TestCase
             'name' => '',
             'email' => '',
             'role' => '',
-            'password' => '',
         ]);
 
-        $response->assertSessionHasErrors(['name', 'email', 'role', 'password']);
+        $response->assertSessionHasErrors(['name', 'email', 'role']);
         $this->assertSame(1, User::count());
     }
 
@@ -72,54 +62,10 @@ class UserManagementTest extends TestCase
             'name' => 'Nobody',
             'email' => 'nobody@example.com',
             'role' => 'superadmin',
-            'password' => 'password123',
-            'password_confirmation' => 'password123',
         ]);
 
         $response->assertSessionHasErrors('role');
         $this->assertDatabaseMissing('users', ['email' => 'nobody@example.com']);
-    }
-
-    public function test_create_rejects_a_mismatched_password_confirmation_with_a_translated_message(): void
-    {
-        $admin = User::factory()->admin()->create();
-
-        $response = $this->actingAs($admin)->post(route('users.store'), [
-            'name' => 'Nobody',
-            'email' => 'nobody@example.com',
-            'role' => 'agent',
-            'password' => 'password123',
-            'password_confirmation' => 'something-else',
-        ]);
-
-        $response->assertSessionHasErrors('password');
-
-        // Regression: lang/es/validation.php used to be missing these keys,
-        // so the form showed the raw "validation.confirmed" key instead.
-        $messages = $response->getSession()->get('errors')->getBag('default')->get('password');
-        foreach ($messages as $message) {
-            $this->assertStringNotContainsString('validation.', $message);
-        }
-    }
-
-    public function test_create_rejects_a_short_password_with_a_translated_message(): void
-    {
-        $admin = User::factory()->admin()->create();
-
-        $response = $this->actingAs($admin)->post(route('users.store'), [
-            'name' => 'Nobody',
-            'email' => 'nobody@example.com',
-            'role' => 'agent',
-            'password' => 'abc',
-            'password_confirmation' => 'abc',
-        ]);
-
-        $response->assertSessionHasErrors('password');
-
-        $messages = $response->getSession()->get('errors')->getBag('default')->get('password');
-        foreach ($messages as $message) {
-            $this->assertStringNotContainsString('validation.', $message);
-        }
     }
 
     public function test_create_rejects_a_duplicate_email(): void
@@ -131,8 +77,6 @@ class UserManagementTest extends TestCase
             'name' => 'Duplicate',
             'email' => 'taken@example.com',
             'role' => 'agent',
-            'password' => 'password123',
-            'password_confirmation' => 'password123',
         ]);
 
         $response->assertSessionHasErrors('email');
@@ -148,8 +92,6 @@ class UserManagementTest extends TestCase
             'name' => 'Duplicate',
             'email' => 'TAKEN@Example.com',
             'role' => 'agent',
-            'password' => 'password123',
-            'password_confirmation' => 'password123',
         ]);
 
         $response->assertSessionHasErrors('email');
@@ -166,8 +108,6 @@ class UserManagementTest extends TestCase
             'name' => 'Mixed Case',
             'email' => '  Mixed.Case@Example.COM ',
             'role' => 'agent',
-            'password' => 'password123',
-            'password_confirmation' => 'password123',
         ]);
 
         $this->assertDatabaseHas('users', ['email' => 'mixed.case@example.com']);
@@ -221,8 +161,6 @@ class UserManagementTest extends TestCase
             'name' => 'New Name',
             'email' => $agent->email,
             'role' => $agent->role->value,
-            'password' => '',
-            'password_confirmation' => '',
         ]);
 
         $response->assertRedirect(route('users.index'));
@@ -231,27 +169,6 @@ class UserManagementTest extends TestCase
         $agent->refresh();
         $this->assertSame('New Name', $agent->name);
         $this->assertSame($originalPassword, $agent->password);
-    }
-
-    public function test_admin_can_optionally_change_a_users_password(): void
-    {
-        $admin = User::factory()->admin()->create();
-        $agent = User::factory()->create();
-        $originalPassword = $agent->password;
-
-        $response = $this->actingAs($admin)->put(route('users.update', $agent), [
-            'name' => $agent->name,
-            'email' => $agent->email,
-            'role' => $agent->role->value,
-            'password' => 'brand-new-secret',
-            'password_confirmation' => 'brand-new-secret',
-        ]);
-
-        $response->assertSessionHasNoErrors();
-
-        $agent->refresh();
-        $this->assertNotSame($originalPassword, $agent->password);
-        $this->assertTrue(Hash::check('brand-new-secret', $agent->password));
     }
 
     public function test_a_user_can_keep_their_own_email_when_edited(): void
@@ -370,8 +287,6 @@ class UserManagementTest extends TestCase
             'name' => 'Sneaky',
             'email' => 'sneaky@example.com',
             'role' => 'admin',
-            'password' => 'password123',
-            'password_confirmation' => 'password123',
         ])->assertForbidden();
 
         $this->actingAs($agent)->get(route('users.edit', $target))->assertForbidden();
