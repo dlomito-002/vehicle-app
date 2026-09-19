@@ -22,7 +22,7 @@
     <div class="mb-6">
         <h1 class="text-xl font-semibold text-slate-900">Mantenimiento programado</h1>
         <p class="text-sm text-slate-500 mt-1">
-            Intervalos fijos por vehículo: básico (1,000 km), mayor (4,000 km) y transmisión (por definir).
+            Intervalos fijos por vehículo: básico (1,000 km) y mayor (4,000 km).
             Independiente del registro de servicios manual.
         </p>
     </div>

@@ -45,7 +45,7 @@ class HelpRequestTest extends TestCase
         Mail::assertSent(HelpRequestMail::class, function (HelpRequestMail $mail) use ($user) {
             return $mail->hasTo('gerente@example.com')
                 && $mail->reporter->is($user)
-                && $mail->message === 'El vehículo no enciende.';
+                && $mail->reportMessage === 'El vehículo no enciende.';
         });
     }
 

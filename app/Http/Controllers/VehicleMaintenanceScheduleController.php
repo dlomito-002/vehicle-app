@@ -13,7 +13,7 @@ use Illuminate\View\View;
 class VehicleMaintenanceScheduleController extends Controller
 {
     /**
-     * Overview across every vehicle x category (Basic/Major/Transmission).
+     * Overview across every vehicle x category (Basic/Major).
      * Visible to everyone, same as the free-text service registry — only
      * recording a completed service is admin-only. Each view also acts as
      * the trigger point for maintenance alert emails: any schedule that has

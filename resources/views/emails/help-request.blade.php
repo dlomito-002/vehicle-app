@@ -16,6 +16,6 @@
     </table>
 
     <p style="color: #64748b; margin-bottom: 4px;">Descripción del problema:</p>
-    <p style="white-space: pre-line; border-left: 3px solid #0DB3D9; padding-left: 12px;">{{ $message }}</p>
+    <p style="white-space: pre-line; border-left: 3px solid #0DB3D9; padding-left: 12px;">{{ $reportMessage }}</p>
 </body>
 </html>

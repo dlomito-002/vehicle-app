@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Mail;
 
 /**
- * One row per vehicle + MaintenanceCategory (basic/major/transmission).
+ * One row per vehicle + MaintenanceCategory (basic/major).
  * This coexists with the free-text VehicleService log — it doesn't replace
  * it — and tracks a fixed km interval per category, computing the next due
  * mileage from the last completed service of that category (never from the
@@ -64,9 +64,8 @@ class VehicleMaintenanceSchedule extends Model
 
     /**
      * Next scheduled mileage for this category, or null if either the
-     * interval isn't configured yet (e.g. transmission) or the category has
-     * never had a completed service recorded — there is no baseline to
-     * calculate from yet.
+     * interval isn't configured or the category has never had a completed
+     * service recorded — there is no baseline to calculate from yet.
      */
     public function nextDueMileage(): ?int
     {

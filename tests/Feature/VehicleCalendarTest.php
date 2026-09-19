@@ -28,7 +28,7 @@ class VehicleCalendarTest extends TestCase
             'reception_time' => '09:00',
             'initial_mileage' => 1000,
             'fuel_level' => 'full',
-            'fuel_type' => 'gasoline',
+            'fuel_type' => 'gasoline_super',
             'general_condition' => 'ok',
             'windows_mirrors_lights' => 'ok',
             'tires_condition' => 'ok',

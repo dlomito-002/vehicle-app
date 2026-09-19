@@ -15,7 +15,7 @@ class HelpRequestMail extends Mailable
 
     public function __construct(
         public User $reporter,
-        public string $message,
+        public string $reportMessage,
     ) {}
 
     public function envelope(): Envelope

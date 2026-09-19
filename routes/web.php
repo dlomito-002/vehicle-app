@@ -47,7 +47,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/comparisons/{reception}', [VehicleComparisonController::class, 'show'])->name('comparisons.show');
     Route::get('/comparisons/{reception}/pdf', [VehicleComparisonController::class, 'pdf'])->name('comparisons.pdf');
 
-    // Fixed-interval maintenance schedules (basic/major/transmission).
+    // Fixed-interval maintenance schedules (basic/major).
     Route::get('/maintenance-schedules', [VehicleMaintenanceScheduleController::class, 'index'])->name('maintenance-schedules.index');
 
     // Help/support — send a problem report by email to the vehicle manager.

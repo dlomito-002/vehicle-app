@@ -41,7 +41,7 @@ Revisa **`LEEME.txt`** en la raíz — tiene los pasos manuales pendientes espec
 | Devolución de vehículo | `VehicleDelivery` | Flujo explícito: seleccionar vehículo → seleccionar recepción abierta → comparación de daños → formulario de entrega |
 | Comparación / reporte PDF | `App\Support\VehicleComparisonBuilder`, `App\Support\PdfImageEncoder` | Diffea recepción vs. entrega (kilometraje, combustible, documentación, checklist, fotos por posición). El PDF usa `barryvdh/laravel-dompdf` |
 | Mantenimiento (registro manual) | `VehicleService`, `App\Enums\ServiceType` | Bitácora libre de servicios (cambio de aceite, frenos, etc.) con `next_service_mileage`/`next_service_date` capturados a mano |
-| Mantenimiento (intervalos fijos) | `VehicleMaintenanceSchedule`, `VehicleMaintenanceCompletion`, `App\Enums\MaintenanceCategory` | Sistema separado y en paralelo al anterior: Básico (1,000 km), Mayor (4,000 km), Transmisión (intervalo aún sin definir por la empresa — **no lo inventes**). Calcula desde el último servicio completado de esa categoría, no desde el kilometraje actual. Alerta a 200 km o menos, una sola vez por ventana, se resetea al completar el servicio |
+| Mantenimiento (intervalos fijos) | `VehicleMaintenanceSchedule`, `VehicleMaintenanceCompletion`, `App\Enums\MaintenanceCategory` | Sistema separado y en paralelo al anterior: Básico (1,000 km) y Mayor (4,000 km). Calcula desde el último servicio completado de esa categoría, no desde el kilometraje actual. Alerta a 200 km o menos, una sola vez por ventana, se resetea al completar el servicio |
 | Autenticación | `LoginController`, `LoginVerificationCode` | Login por código de un solo uso enviado por correo (NO es OAuth/"Sign in with Google" — el código lo genera la app, el correo solo es el transporte). Expira, un solo uso, con rate limiting y límite de intentos fallidos |
 | Ayuda/soporte | `HelpController` | Formulario simple → correo a `VEHICLE_MANAGER_EMAIL`. No persiste en base de datos |
 | Usuarios/roles | `User`, `App\Enums\UserRole` | Solo `Admin`/`Agent`. Gestión de usuarios es admin-only |
@@ -56,7 +56,6 @@ Revisa **`LEEME.txt`** en la raíz — tiene los pasos manuales pendientes espec
 
 - No hay cola (`QUEUE_CONNECTION=database` está configurado pero no hay jobs que la usen) ni scheduler activo. Las alertas de mantenimiento se evalúan y envían de forma síncrona cada vez que alguien visita `/maintenance-schedules` — si agregas algo que "debería correr en background", probablemente necesites decirlo explícitamente en vez de asumir que ya hay infraestructura para eso.
 - Las fotos existentes en el disco local **no se migran automáticamente** a Cloudinary al cambiar `VEHICLE_PHOTOS_DISK`. Solo las subidas nuevas van al nuevo disco.
-- El intervalo de servicio de transmisión (`MaintenanceCategory::Transmission`) está intencionalmente sin definir (`interval_km = null`) porque la empresa no lo ha decidido. No le pongas un número inventado.
 
 ## Antes de proponer un cambio
 

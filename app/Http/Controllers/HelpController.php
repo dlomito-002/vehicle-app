@@ -27,7 +27,7 @@ class HelpController extends Controller
 
         Mail::to($managerEmail)->send(new HelpRequestMail(
             reporter: $request->user(),
-            message: $request->validated('message'),
+            reportMessage: $request->validated('message'),
         ));
 
         return redirect()->route('help.create')->with('status', 'Tu reporte fue enviado. Gracias.');

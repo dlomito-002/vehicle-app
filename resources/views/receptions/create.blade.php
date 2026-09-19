@@ -11,10 +11,10 @@
         // If validation failed on a field that only lives on page 2, open the
         // form back up on page 2 so the person actually sees the error.
         $page2Prefixes = [
-            'general_condition', 'windows_mirrors_lights', 'tires_condition',
+            'washed', 'general_condition', 'windows_mirrors_lights', 'tires_condition',
             'dashboard_indicators', 'cleanliness', 'condition_items', 'condition_photos',
             'has_anomaly', 'anomaly_description', 'anomaly_photos',
-            'position_photos', 'photos', 'documentation', 'signature_data', 'signature_file',
+            'position_photos', 'photos', 'signature_data', 'signature_file',
         ];
         $initialStep = 1;
         foreach ($errors->keys() as $errorKey) {
@@ -40,7 +40,7 @@
             <div class="flex items-center gap-2 text-xs font-medium" :class="step === 1 ? 'text-brand-magenta' : 'text-slate-400'">
                 <span class="flex items-center justify-center w-5 h-5 rounded-full border"
                       :class="step === 1 ? 'border-brand-magenta bg-brand-magenta/10' : 'border-slate-300'">1</span>
-                Datos y equipo
+                Datos, documentos y equipo
             </div>
             <div class="flex-1 h-px bg-slate-200"></div>
             <div class="flex items-center gap-2 text-xs font-medium" :class="step === 2 ? 'text-brand-magenta' : 'text-slate-400'">
@@ -52,14 +52,8 @@
 
         <fieldset x-show="step === 1" :disabled="step !== 1" class="space-y-6">
             <section class="bg-white border border-slate-200 rounded-lg p-5 border-l-4 border-l-brand-magenta">
-                <h2 class="text-sm font-semibold text-slate-900 mb-4">Persona y viaje</h2>
+                <h2 class="text-sm font-semibold text-slate-900 mb-4">Vehículo y viaje</h2>
                 <div class="grid sm:grid-cols-2 gap-4">
-                    <div>
-                        <label for="received_by_name" class="block text-sm font-medium text-slate-700 mb-1">Persona que recibe el vehículo</label>
-                        <input id="received_by_name" name="received_by_name" value="{{ old('received_by_name') }}" required
-                               class="w-full rounded-md border-slate-300 focus:border-brand-cyan focus:ring-brand-cyan text-sm">
-                        @error('received_by_name')<p class="mt-1 text-sm text-brand-orange">{{ $message }}</p>@enderror
-                    </div>
                     <div>
                         <label for="vehicle_id" class="block text-sm font-medium text-slate-700 mb-1">Vehículo</label>
                         <select id="vehicle_id" name="vehicle_id" required
@@ -77,25 +71,24 @@
                         </p>
                         @error('vehicle_id')<p class="mt-1 text-sm text-brand-orange">{{ $message }}</p>@enderror
                     </div>
+                    <div>
+                        <label for="received_by_name" class="block text-sm font-medium text-slate-700 mb-1">Persona que recibe el vehículo</label>
+                        <input id="received_by_name" name="received_by_name" value="{{ old('received_by_name') }}" required
+                               class="w-full rounded-md border-slate-300 focus:border-brand-cyan focus:ring-brand-cyan text-sm">
+                        @error('received_by_name')<p class="mt-1 text-sm text-brand-orange">{{ $message }}</p>@enderror
+                    </div>
                     <div class="sm:col-span-2">
                         <label for="trip_reason" class="block text-sm font-medium text-slate-700 mb-1">Motivo del viaje</label>
                         <input id="trip_reason" name="trip_reason" value="{{ old('trip_reason') }}" required
                                class="w-full rounded-md border-slate-300 focus:border-brand-cyan focus:ring-brand-cyan text-sm">
                         @error('trip_reason')<p class="mt-1 text-sm text-brand-orange">{{ $message }}</p>@enderror
                     </div>
-                    <div class="sm:col-span-2">
-                        <label for="location" class="block text-sm font-medium text-slate-700 mb-1">Ubicación de recepción</label>
-                        <input id="location" name="location" value="{{ old('location') }}" required
-                               placeholder="Ej. Oficina central, aeropuerto, sitio del cliente..."
-                               class="w-full rounded-md border-slate-300 focus:border-brand-cyan focus:ring-brand-cyan text-sm">
-                        @error('location')<p class="mt-1 text-sm text-brand-orange">{{ $message }}</p>@enderror
-                    </div>
                 </div>
             </section>
 
             <section class="bg-white border border-slate-200 rounded-lg p-5 border-l-4 border-l-brand-cyan">
                 <h2 class="text-sm font-semibold text-slate-900 mb-4">Detalles de la recepción</h2>
-                <div class="grid sm:grid-cols-3 gap-4 mb-4">
+                <div class="grid sm:grid-cols-3 gap-4">
                     <div>
                         <label for="reception_date" class="block text-sm font-medium text-slate-700 mb-1">Fecha de recepción</label>
                         <input type="date" id="reception_date" name="reception_date" value="{{ old('reception_date') }}" required
@@ -114,21 +107,24 @@
                                class="w-full rounded-md border-slate-300 focus:border-brand-cyan focus:ring-brand-cyan text-sm font-data">
                         @error('initial_mileage')<p class="mt-1 text-sm text-brand-orange">{{ $message }}</p>@enderror
                     </div>
-                </div>
-                <fieldset class="mb-4">
-                    <legend class="text-sm font-medium text-slate-700 mb-2">Vehículo lavado (carwash)</legend>
-                    <div class="flex gap-3">
-                        <label class="flex items-center gap-2 px-3 py-2 rounded-md border text-sm cursor-pointer border-slate-200 hover:bg-slate-50">
-                            <input type="radio" name="washed" value="1" @checked(old('washed') === '1') required class="text-brand-olive focus:ring-brand-olive"> Sí
-                        </label>
-                        <label class="flex items-center gap-2 px-3 py-2 rounded-md border text-sm cursor-pointer border-slate-200 hover:bg-slate-50">
-                            <input type="radio" name="washed" value="0" @checked(old('washed') === '0') class="text-brand-olive focus:ring-brand-olive"> No
-                        </label>
+                    <div class="sm:col-span-3">
+                        <label for="location" class="block text-sm font-medium text-slate-700 mb-1">Ubicación de recepción</label>
+                        <input id="location" name="location" value="{{ old('location') }}" required
+                               placeholder="Ej. Oficina central, aeropuerto, sitio del cliente..."
+                               class="w-full rounded-md border-slate-300 focus:border-brand-cyan focus:ring-brand-cyan text-sm">
+                        @error('location')<p class="mt-1 text-sm text-brand-orange">{{ $message }}</p>@enderror
                     </div>
-                    @error('washed')<p class="mt-1 text-sm text-brand-orange">{{ $message }}</p>@enderror
-                </fieldset>
+                </div>
+            </section>
+
+            <section class="bg-white border border-slate-200 rounded-lg p-5 border-l-4 border-l-brand-cyan space-y-4">
+                <h2 class="text-sm font-semibold text-slate-900">Combustible</h2>
                 <x-fuel-level-selector />
                 <x-fuel-type-selector />
+            </section>
+
+            <section class="bg-white border border-slate-200 rounded-lg p-5 border-l-4 border-l-brand-magenta">
+                <x-documentation-checklist :document-types="DocumentType::forReception()" />
             </section>
 
             <section class="bg-white border border-slate-200 rounded-lg p-5 border-l-4 border-l-brand-cyan">
@@ -146,9 +142,23 @@
         <fieldset x-show="step === 2" :disabled="step !== 2" class="space-y-6">
             <section class="bg-white border border-slate-200 rounded-lg p-5 border-l-4 border-l-brand-olive space-y-5">
                 <h2 class="text-sm font-semibold text-slate-900">Inspección del vehículo</h2>
+
                 @foreach (ConditionStatus::fieldLabels() as $field => $label)
                     <x-condition-field :field="$field" :label="$label" />
                 @endforeach
+
+                <fieldset>
+                    <legend class="text-sm font-medium text-slate-700 mb-2">Vehículo lavado (carwash)</legend>
+                    <div class="flex gap-3">
+                        <label class="flex items-center gap-2 px-3 py-2 rounded-md border text-sm cursor-pointer border-slate-200 hover:bg-slate-50">
+                            <input type="radio" name="washed" value="1" @checked(old('washed') === '1') required class="text-brand-olive focus:ring-brand-olive"> Sí
+                        </label>
+                        <label class="flex items-center gap-2 px-3 py-2 rounded-md border text-sm cursor-pointer border-slate-200 hover:bg-slate-50">
+                            <input type="radio" name="washed" value="0" @checked(old('washed') === '0') class="text-brand-olive focus:ring-brand-olive"> No
+                        </label>
+                    </div>
+                    @error('washed')<p class="mt-1 text-sm text-brand-orange">{{ $message }}</p>@enderror
+                </fieldset>
 
                 <div class="pt-2 border-t border-slate-100">
                     <x-condition-checklist />
@@ -161,10 +171,6 @@
 
             <section class="bg-white border border-slate-200 rounded-lg p-5 border-l-4 border-l-brand-amber">
                 <x-photo-uploader :positions="PhotoPosition::standardPositions()" />
-            </section>
-
-            <section class="bg-white border border-slate-200 rounded-lg p-5 border-l-4 border-l-brand-magenta">
-                <x-documentation-checklist :document-types="DocumentType::forReception()" />
             </section>
 
             <section class="bg-white border border-slate-200 rounded-lg p-5 border-l-4 border-l-brand-magenta">

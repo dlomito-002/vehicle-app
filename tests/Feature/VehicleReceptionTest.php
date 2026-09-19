@@ -30,7 +30,7 @@ class VehicleReceptionTest extends TestCase
             'initial_mileage' => 1000,
             'washed' => '0',
             'fuel_level' => 'full',
-            'fuel_type' => 'gasoline',
+            'fuel_type' => 'gasoline_super',
             'general_condition' => 'ok',
             'windows_mirrors_lights' => 'ok',
             'tires_condition' => 'ok',
@@ -42,7 +42,6 @@ class VehicleReceptionTest extends TestCase
                 'registration_card' => '1',
                 'vehicle_sticker' => '1',
                 'drivers_license' => '1',
-                'insurance_papers' => '1',
             ],
             'equipment_checks' => collect(EquipmentItem::cases())
                 ->mapWithKeys(fn ($item) => [$item->value => '1'])
@@ -70,9 +69,55 @@ class VehicleReceptionTest extends TestCase
         ]);
 
         $reception = VehicleReception::first();
-        $this->assertCount(4, $reception->documentation);
+        $this->assertCount(3, $reception->documentation);
         $this->assertCount(count(EquipmentItem::cases()), $reception->equipmentChecks);
         $this->assertCount(count(ConditionComponent::cases()), $reception->conditionItems);
+    }
+
+    public function test_reception_accepts_each_of_the_three_fuel_types_and_rejects_others(): void
+    {
+        Storage::fake('public');
+
+        $user = User::factory()->create();
+
+        foreach (['gasoline_super', 'gasoline_regular', 'diesel'] as $fuelType) {
+            $vehicle = Vehicle::factory()->create();
+
+            $this->actingAs($user)
+                ->post(route('receptions.store'), $this->validPayload($vehicle, ['fuel_type' => $fuelType]))
+                ->assertSessionHasNoErrors();
+        }
+
+        $this->assertSame(
+            ['Gasolina Superior', 'Gasolina Regular', 'Diésel'],
+            array_map(fn ($case) => $case->label(), \App\Enums\FuelType::cases()),
+        );
+
+        foreach (['gasoline', 'electric', ''] as $invalid) {
+            $vehicle = Vehicle::factory()->create();
+
+            $this->actingAs($user)
+                ->post(route('receptions.store'), $this->validPayload($vehicle, ['fuel_type' => $invalid]))
+                ->assertSessionHasErrors('fuel_type');
+        }
+    }
+
+    public function test_insurance_policy_question_is_gone_from_the_reception_form(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)->get(route('receptions.create'))
+            ->assertOk()
+            ->assertDontSee('Póliza de seguro vigente')
+            ->assertDontSee('insurance_papers');
+
+        $this->assertNotContains('insurance_papers', array_map(fn ($d) => $d->value, \App\Enums\DocumentType::cases()));
+    }
+
+    public function test_transmission_is_not_an_available_maintenance_category(): void
+    {
+        $this->assertNull(\App\Enums\MaintenanceCategory::tryFrom('transmission'));
+        $this->assertCount(2, \App\Enums\MaintenanceCategory::cases());
     }
 
     public function test_vehicle_with_open_reception_is_not_offered_again(): void

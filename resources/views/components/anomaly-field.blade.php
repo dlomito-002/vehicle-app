@@ -6,8 +6,7 @@
         <div class="flex gap-3">
             <label class="flex items-center gap-2 px-3 py-2 rounded-md border text-sm cursor-pointer"
                    :class="!hasAnomaly ? 'border-brand-olive bg-brand-olive/5' : 'border-slate-200'">
-                <input type="radio" name="has_anomaly" value="0" x-model="hasAnomaly" x-bind:value="'0'"
-                       @click="hasAnomaly = false" @checked($hasAnomalyOld !== '1') required
+                <input type="radio" name="has_anomaly" value="0" @click="hasAnomaly = false" @checked($hasAnomalyOld !== '1') required
                        class="text-brand-olive focus:ring-brand-olive">
                 No
             </label>

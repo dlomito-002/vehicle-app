@@ -31,7 +31,7 @@ class VehicleDeliveryTest extends TestCase
             'initial_mileage' => 1000,
             'washed' => false,
             'fuel_level' => 'full',
-            'fuel_type' => 'gasoline',
+            'fuel_type' => 'gasoline_super',
             'general_condition' => 'ok',
             'windows_mirrors_lights' => 'ok',
             'tires_condition' => 'ok',
@@ -52,7 +52,7 @@ class VehicleDeliveryTest extends TestCase
             'return_time' => '17:00',
             'final_mileage' => 1200,
             'fuel_level' => 'half',
-            'fuel_type' => 'gasoline',
+            'fuel_type' => 'gasoline_super',
             'washed' => '0',
             'general_condition' => 'ok',
             'windows_mirrors_lights' => 'ok',
@@ -64,7 +64,6 @@ class VehicleDeliveryTest extends TestCase
             'documentation' => [
                 'registration_card' => '1',
                 'vehicle_sticker' => '1',
-                'insurance_papers' => '1',
             ],
             'equipment_checks' => collect(EquipmentItem::cases())
                 ->mapWithKeys(fn ($item) => [$item->value => '1'])
@@ -168,7 +167,20 @@ class VehicleDeliveryTest extends TestCase
         $delivery = $reception->fresh()->delivery;
         $types = $delivery->documentation->pluck('document_type')->map->value->all();
 
-        $this->assertEqualsCanonicalizing(['registration_card', 'vehicle_sticker', 'insurance_papers'], $types);
+        $this->assertEqualsCanonicalizing(['registration_card', 'vehicle_sticker'], $types);
+    }
+
+    public function test_delivery_form_shows_three_fuel_types_and_no_insurance_policy_question(): void
+    {
+        $user = User::factory()->create();
+        $reception = $this->createOpenReception(Vehicle::factory()->create(), $user);
+
+        $this->actingAs($user)->get(route('deliveries.create', $reception))
+            ->assertOk()
+            ->assertSee('Gasolina Superior')
+            ->assertSee('Gasolina Regular')
+            ->assertSee('Diésel')
+            ->assertDontSee('Póliza de seguro vigente');
     }
 
     public function test_delivery_stores_equipment_and_condition_checklists(): void

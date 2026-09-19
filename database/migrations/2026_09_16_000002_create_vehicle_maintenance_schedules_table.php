@@ -12,11 +12,10 @@ return new class extends Migration
             $table->id();
             $table->foreignId('vehicle_id')->constrained()->cascadeOnDelete();
 
-            // MaintenanceCategory enum: basic | major | transmission.
+            // MaintenanceCategory enum: basic | major.
             $table->string('category');
 
-            // Km interval for this category. Null means "not yet defined"
-            // (currently only true for transmission, per company decision).
+            // Km interval for this category. Null means "not yet defined".
             $table->unsignedInteger('interval_km')->nullable();
 
             // Set when the 200km warning email is sent for the vehicle's
