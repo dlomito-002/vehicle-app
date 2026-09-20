@@ -13,7 +13,7 @@
             @php $key = $item->value; @endphp
             <div class="rounded-md border border-slate-200 p-3">
                 <div class="flex items-center justify-between gap-3 mb-2">
-                    <span class="text-sm text-slate-700">{{ $item->label() }}</span>
+                    <span class="text-sm text-slate-700 flex-1 min-w-0">{{ $item->label() }}</span>
                     <div class="flex gap-3 shrink-0">
                         <label class="flex items-center gap-1.5 text-sm cursor-pointer">
                             <input type="radio" name="equipment_checks[{{ $key }}]" value="1"

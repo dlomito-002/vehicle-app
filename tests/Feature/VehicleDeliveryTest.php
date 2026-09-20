@@ -16,6 +16,8 @@ class VehicleDeliveryTest extends TestCase
 {
     use RefreshDatabase;
 
+    private const TINY_SIGNATURE_PNG = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=';
+
     private function createOpenReception(Vehicle $vehicle, User $user, array $overrides = []): VehicleReception
     {
         return VehicleReception::create(array_merge([
@@ -23,11 +25,13 @@ class VehicleDeliveryTest extends TestCase
             'created_by' => $user->id,
             'received_by_name' => 'Jane Doe',
             'trip_reason' => 'Client visit',
+            'location' => 'Oficina central',
             'reception_date' => now()->toDateString(),
             'reception_time' => '09:00',
             'initial_mileage' => 1000,
+            'washed' => false,
             'fuel_level' => 'full',
-            'fuel_type' => 'gasoline',
+            'fuel_type' => 'gasoline_super',
             'general_condition' => 'ok',
             'windows_mirrors_lights' => 'ok',
             'tires_condition' => 'ok',
@@ -43,11 +47,12 @@ class VehicleDeliveryTest extends TestCase
         return array_merge([
             'returned_by_name' => 'John Smith',
             'keys_received_by_name' => 'Front Desk',
+            'location' => 'Oficina central',
             'return_date' => now()->toDateString(),
             'return_time' => '17:00',
             'final_mileage' => 1200,
             'fuel_level' => 'half',
-            'fuel_type' => 'gasoline',
+            'fuel_type' => 'gasoline_super',
             'washed' => '0',
             'general_condition' => 'ok',
             'windows_mirrors_lights' => 'ok',
@@ -55,10 +60,10 @@ class VehicleDeliveryTest extends TestCase
             'dashboard_indicators' => 'ok',
             'cleanliness' => 'ok',
             'has_anomaly' => '0',
+            'signature_data' => self::TINY_SIGNATURE_PNG,
             'documentation' => [
                 'registration_card' => '1',
                 'vehicle_sticker' => '1',
-                'insurance_papers' => '1',
             ],
             'equipment_checks' => collect(EquipmentItem::cases())
                 ->mapWithKeys(fn ($item) => [$item->value => '1'])
@@ -162,7 +167,20 @@ class VehicleDeliveryTest extends TestCase
         $delivery = $reception->fresh()->delivery;
         $types = $delivery->documentation->pluck('document_type')->map->value->all();
 
-        $this->assertEqualsCanonicalizing(['registration_card', 'vehicle_sticker', 'insurance_papers'], $types);
+        $this->assertEqualsCanonicalizing(['registration_card', 'vehicle_sticker'], $types);
+    }
+
+    public function test_delivery_form_shows_three_fuel_types_and_no_insurance_policy_question(): void
+    {
+        $user = User::factory()->create();
+        $reception = $this->createOpenReception(Vehicle::factory()->create(), $user);
+
+        $this->actingAs($user)->get(route('deliveries.create', $reception))
+            ->assertOk()
+            ->assertSee('Gasolina Superior')
+            ->assertSee('Gasolina Regular')
+            ->assertSee('Diésel')
+            ->assertDontSee('Póliza de seguro vigente');
     }
 
     public function test_delivery_stores_equipment_and_condition_checklists(): void
@@ -179,5 +197,41 @@ class VehicleDeliveryTest extends TestCase
 
         $this->assertCount(count(EquipmentItem::cases()), $delivery->equipmentChecks);
         $this->assertCount(count(ConditionComponent::cases()), $delivery->conditionItems);
+    }
+
+    public function test_blank_canvas_data_uri_is_rejected_with_a_friendly_message(): void
+    {
+        // Same "first use" regression as receptions: a canvas measured
+        // while hidden produces "data:," instead of a real PNG, and that
+        // must never surface as the raw "validation.starts_with" key.
+        Storage::fake('public');
+
+        $user = User::factory()->create();
+        $vehicle = Vehicle::factory()->create();
+        $reception = $this->createOpenReception($vehicle, $user);
+
+        $response = $this->actingAs($user)->post(route('deliveries.store', $reception), $this->deliveryPayload([
+            'signature_data' => 'data:,',
+        ]));
+
+        $response->assertSessionHasErrors('signature_data');
+        $errors = $response->getSession()->get('errors')->getBag('default')->get('signature_data');
+        $this->assertNotContains('validation.starts_with', $errors);
+    }
+
+    public function test_signature_data_with_valid_prefix_but_invalid_png_bytes_is_rejected(): void
+    {
+        Storage::fake('public');
+
+        $user = User::factory()->create();
+        $vehicle = Vehicle::factory()->create();
+        $reception = $this->createOpenReception($vehicle, $user);
+
+        $response = $this->actingAs($user)->post(route('deliveries.store', $reception), $this->deliveryPayload([
+            'signature_data' => 'data:image/png;base64,'.base64_encode('not a real png'),
+        ]));
+
+        $response->assertSessionHasErrors('signature_data');
+        $this->assertNull($reception->fresh()->delivery);
     }
 }

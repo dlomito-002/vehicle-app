@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\ConditionStatus;
 use App\Enums\FuelLevel;
 use App\Enums\FuelType;
+use App\Enums\PhotoPosition;
 use App\Enums\ReceptionStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -22,9 +23,11 @@ class VehicleReception extends Model
         'created_by',
         'received_by_name',
         'trip_reason',
+        'location',
         'reception_date',
         'reception_time',
         'initial_mileage',
+        'washed',
         'fuel_level',
         'fuel_type',
         'general_condition',
@@ -42,6 +45,7 @@ class VehicleReception extends Model
         return [
             'reception_date' => 'date',
             'initial_mileage' => 'integer',
+            'washed' => 'boolean',
             'fuel_level' => FuelLevel::class,
             'fuel_type' => FuelType::class,
             'general_condition' => ConditionStatus::class,
@@ -94,6 +98,12 @@ class VehicleReception extends Model
     public function isOpen(): bool
     {
         return $this->status === ReceptionStatus::Open;
+    }
+
+    /** The hand-drawn signature captured on this form, if any. */
+    public function signaturePhoto(): ?VehiclePhoto
+    {
+        return $this->photos->firstWhere('position', PhotoPosition::Signature);
     }
 
     /** The five shared binary inspection fields, in display order. */

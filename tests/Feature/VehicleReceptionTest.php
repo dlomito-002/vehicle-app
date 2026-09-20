@@ -16,28 +16,32 @@ class VehicleReceptionTest extends TestCase
 {
     use RefreshDatabase;
 
+    private const TINY_SIGNATURE_PNG = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=';
+
     private function validPayload(Vehicle $vehicle, array $overrides = []): array
     {
         return array_merge([
             'vehicle_id' => $vehicle->id,
             'received_by_name' => 'Jane Doe',
             'trip_reason' => 'Client visit',
+            'location' => 'Oficina central',
             'reception_date' => now()->toDateString(),
             'reception_time' => '09:30',
             'initial_mileage' => 1000,
+            'washed' => '0',
             'fuel_level' => 'full',
-            'fuel_type' => 'gasoline',
+            'fuel_type' => 'gasoline_super',
             'general_condition' => 'ok',
             'windows_mirrors_lights' => 'ok',
             'tires_condition' => 'ok',
             'dashboard_indicators' => 'ok',
             'cleanliness' => 'ok',
             'has_anomaly' => '0',
+            'signature_data' => self::TINY_SIGNATURE_PNG,
             'documentation' => [
                 'registration_card' => '1',
                 'vehicle_sticker' => '1',
                 'drivers_license' => '1',
-                'insurance_papers' => '1',
             ],
             'equipment_checks' => collect(EquipmentItem::cases())
                 ->mapWithKeys(fn ($item) => [$item->value => '1'])
@@ -65,9 +69,55 @@ class VehicleReceptionTest extends TestCase
         ]);
 
         $reception = VehicleReception::first();
-        $this->assertCount(4, $reception->documentation);
+        $this->assertCount(3, $reception->documentation);
         $this->assertCount(count(EquipmentItem::cases()), $reception->equipmentChecks);
         $this->assertCount(count(ConditionComponent::cases()), $reception->conditionItems);
+    }
+
+    public function test_reception_accepts_each_of_the_three_fuel_types_and_rejects_others(): void
+    {
+        Storage::fake('public');
+
+        $user = User::factory()->create();
+
+        foreach (['gasoline_super', 'gasoline_regular', 'diesel'] as $fuelType) {
+            $vehicle = Vehicle::factory()->create();
+
+            $this->actingAs($user)
+                ->post(route('receptions.store'), $this->validPayload($vehicle, ['fuel_type' => $fuelType]))
+                ->assertSessionHasNoErrors();
+        }
+
+        $this->assertSame(
+            ['Gasolina Superior', 'Gasolina Regular', 'Diésel'],
+            array_map(fn ($case) => $case->label(), \App\Enums\FuelType::cases()),
+        );
+
+        foreach (['gasoline', 'electric', ''] as $invalid) {
+            $vehicle = Vehicle::factory()->create();
+
+            $this->actingAs($user)
+                ->post(route('receptions.store'), $this->validPayload($vehicle, ['fuel_type' => $invalid]))
+                ->assertSessionHasErrors('fuel_type');
+        }
+    }
+
+    public function test_insurance_policy_question_is_gone_from_the_reception_form(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)->get(route('receptions.create'))
+            ->assertOk()
+            ->assertDontSee('Póliza de seguro vigente')
+            ->assertDontSee('insurance_papers');
+
+        $this->assertNotContains('insurance_papers', array_map(fn ($d) => $d->value, \App\Enums\DocumentType::cases()));
+    }
+
+    public function test_transmission_is_not_an_available_maintenance_category(): void
+    {
+        $this->assertNull(\App\Enums\MaintenanceCategory::tryFrom('transmission'));
+        $this->assertCount(2, \App\Enums\MaintenanceCategory::cases());
     }
 
     public function test_vehicle_with_open_reception_is_not_offered_again(): void
@@ -151,9 +201,9 @@ class VehicleReceptionTest extends TestCase
         $response->assertRedirect();
 
         $reception = VehicleReception::first();
-        $this->assertCount(1, $reception->photos);
-        $this->assertSame('front', $reception->photos->first()->position->value);
-        Storage::disk('public')->assertExists($reception->photos->first()->path);
+        $this->assertCount(1, $reception->photos->where('position', 'front'));
+        $this->assertSame('front', $reception->photos->firstWhere('position', 'front')->position->value);
+        Storage::disk('public')->assertExists($reception->photos->firstWhere('position', 'front')->path);
     }
 
     public function test_oversized_photo_is_rejected(): void
@@ -171,6 +221,41 @@ class VehicleReceptionTest extends TestCase
         $response = $this->actingAs($user)->post(route('receptions.store'), $payload);
 
         $response->assertSessionHasErrors('position_photos.front');
+    }
+
+    public function test_blank_canvas_data_uri_is_rejected_with_a_friendly_message(): void
+    {
+        // Reproduces the "first use" bug: a canvas measured while hidden
+        // (0x0 backing bitmap) produces the bare "data:," URI instead of a
+        // real PNG. It must fail with a translated message, never the raw
+        // "validation.starts_with" key.
+        Storage::fake('public');
+
+        $user = User::factory()->create();
+        $vehicle = Vehicle::factory()->create();
+
+        $response = $this->actingAs($user)->post(route('receptions.store'), $this->validPayload($vehicle, [
+            'signature_data' => 'data:,',
+        ]));
+
+        $response->assertSessionHasErrors('signature_data');
+        $errors = $response->getSession()->get('errors')->getBag('default')->get('signature_data');
+        $this->assertNotContains('validation.starts_with', $errors);
+    }
+
+    public function test_signature_data_with_valid_prefix_but_invalid_png_bytes_is_rejected(): void
+    {
+        Storage::fake('public');
+
+        $user = User::factory()->create();
+        $vehicle = Vehicle::factory()->create();
+
+        $response = $this->actingAs($user)->post(route('receptions.store'), $this->validPayload($vehicle, [
+            'signature_data' => 'data:image/png;base64,'.base64_encode('not a real png'),
+        ]));
+
+        $response->assertSessionHasErrors('signature_data');
+        $this->assertDatabaseCount('vehicle_receptions', 0);
     }
 
     public function test_guest_cannot_create_a_reception(): void

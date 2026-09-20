@@ -12,7 +12,23 @@
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>body { font-family: 'Public Sans', system-ui, sans-serif; }</style>
+    <style>
+        body { font-family: 'Public Sans', system-ui, sans-serif; }
+        input:not([type="radio"]):not([type="checkbox"]),
+        select,
+        textarea {
+            border: 1px solid #94a3b8 !important;
+            background-color: #fff;
+            border-radius: 0.375rem;
+        }
+        input:not([type="radio"]):not([type="checkbox"]):focus,
+        select:focus,
+        textarea:focus {
+            border-color: #0db3d9 !important;
+            box-shadow: 0 0 0 3px rgb(13 179 217 / 16%);
+            outline: none;
+        }
+    </style>
 </head>
 <body class="h-full bg-slate-50">
     <div class="min-h-full flex items-center justify-center px-4">

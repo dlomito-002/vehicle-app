@@ -39,7 +39,7 @@ document.querySelectorAll('form[data-compress-images]').forEach((form) => {
 			return;
 		}
 
-		const fileInputs = [...form.querySelectorAll('input[type="file"]')];
+		const fileInputs = [...form.querySelectorAll('input[type="file"]:not([data-skip-compress])')];
 		const selectedFileInputs = fileInputs.filter((input) => input.files.length);
 		if (!selectedFileInputs.length) {
 			return;

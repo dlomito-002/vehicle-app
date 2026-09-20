@@ -10,6 +10,8 @@ use App\Models\VehiclePhoto;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 /**
  * Shared logic for the file-handling steps common to both the reception and
@@ -39,14 +41,73 @@ trait HandlesVehicleFormUploads
         }
     }
 
+    /**
+     * Store the signature against the given owner, if one was submitted:
+     * either a hand-drawn canvas capture (a base64 PNG data URI) or an
+     * uploaded PNG file. Exactly one is expected — validated upstream by
+     * StoreVehicleReceptionRequest/StoreVehicleDeliveryRequest — and the
+     * uploaded-file path reuses persistPhoto() so both methods end up
+     * stored identically.
+     */
+    protected function storeSignature(Model $owner, Request $request): void
+    {
+        /** @var UploadedFile|null $file */
+        $file = $request->file('signature_file');
+
+        if ($file) {
+            $this->persistPhoto($owner, $file, PhotoPosition::Signature);
+
+            return;
+        }
+
+        $dataUri = $request->input('signature_data');
+
+        if (! $dataUri || ! str_starts_with($dataUri, 'data:image/')) {
+            return;
+        }
+
+        [$meta, $base64] = explode(',', $dataUri, 2) + [null, null];
+
+        if (! $base64) {
+            return;
+        }
+
+        $contents = base64_decode($base64, true);
+
+        if ($contents === false) {
+            return;
+        }
+
+        preg_match('/data:image\/(\w+);base64/', $meta, $matches);
+        $extension = $matches[1] ?? 'png';
+        $mimeType = "image/{$extension}";
+
+        $disk = config('vehicle.photos_disk', 'public');
+        $ownerType = str($owner::class)->afterLast('\\')->snake()->plural()->toString();
+        $filename = 'firma-'.Str::random(10).'.'.$extension;
+        $path = "vehicle-photos/{$ownerType}/{$owner->getKey()}/{$filename}";
+
+        Storage::disk($disk)->put($path, $contents);
+
+        $owner->photos()->create([
+            'position' => PhotoPosition::Signature,
+            'disk' => $disk,
+            'path' => $path,
+            'original_filename' => $filename,
+            'size' => strlen($contents),
+            'mime_type' => $mimeType,
+        ]);
+    }
+
     private function persistPhoto(Model $owner, UploadedFile $file, PhotoPosition $position): VehiclePhoto
     {
+        $disk = config('vehicle.photos_disk', 'public');
         $ownerType = str($owner::class)->afterLast('\\')->snake()->plural()->toString();
-        $path = $file->store("vehicle-photos/{$ownerType}/{$owner->getKey()}", 'public');
+        $path = $file->store("vehicle-photos/{$ownerType}/{$owner->getKey()}", $disk);
 
         return $owner->photos()->create([
             'position' => $position,
-            'disk' => 'public',
+            'disk' => $disk,
             'path' => $path,
             'original_filename' => $file->getClientOriginalName(),
             'size' => $file->getSize(),
@@ -123,11 +184,12 @@ trait HandlesVehicleFormUploads
 
     private function storeChecklistPhoto(Model $owner, UploadedFile $file, string $folder): array
     {
+        $disk = config('vehicle.photos_disk', 'public');
         $ownerType = str($owner::class)->afterLast('\\')->snake()->plural()->toString();
-        $path = $file->store("vehicle-{$folder}/{$ownerType}/{$owner->getKey()}", 'public');
+        $path = $file->store("vehicle-{$folder}/{$ownerType}/{$owner->getKey()}", $disk);
 
         return [
-            'photo_disk' => 'public',
+            'photo_disk' => $disk,
             'photo_path' => $path,
             'photo_original_filename' => $file->getClientOriginalName(),
             'photo_size' => $file->getSize(),

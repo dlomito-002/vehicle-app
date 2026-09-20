@@ -14,7 +14,7 @@
             'washed', 'general_condition', 'windows_mirrors_lights', 'tires_condition',
             'dashboard_indicators', 'cleanliness', 'condition_items', 'condition_photos',
             'has_anomaly', 'anomaly_description', 'anomaly_photos',
-            'position_photos', 'photos', 'documentation',
+            'position_photos', 'photos', 'signature_data', 'signature_file',
         ];
         $initialStep = 1;
         foreach ($errors->keys() as $errorKey) {
@@ -33,15 +33,17 @@
         recibido el {{ $reception->reception_date->format('d/m/Y') }} por {{ $reception->received_by_name }}.
     </p>
 
-    <form method="POST" action="{{ route('deliveries.store', $reception) }}" enctype="multipart/form-data"
-          data-compress-images data-delivery-form x-data="{ step: {{ $initialStep }} }" class="max-w-3xl">
+        <form method="POST" action="{{ route('deliveries.store', $reception) }}" enctype="multipart/form-data" novalidate
+                    data-compress-images data-delivery-form x-data="{ step: {{ $initialStep }} }"
+                    @submit.prevent="const form = $event.currentTarget; if (form.reportValidity()) { form.querySelectorAll('fieldset').forEach(fieldset => fieldset.disabled = false); form.submit(); }"
+                    class="max-w-3xl">
         @csrf
 
         <div class="flex items-center gap-2 mb-6">
             <div class="flex items-center gap-2 text-xs font-medium" :class="step === 1 ? 'text-brand-magenta' : 'text-slate-400'">
                 <span class="flex items-center justify-center w-5 h-5 rounded-full border"
                       :class="step === 1 ? 'border-brand-magenta bg-brand-magenta/10' : 'border-slate-300'">1</span>
-                Datos y equipo
+                Datos, documentos y equipo
             </div>
             <div class="flex-1 h-px bg-slate-200"></div>
             <div class="flex items-center gap-2 text-xs font-medium" :class="step === 2 ? 'text-brand-magenta' : 'text-slate-400'">
@@ -51,7 +53,7 @@
             </div>
         </div>
 
-        <div x-show="step === 1" class="space-y-6">
+        <fieldset x-show="step === 1" :disabled="step !== 1" class="space-y-6">
             <section class="bg-white border border-slate-200 rounded-lg p-5 border-l-4 border-l-brand-magenta">
                 <h2 class="text-sm font-semibold text-slate-900 mb-4">Personas</h2>
                 <div class="grid sm:grid-cols-2 gap-4">
@@ -72,7 +74,7 @@
 
             <section class="bg-white border border-slate-200 rounded-lg p-5 border-l-4 border-l-brand-cyan">
                 <h2 class="text-sm font-semibold text-slate-900 mb-4">Detalles de la devolución</h2>
-                <div class="grid sm:grid-cols-3 gap-4 mb-4">
+                <div class="grid sm:grid-cols-3 gap-4">
                     <div>
                         <label for="return_date" class="block text-sm font-medium text-slate-700 mb-1">Fecha de devolución</label>
                         <input type="date" id="return_date" name="return_date" value="{{ old('return_date') }}" required
@@ -93,9 +95,24 @@
                         <p class="mt-1 text-xs text-slate-400">Inicial: {{ number_format($reception->initial_mileage) }}</p>
                         @error('final_mileage')<p class="mt-1 text-sm text-brand-orange">{{ $message }}</p>@enderror
                     </div>
+                    <div class="sm:col-span-3">
+                        <label for="location" class="block text-sm font-medium text-slate-700 mb-1">Ubicación de devolución</label>
+                        <input id="location" name="location" value="{{ old('location') }}" required
+                               placeholder="Ej. Oficina central, aeropuerto, sitio del cliente..."
+                               class="w-full rounded-md border-slate-300 focus:border-brand-cyan focus:ring-brand-cyan text-sm">
+                        @error('location')<p class="mt-1 text-sm text-brand-orange">{{ $message }}</p>@enderror
+                    </div>
                 </div>
+            </section>
+
+            <section class="bg-white border border-slate-200 rounded-lg p-5 border-l-4 border-l-brand-cyan space-y-4">
+                <h2 class="text-sm font-semibold text-slate-900">Combustible</h2>
                 <x-fuel-level-selector />
                 <x-fuel-type-selector />
+            </section>
+
+            <section class="bg-white border border-slate-200 rounded-lg p-5 border-l-4 border-l-brand-magenta">
+                <x-documentation-checklist :document-types="DocumentType::forDelivery()" />
             </section>
 
             <section class="bg-white border border-slate-200 rounded-lg p-5 border-l-4 border-l-brand-cyan">
@@ -103,16 +120,20 @@
             </section>
 
             <div class="flex justify-end">
-                <button type="button" @click="step = 2; window.scrollTo({top: 0, behavior: 'smooth'})"
+                <button type="button" @click="if ($el.closest('form').reportValidity()) { step = 2; window.scrollTo({top: 0, behavior: 'smooth'}) }"
                         class="inline-flex items-center px-5 py-2.5 rounded-md text-sm font-medium text-white bg-brand-cyan hover:bg-brand-cyan/90">
                     Siguiente: Estado y evidencia
                 </button>
             </div>
-        </div>
+        </fieldset>
 
-        <div x-show="step === 2" class="space-y-6">
+        <fieldset x-show="step === 2" :disabled="step !== 2" class="space-y-6">
             <section class="bg-white border border-slate-200 rounded-lg p-5 border-l-4 border-l-brand-olive space-y-5">
                 <h2 class="text-sm font-semibold text-slate-900">Estado a la devolución</h2>
+
+                @foreach (ConditionStatus::fieldLabels() as $field => $label)
+                    <x-condition-field :field="$field" :label="$label" />
+                @endforeach
 
                 <fieldset>
                     <legend class="text-sm font-medium text-slate-700 mb-2">Vehículo lavado</legend>
@@ -126,10 +147,6 @@
                     </div>
                     @error('washed')<p class="mt-1 text-sm text-brand-orange">{{ $message }}</p>@enderror
                 </fieldset>
-
-                @foreach (ConditionStatus::fieldLabels() as $field => $label)
-                    <x-condition-field :field="$field" :label="$label" />
-                @endforeach
 
                 <div class="pt-2 border-t border-slate-100">
                     <x-condition-checklist />
@@ -145,7 +162,7 @@
             </section>
 
             <section class="bg-white border border-slate-200 rounded-lg p-5 border-l-4 border-l-brand-magenta">
-                <x-documentation-checklist :document-types="DocumentType::forDelivery()" />
+                <x-signature-pad />
             </section>
 
             <div class="flex justify-between">
@@ -158,6 +175,6 @@
                     Guardar devolución
                 </button>
             </div>
-        </div>
+        </fieldset>
     </form>
 @endsection

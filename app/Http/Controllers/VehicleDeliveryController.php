@@ -9,8 +9,10 @@ use App\Http\Requests\StoreVehicleDeliveryRequest;
 use App\Models\Vehicle;
 use App\Models\VehicleDelivery;
 use App\Models\VehicleReception;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -72,6 +74,38 @@ class VehicleDeliveryController extends Controller
         return view('deliveries.select-reception', compact('vehicle', 'openReceptions'));
     }
 
+    /**
+     * Interstitial step shown before the delivery form: a damage report
+     * summarizing everything flagged as an issue at reception, so staff can
+     * review it before closing out the checkout.
+     */
+    public function damageReport(VehicleReception $reception): View
+    {
+        $this->authorize('create', VehicleDelivery::class);
+
+        if ($reception->status !== ReceptionStatus::Open) {
+            abort(409, 'Esta recepción ya fue cerrada por una devolución.');
+        }
+
+        $reception->load(['vehicle', 'creator', 'photos', 'equipmentChecks', 'conditionItems']);
+
+        return view('deliveries.damage-report', compact('reception'));
+    }
+
+    public function damageReportPdf(VehicleReception $reception): Response
+    {
+        $this->authorize('create', VehicleDelivery::class);
+
+        $reception->load(['vehicle', 'creator', 'photos', 'equipmentChecks', 'conditionItems']);
+
+        $pdf = Pdf::loadView('deliveries.damage-report-pdf', compact('reception'))
+            ->setPaper('letter', 'portrait');
+
+        $filename = 'informe-danos-'.str($reception->vehicle->displayName())->slug().'-'.$reception->id.'.pdf';
+
+        return $pdf->download($filename);
+    }
+
     /** Step 3: delivery form scoped to the specific reception chosen in step 2. */
     public function create(VehicleReception $reception): View
     {
@@ -105,6 +139,7 @@ class VehicleDeliveryController extends Controller
                 'created_by' => $request->user()->id,
                 'returned_by_name' => $data['returned_by_name'],
                 'keys_received_by_name' => $data['keys_received_by_name'],
+                'location' => $data['location'],
                 'return_date' => $data['return_date'],
                 'return_time' => $data['return_time'],
                 'final_mileage' => $data['final_mileage'],
@@ -124,6 +159,7 @@ class VehicleDeliveryController extends Controller
             $this->storeEquipmentChecks($delivery, $data['equipment_checks'], $request);
             $this->storeConditionItems($delivery, $data['condition_items'], $request);
             $this->storePhotos($delivery, $request);
+            $this->storeSignature($delivery, $request);
 
             // Closing the reception happens atomically with delivery creation
             // so the pair can never end up inconsistent.

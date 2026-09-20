@@ -14,7 +14,7 @@
             @php $key = $item->value; $selected = old("condition_items.$key"); @endphp
             <div class="rounded-md border border-slate-200 p-3">
                 <div class="flex items-center justify-between gap-3 mb-2">
-                    <span class="text-sm text-slate-700">{{ $item->label() }}</span>
+                    <span class="text-sm text-slate-700 flex-1 min-w-0">{{ $item->label() }}</span>
                     <div class="flex gap-3 shrink-0">
                         @foreach (ConditionStatus::cases() as $case)
                             <label class="flex items-center gap-1.5 text-sm cursor-pointer">

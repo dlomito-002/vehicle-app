@@ -38,13 +38,13 @@
         .font-data { font-family: 'IBM Plex Mono', ui-monospace, monospace; }
     </style>
 </head>
-<body class="h-full bg-slate-50 text-slate-900 antialiased">
+<body class="h-full overflow-x-hidden bg-slate-50 text-slate-900 antialiased">
     <div class="min-h-full flex flex-col">
         @auth
         <header class="bg-white border-b border-slate-200">
             <div class="max-w-6xl mx-auto px-4 sm:px-6">
-                <div class="flex items-center justify-between h-16">
-                    <div class="flex items-center gap-8">
+                <div class="flex min-h-16 flex-wrap items-center justify-between gap-3 py-3 sm:h-16 sm:flex-nowrap sm:gap-8 sm:py-0">
+                    <div class="flex min-w-0 items-center gap-4 sm:gap-8">
                         <a href="{{ route('dashboard') }}" class="font-semibold text-lg tracking-tight text-slate-900">
                             Fleet <span class="text-brand-magenta">Desk</span>
                         </a>
@@ -55,10 +55,13 @@
                                     ['route' => 'calendar.index', 'label' => 'Calendario'],
                                     ['route' => 'receptions.index', 'label' => 'Recepciones'],
                                     ['route' => 'deliveries.index', 'label' => 'Devoluciones'],
+                                    ['route' => 'maintenance-schedules.index', 'label' => 'Mantenimiento'],
                                 ];
                                 if (auth()->user()->isAdmin()) {
                                     $navLinks[] = ['route' => 'vehicles.index', 'label' => 'Vehículos'];
+                                    $navLinks[] = ['route' => 'users.index', 'label' => 'Usuarios'];
                                 }
+                                $navLinks[] = ['route' => 'help.create', 'label' => 'Ayuda'];
                             @endphp
                             @foreach ($navLinks as $link)
                                 <a href="{{ route($link['route']) }}"
@@ -71,7 +74,7 @@
                             @endforeach
                         </nav>
                     </div>
-                    <div class="flex items-center gap-4">
+                    <div class="flex shrink-0 items-center gap-2 sm:gap-4">
                         <a href="{{ route('receptions.create') }}"
                            class="hidden sm:inline-flex items-center px-3 py-1.5 rounded-md text-sm font-medium text-white bg-brand-magenta hover:bg-brand-magenta/90 transition-colors">
                             Nueva recepción
@@ -97,7 +100,7 @@
         @endauth
 
         <main class="flex-1">
-            <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+            <div class="mx-auto max-w-6xl px-3 py-5 sm:px-6 sm:py-8">
                 @if (session('status'))
                     <div class="mb-6 rounded-md border-l-4 border-brand-olive bg-brand-olive/10 px-4 py-3 text-sm text-slate-800">
                         {{ session('status') }}

@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\ConditionStatus;
 use App\Enums\FuelLevel;
 use App\Enums\FuelType;
+use App\Enums\PhotoPosition;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -21,6 +22,7 @@ class VehicleDelivery extends Model
         'created_by',
         'returned_by_name',
         'keys_received_by_name',
+        'location',
         'return_date',
         'return_time',
         'final_mileage',
@@ -94,6 +96,12 @@ class VehicleDelivery extends Model
     public function mileageDelta(): int
     {
         return $this->final_mileage - $this->reception->initial_mileage;
+    }
+
+    /** The hand-drawn signature captured on this form, if any. */
+    public function signaturePhoto(): ?VehiclePhoto
+    {
+        return $this->photos->firstWhere('position', PhotoPosition::Signature);
     }
 }
 

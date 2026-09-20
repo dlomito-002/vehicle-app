@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Enums\ConditionComponent;
+use App\Enums\EquipmentItem;
 use App\Enums\ReceptionStatus;
 use App\Models\User;
 use App\Models\Vehicle;
@@ -24,6 +26,7 @@ class ComparisonReportTest extends TestCase
             'created_by' => $user->id,
             'received_by_name' => 'Jane Doe',
             'trip_reason' => 'Client visit',
+            'location' => 'Oficina central',
             'reception_date' => now()->toDateString(),
             'reception_time' => '09:00',
             'initial_mileage' => 1000,
@@ -52,6 +55,7 @@ class ComparisonReportTest extends TestCase
             'created_by' => $user->id,
             'received_by_name' => 'Jane Doe',
             'trip_reason' => 'Client visit',
+            'location' => 'Oficina central',
             'reception_date' => now()->toDateString(),
             'reception_time' => '09:00',
             'initial_mileage' => 1000,
@@ -71,6 +75,7 @@ class ComparisonReportTest extends TestCase
             'created_by' => $user->id,
             'returned_by_name' => 'John Smith',
             'keys_received_by_name' => 'Front Desk',
+            'location' => 'Oficina central',
             'return_date' => now()->toDateString(),
             'return_time' => '17:00',
             'final_mileage' => 1250,
@@ -106,6 +111,7 @@ class ComparisonReportTest extends TestCase
             'created_by' => $user->id,
             'received_by_name' => 'Jane Doe',
             'trip_reason' => 'Client visit',
+            'location' => 'Oficina central',
             'reception_date' => now()->toDateString(),
             'reception_time' => '09:00',
             'initial_mileage' => 1000,
@@ -128,6 +134,7 @@ class ComparisonReportTest extends TestCase
             'created_by' => $user->id,
             'returned_by_name' => 'John Smith',
             'keys_received_by_name' => 'Front Desk',
+            'location' => 'Oficina central',
             'return_date' => now()->toDateString(),
             'return_time' => '17:00',
             'final_mileage' => 1250,
@@ -148,13 +155,13 @@ class ComparisonReportTest extends TestCase
 
         $response->assertOk();
         $response->assertViewHas('comparison', function ($comparison) {
-            // All 26 equipment items and all 12 condition components must be
+            // All equipment items and all condition components must be
             // present in the diff, not just the items that were recorded.
             $extinguidor = collect($comparison['equipment'])->firstWhere('item', 'extinguidor');
             $llantas = collect($comparison['condition_items'])->firstWhere('item', 'llantas');
 
-            return count($comparison['equipment']) === 26
-                && count($comparison['condition_items']) === 12
+            return count($comparison['equipment']) === count(EquipmentItem::cases())
+                && count($comparison['condition_items']) === count(ConditionComponent::cases())
                 && $extinguidor['worsened'] === true
                 && $llantas['worsened'] === true;
         });

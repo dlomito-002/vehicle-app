@@ -10,6 +10,8 @@ use App\Enums\FuelLevel;
 use App\Enums\FuelType;
 use App\Enums\PhotoPosition;
 use App\Enums\ReceptionStatus;
+use App\Http\Requests\Concerns\ValidatesSignatureData;
+use App\Models\VehicleReception;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
@@ -17,6 +19,8 @@ use Illuminate\Validation\Validator;
 
 class StoreVehicleDeliveryRequest extends FormRequest
 {
+    use ValidatesSignatureData;
+
     public function authorize(): bool
     {
         return Auth::check();
@@ -24,16 +28,17 @@ class StoreVehicleDeliveryRequest extends FormRequest
 
     public function rules(): array
     {
-        /** @var \App\Models\VehicleReception $reception */
+        /** @var VehicleReception $reception */
         $reception = $this->route('reception');
 
         $rules = [
             'returned_by_name' => ['required', 'string', 'max:255'],
             'keys_received_by_name' => ['required', 'string', 'max:255'],
+            'location' => ['required', 'string', 'max:255'],
 
             'return_date' => ['required', 'date'],
             'return_time' => ['required', 'date_format:H:i'],
-            'final_mileage' => ['required', 'integer', 'min:' . $reception->initial_mileage],
+            'final_mileage' => ['required', 'integer', 'min:'.$reception->initial_mileage],
 
             'fuel_level' => ['required', Rule::enum(FuelLevel::class)],
             'fuel_type' => ['required', Rule::enum(FuelType::class)],
@@ -41,6 +46,8 @@ class StoreVehicleDeliveryRequest extends FormRequest
 
             'has_anomaly' => ['required', 'boolean'],
             'anomaly_description' => ['required_if:has_anomaly,1', 'nullable', 'string', 'max:1000'],
+
+            ...$this->signatureRules(),
 
             'documentation' => ['required', 'array'],
 
@@ -82,7 +89,7 @@ class StoreVehicleDeliveryRequest extends FormRequest
     public function withValidator(Validator $validator): void
     {
         $validator->after(function (Validator $validator) {
-            /** @var \App\Models\VehicleReception $reception */
+            /** @var VehicleReception $reception */
             $reception = $this->route('reception');
 
             if (! $reception || $reception->status !== ReceptionStatus::Open) {
@@ -108,7 +115,10 @@ class StoreVehicleDeliveryRequest extends FormRequest
             'final_mileage.min' => 'El kilometraje final no puede ser menor que el kilometraje inicial registrado.',
             'anomaly_description.required_if' => 'Describe el daño, falla o anomalía.',
             'anomaly_photos.required_if' => 'Adjunta al menos una fotografía de la anomalía reportada.',
+            'signature_data.required_without' => 'Se requiere la firma de la persona que devuelve el vehículo (dibujada o en PNG).',
+            'signature_file.required_without' => 'Se requiere la firma de la persona que devuelve el vehículo (dibujada o en PNG).',
+            'signature_data.starts_with' => 'La firma dibujada no es válida. Borra la firma e inténtalo de nuevo.',
+            'signature_file.mimes' => 'La firma subida debe ser un archivo PNG.',
         ];
     }
 }
-

@@ -60,6 +60,18 @@ return [
             'report' => false,
         ],
 
+        // Requires "cloudinary-labs/cloudinary-laravel" (composer require
+        // cloudinary-labs/cloudinary-laravel — not installed in this
+        // environment; see LEEME.txt). Credentials come from
+        // config/cloudinary.php, which itself reads CLOUDINARY_CLOUD_NAME,
+        // CLOUDINARY_API_KEY and CLOUDINARY_API_SECRET. Vehicle photo
+        // uploads only use this disk once VEHICLE_PHOTOS_DISK=cloudinary is
+        // set (see config/vehicle.php) — until then everything keeps using
+        // the local 'public' disk as before.
+        'cloudinary' => [
+            'driver' => 'cloudinary',
+        ],
+
     ],
 
     /*
