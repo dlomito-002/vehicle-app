@@ -32,7 +32,7 @@
 
         <form method="POST" action="{{ route('receptions.store') }}" enctype="multipart/form-data"
                     x-data="{ step: {{ $initialStep }} }" novalidate
-                    @submit.prevent="const form = $event.currentTarget; if (form.reportValidity()) { form.querySelectorAll('fieldset').forEach(fieldset => fieldset.disabled = false); form.submit(); }"
+                    @submit.prevent="submitFormOnce($event.currentTarget)"
                     class="max-w-3xl">
         @csrf
 

@@ -133,6 +133,18 @@ class VehicleDeliveryController extends Controller
         $data = $request->validated();
 
         $delivery = DB::transaction(function () use ($request, $data, $reception) {
+            // Claim the reception with a conditional UPDATE so two concurrent
+            // requests can't both pass the Open check above; only one wins.
+            $claimed = VehicleReception::whereKey($reception->id)
+                ->where('status', ReceptionStatus::Open)
+                ->update(['status' => ReceptionStatus::Closed]);
+
+            if (! $claimed) {
+                throw ValidationException::withMessages([
+                    'reception' => 'Esta recepción ya fue cerrada por otra devolución.',
+                ]);
+            }
+
             $delivery = VehicleDelivery::create([
                 'vehicle_reception_id' => $reception->id,
                 'vehicle_id' => $reception->vehicle_id,
@@ -161,10 +173,8 @@ class VehicleDeliveryController extends Controller
             $this->storePhotos($delivery, $request);
             $this->storeSignature($delivery, $request);
 
-            // Closing the reception happens atomically with delivery creation
-            // so the pair can never end up inconsistent.
-            $reception->update(['status' => ReceptionStatus::Closed]);
-
+            // The reception was closed at the top of this transaction, so the
+            // pair can never end up inconsistent.
             return $delivery;
         });
 

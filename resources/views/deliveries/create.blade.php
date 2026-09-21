@@ -35,7 +35,7 @@
 
         <form method="POST" action="{{ route('deliveries.store', $reception) }}" enctype="multipart/form-data" novalidate
                     data-compress-images data-delivery-form x-data="{ step: {{ $initialStep }} }"
-                    @submit.prevent="const form = $event.currentTarget; if (form.reportValidity()) { form.querySelectorAll('fieldset').forEach(fieldset => fieldset.disabled = false); form.submit(); }"
+                    @submit.prevent="submitFormOnce($event.currentTarget)"
                     class="max-w-3xl">
         @csrf
 

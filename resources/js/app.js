@@ -33,34 +33,57 @@ const compressImage = (file) => new Promise((resolve, reject) => {
 	image.src = objectUrl;
 });
 
-document.querySelectorAll('form[data-compress-images]').forEach((form) => {
-	form.addEventListener('submit', async (event) => {
-		if (form.dataset.imagesPrepared === 'true') {
-			return;
-		}
+const compressFormImages = (form) => {
+	const fileInputs = [...form.querySelectorAll('input[type="file"]:not([data-skip-compress])')];
+	const selectedFileInputs = fileInputs.filter((input) => input.files.length);
 
-		const fileInputs = [...form.querySelectorAll('input[type="file"]:not([data-skip-compress])')];
-		const selectedFileInputs = fileInputs.filter((input) => input.files.length);
-		if (!selectedFileInputs.length) {
-			return;
-		}
+	return Promise.all(selectedFileInputs.map(async (input) => {
+		const compressedFiles = await Promise.all([...input.files].map(compressImage));
+		const dataTransfer = new DataTransfer();
+		compressedFiles.forEach((file) => dataTransfer.items.add(file));
+		input.files = dataTransfer.files;
+	}));
+};
 
-		event.preventDefault();
-		const submitButton = form.querySelector('button[type="submit"]');
-		submitButton?.setAttribute('disabled', 'disabled');
+// Single entry point for submitting the multi-step vehicle forms. Validation,
+// image compression and the actual submit all happen here, exactly once, so a
+// double click (or compression finishing late) can never POST the form twice.
+window.submitFormOnce = async (form) => {
+	if (form.dataset.submitting === 'true' || !form.reportValidity()) {
+		return;
+	}
 
-		try {
-			await Promise.all(selectedFileInputs.map(async (input) => {
-				const compressedFiles = await Promise.all([...input.files].map(compressImage));
-				const dataTransfer = new DataTransfer();
-				compressedFiles.forEach((file) => dataTransfer.items.add(file));
-				input.files = dataTransfer.files;
-			}));
-			form.dataset.imagesPrepared = 'true';
-			form.requestSubmit();
-		} catch (error) {
-			submitButton?.removeAttribute('disabled');
-			window.alert(error.message);
+	form.dataset.submitting = 'true';
+	const submitButton = form.querySelector('button[type="submit"]');
+	submitButton?.setAttribute('disabled', 'disabled');
+
+	try {
+		if (form.hasAttribute('data-compress-images')) {
+			await compressFormImages(form);
 		}
+	} catch (error) {
+		delete form.dataset.submitting;
+		submitButton?.removeAttribute('disabled');
+		window.alert(error.message);
+		return;
+	}
+
+	// Fields on the inactive step are disabled so they skip validation above;
+	// re-enable them so their values are included in the submission.
+	form.querySelectorAll('fieldset').forEach((fieldset) => {
+		fieldset.disabled = false;
+	});
+	form.submit();
+};
+
+// Restore the forms if the user comes back via the browser's back button.
+window.addEventListener('pageshow', (event) => {
+	if (!event.persisted) {
+		return;
+	}
+
+	document.querySelectorAll('form[data-submitting]').forEach((form) => {
+		delete form.dataset.submitting;
+		form.querySelector('button[type="submit"]')?.removeAttribute('disabled');
 	});
 });

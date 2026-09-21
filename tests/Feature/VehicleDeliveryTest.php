@@ -7,6 +7,7 @@ use App\Enums\EquipmentItem;
 use App\Enums\ReceptionStatus;
 use App\Models\User;
 use App\Models\Vehicle;
+use App\Models\VehicleDelivery;
 use App\Models\VehicleReception;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
@@ -125,6 +126,24 @@ class VehicleDeliveryTest extends TestCase
 
         $this->assertSame(ReceptionStatus::Closed, $receptionB->fresh()->status);
         $this->assertSame(ReceptionStatus::Open, $receptionA->fresh()->status);
+    }
+
+    public function test_submitting_the_same_delivery_twice_creates_only_one_delivery(): void
+    {
+        Storage::fake('public');
+
+        $user = User::factory()->create();
+        $reception = $this->createOpenReception(Vehicle::factory()->create(), $user);
+
+        $this->actingAs($user)
+            ->post(route('deliveries.store', $reception), $this->deliveryPayload())
+            ->assertRedirect(route('comparisons.show', $reception));
+
+        $this->actingAs($user)
+            ->post(route('deliveries.store', $reception), $this->deliveryPayload())
+            ->assertSessionHasErrors('reception');
+
+        $this->assertSame(1, VehicleDelivery::where('vehicle_reception_id', $reception->id)->count());
     }
 
     public function test_delivery_cannot_reuse_an_already_closed_reception(): void
