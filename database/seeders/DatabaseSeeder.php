@@ -33,18 +33,22 @@ class DatabaseSeeder extends Seeder
         User::factory()->create([
             'name' => 'Diego Velasquez',
             'email' => 'diego2402alejandrov@gmail.com',
+            'role' => 'admin',
         ]);
 
         User::factory()->create([
             'name' => 'Rocio',
             'email' => 'rocio@carrousel.com.gt',
         ]);
-        
+
         User::factory()->create([
-            'name' => 'Ad',
-            'email' => 'ad@gmail.com',
-            'role' => 'admin',
-            'password' => '123',
+            'name' => 'Marlon',
+            'email' => 'marlon@carrousel.com.gt',
+        ]);
+
+        User::factory()->create([
+            'name' => 'Lomito',
+            'email' => 'hacker002502@gmail.com',
         ]);
 
         
