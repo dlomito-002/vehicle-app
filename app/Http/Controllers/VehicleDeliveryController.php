@@ -55,7 +55,7 @@ class VehicleDeliveryController extends Controller
      * We never auto-select — each option is identified by reception date,
      * time, and the person who received the vehicle.
      */
-    public function selectReception(Vehicle $vehicle): View
+    public function selectReception(Vehicle $vehicle): View|RedirectResponse
     {
         $this->authorize('create', VehicleDelivery::class);
 
