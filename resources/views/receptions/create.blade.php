@@ -135,7 +135,7 @@
                 </div>
             </div>
 
-            <div style="display:flex;justify-content:flex-end">
+            <div style="display:flex;align-items:center;justify-content:flex-end;gap:12px;margin-top:4px;padding-top:18px;border-top:1px solid var(--border)">
                 <button type="button" @click="if ($el.closest('form').reportValidity()) { step = 2; window.scrollTo({top: 0, behavior: 'smooth'}) }"
                         class="btn btn-primary">
                     Siguiente: Inspección y evidencia
