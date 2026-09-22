@@ -42,17 +42,25 @@
 
 	[data-theme="dark"] {
 		color-scheme: dark;
-		--ink: #f5f7fb;
-		--muted: #aeb8ca;
+		--brand: #7fa7ff;
+		--brand-dark: #dce7ff;
+		--brand-2: #9db9ff;
+		--blue: #4f86ed;
+		--ink: #f2f5f9;
+		--muted: #9eacbd;
 		--bg: #0b0f17;
 		--card: #121821;
 		--border: #2a3545;
-		--danger-bg: #351b20;
-		--success-bg: #113226;
-		--warning-bg: #332b17;
-		--info-bg: #142743;
-		--shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-		--shadow-lg: 0 18px 45px rgba(0, 0, 0, 0.45);
+		--danger: #ff9d98;
+		--danger-bg: #321a20;
+		--success: #75d7ab;
+		--success-bg: #10291f;
+		--warning: #efc66b;
+		--warning-bg: #302816;
+		--info: #a8c5ff;
+		--info-bg: #13233a;
+		--shadow: 0 2px 8px rgba(0, 0, 0, 0.24);
+		--shadow-lg: 0 18px 48px rgba(0, 0, 0, 0.42);
 	}
 
 	html {
@@ -134,8 +142,8 @@
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	min-width: 38px;
-	height: 38px;
+	min-width: 40px;
+	height: 40px;
 	padding: 0;
 	border-radius: 10px;
 	border: 1px solid var(--border);
@@ -482,6 +490,20 @@
 	box-shadow: inset 3px 0 0 var(--pink);
 }
 
+.side-icon {
+	width: 25px;
+	height: 25px;
+	display: grid;
+	place-items: center;
+	flex: 0 0 25px;
+	font-size: 18px;
+	line-height: 1;
+}
+
+.side-label {
+	min-width: 0;
+}
+
 .main-wrap {
 	margin-left: 255px;
 	width: calc(100% - 255px);
@@ -492,33 +514,80 @@
 }
 
 .topbar {
-	min-height: 66px;
+	min-height: 68px;
 	background: var(--card);
 	border-bottom: 1px solid var(--border);
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	gap: 14px;
-	padding: 10px 24px;
+	gap: 18px;
+	padding: 9px 18px;
 	position: sticky;
 	top: 4px;
 	z-index: 10;
+	box-shadow: 0 1px 0 rgba(16, 24, 40, 0.03);
+}
+
+.topbar-left,
+.topbar-user {
+	display: flex;
+	align-items: center;
+	gap: 10px;
 }
 
 .topbar-title {
-	font-weight: 700;
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
 	color: var(--ink);
-	font-size: 15px;
+	text-decoration: none;
+	line-height: 1.15;
+}
+
+.topbar-section {
+	font-size: 11px;
+	font-weight: 700;
+	letter-spacing: 0.05em;
+	text-transform: uppercase;
+	color: var(--muted);
+}
+
+.topbar-page {
+	font-size: 14px;
+	font-weight: 750;
+	color: var(--ink);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.user-summary {
+	min-width: 0;
+	text-align: right;
+	line-height: 1.2;
+}
+
+.user-summary strong {
+	display: block;
+	max-width: 190px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	font-size: 13px;
+}
+
+.portal-btn {
+	white-space: nowrap;
 }
 
 .content {
 	flex: 1 0 auto;
 	display: flex;
 	flex-direction: column;
-	padding: 24px;
-	max-width: 1400px;
+	padding: 20px clamp(18px, 2.1vw, 32px);
+	max-width: none;
 	width: 100%;
-	margin: 0 auto;
+	margin: 0;
 }
 
 .sidebar-toggle {
@@ -592,6 +661,87 @@
 }
 
 /* ==========================================================================
+   Dark shell refinement - aligned with helpdesk-carrousel.
+   ========================================================================== */
+html[data-theme="dark"] body,
+html[data-theme="dark"] .app-shell,
+html[data-theme="dark"] .main-wrap {
+	background: #0b0f17;
+	color: var(--ink);
+}
+
+html[data-theme="dark"] .sidebar {
+	background: #0f172a;
+	border-right: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+html[data-theme="dark"] .sidebar-brand {
+	border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+html[data-theme="dark"] .sidebar-brand strong {
+	color: #f7f9fc;
+}
+
+html[data-theme="dark"] .sidebar-brand span,
+html[data-theme="dark"] .nav-section {
+	color: #8796aa;
+}
+
+html[data-theme="dark"] .side-link {
+	color: #d8e0eb;
+}
+
+html[data-theme="dark"] .side-link:hover {
+	background: rgba(255, 255, 255, 0.055);
+	color: #fff;
+}
+
+html[data-theme="dark"] .side-link.active {
+	background: rgba(127, 167, 255, 0.13);
+	color: #fff;
+	box-shadow: inset 3px 0 0 #7fa7ff;
+}
+
+html[data-theme="dark"] .side-link.active .side-icon {
+	color: #9db9ff;
+}
+
+html[data-theme="dark"] .topbar {
+	background: #0d141f;
+	border-bottom-color: #2a3545;
+	box-shadow: 0 1px 0 rgba(255, 255, 255, 0.02);
+}
+
+html[data-theme="dark"] .topbar-title,
+html[data-theme="dark"] .topbar-page,
+html[data-theme="dark"] .user-summary strong {
+	color: #f7f9fc;
+}
+
+html[data-theme="dark"] .topbar-section {
+	color: #93a2b5;
+}
+
+html[data-theme="dark"] .theme-toggle,
+html[data-theme="dark"] .btn-outline-secondary {
+	background: #121821;
+	border-color: #3a485c;
+	color: #eef3f8;
+}
+
+html[data-theme="dark"] .theme-toggle:hover,
+html[data-theme="dark"] .btn-outline-secondary:hover {
+	background: #1d2836;
+	border-color: #4a5b72;
+}
+
+html[data-theme="dark"] .btn-primary {
+	background: #346fd1;
+	border-color: #346fd1;
+	color: #fff;
+}
+/* ==========================================================================
    Tarjetas / badges / botones reutilizables (complementan las utilidades
    Tailwind ya usadas en las vistas).
    ========================================================================== */
@@ -627,7 +777,8 @@
 
 .page-title {
 	margin: 0;
-	font-size: 24px;
+	font-size: clamp(26px, 2vw, 34px);
+	line-height: 1.15;
 	font-weight: 750;
 	color: var(--ink);
 }
@@ -666,6 +817,35 @@
 	}
 }
 
+@media (max-width: 760px) {
+	.topbar {
+		gap: 8px;
+		padding-inline: 12px;
+	}
+
+	.topbar-left,
+	.topbar-user {
+		gap: 6px;
+	}
+
+	.topbar-section,
+	.user-summary,
+	.topbar-primary-action .topbar-primary-label,
+	.portal-btn .portal-label {
+		display: none;
+	}
+
+	.topbar-page {
+		max-width: 125px;
+	}
+
+	.topbar-primary-action,
+	.portal-btn {
+		min-width: 40px;
+		width: 40px;
+		padding-inline: 0;
+	}
+}
 @media (max-width: 760px) {
 	.grid-2,
 	.grid-3,
@@ -1020,19 +1200,19 @@
 	justify-content: center;
 	gap: 7px;
 	border: 1px solid transparent;
-	border-radius: 8px;
-	padding: 9px 15px;
+	border-radius: 10px;
+	padding: 10px 16px;
 	font-weight: 700;
 	font-size: 13.5px;
 	line-height: 1.15;
-	min-height: 40px;
+	min-height: 44px;
 	cursor: pointer;
 	text-decoration: none;
-	transition: filter 0.12s ease, background-color 0.12s ease;
+	transition: filter 0.12s ease, background-color 0.12s ease, border-color 0.12s ease;
 }
 
 .btn-primary {
-	background: var(--brand);
+	background: var(--blue);
 	color: #fff;
 }
 
@@ -1084,9 +1264,9 @@
 }
 
 .btn-sm {
-	padding: 7px 11px;
-	font-size: 12.5px;
-	min-height: 36px;
+	padding: 7px 10px;
+	font-size: 13px;
+	min-height: 38px;
 }
 
 /* ==========================================================================

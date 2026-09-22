@@ -108,3 +108,17 @@ Luis pidió revisar **todos** los botones de la app y quitar redundancias, y des
 ## Configuración local (no está en git, cada quien la suya)
 
 Por si es útil de referencia y no como algo que deba replicarse igual: en esta máquina Windows, Apache (XAMPP) sirve esta carpeta con PHP 8.4 vía un handler específico en `httpd-xampp.conf` (el resto de apps del XAMPP se quedaron en PHP 8.2, sin tocar), porque `composer.lock` ya exigía `>=8.4.1`. La base de datos local es MySQL (`vehiculos_carrousel`), y el `.env` local tiene SMTP real configurado para que el login mande el código de verdad. Nada de esto viaja por git — cada quien configura su propio entorno.
+
+## REDISENO VISUAL - ronda 4A: shell + dark refinement alineados al Helpdesk (2026-09-22)
+
+Se comparo directamente contra el estandar vigente de `FernandoZL/helpdesk-carrousel`, incluyendo `shell-v2.css`, `visual-system.css`, `dark-refinement.css` y `data-tables.css`.
+
+- Modo oscuro: tokens y superficies finales alineados al Helpdesk.
+- Shell oscuro: sidebar, topbar, navegacion activa, botones outline y CTA principal.
+- Ancho util: `.content` deja de limitarse a 1400px.
+- Topbar: jerarquia seccion/pagina, acceso al Portal y comportamiento responsive.
+- Sidebar: iconografia comun mediante `.side-icon` y `.side-label`.
+- Botones/titulos: densidad y escala alineadas al sistema vigente.
+- Alcance: solo presentacion/layout. No se modifican rutas, permisos, controladores, modelos, migraciones, datos ni flujos.
+
+No se incorporan busqueda, notificaciones ni modulos propios del Helpdesk.

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="light dark">
     <meta name="theme-color" content="#173d75">
-    <title>@yield('title', 'Gestión de Flota')</title>
+    <title>@yield('title', 'Control de Vehiculos') · Carrousel</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <script>
@@ -46,8 +46,8 @@
             $navSections[] = [
                 'label' => 'Administración',
                 'links' => [
-                    ['route' => 'vehicles.index', 'label' => 'Vehículos', 'icon' => '🚗'],
-                    ['route' => 'users.index', 'label' => 'Usuarios', 'icon' => '☺'],
+                    ['route' => 'vehicles.index', 'label' => 'Vehículos', 'icon' => '◇'],
+                    ['route' => 'users.index', 'label' => 'Usuarios', 'icon' => '♟'],
                 ],
             ];
         }
@@ -83,8 +83,8 @@
                             $isActive = request()->routeIs($link['route']) || request()->routeIs(str($link['route'])->before('.').'.*');
                         @endphp
                         <a href="{{ route($link['route']) }}" class="side-link {{ $isActive ? 'active' : '' }}">
-                            <span aria-hidden="true">{{ $link['icon'] }}</span>
-                            <span>{{ $link['label'] }}</span>
+                            <span class="side-icon" aria-hidden="true">{{ $link['icon'] }}</span>
+                            <span class="side-label">{{ $link['label'] }}</span>
                         </a>
                     @endforeach
                 @endforeach
@@ -93,20 +93,30 @@
 
         <div class="main-wrap">
             <header class="topbar">
-                <div style="display:flex;align-items:center;gap:12px">
-                    <button class="sidebar-toggle theme-toggle" type="button" @click="open = !open" aria-label="Abrir menú">☰</button>
+                <div class="topbar-left">
+                    <button class="sidebar-toggle theme-toggle" type="button" @click="open = !open" aria-label="Abrir menu">☰</button>
                     <button class="sidebar-toggle-desktop theme-toggle" type="button"
                             @click="collapsed = !collapsed; try { localStorage.setItem('carrousel-sidebar-collapsed', collapsed ? '1' : '0') } catch (e) {}"
                             title="Ocultar/mostrar panel" aria-label="Ocultar/mostrar panel">☰</button>
-                    <span class="topbar-title">@yield('title', 'Gestión de Flota')</span>
+                    <a href="{{ route('dashboard') }}" class="topbar-title">
+                        <span class="topbar-section">Control de Vehiculos</span>
+                        <strong class="topbar-page">@yield('title', 'Panel')</strong>
+                    </a>
                 </div>
 
-                <div style="display:flex;align-items:center;gap:10px">
-                    <a href="{{ route('receptions.create') }}" class="btn btn-primary btn-sm">
-                        Nueva recepción
+                <div class="topbar-user">
+                    <a href="{{ route('receptions.create') }}" class="btn btn-primary btn-sm topbar-primary-action" title="Nueva recepcion">
+                        <span aria-hidden="true">＋</span>
+                        <span class="topbar-primary-label">Nueva recepcion</span>
                     </a>
-                    <span class="text-sm hidden md:inline" style="color:var(--muted)">{{ auth()->user()->name }}</span>
                     <button class="theme-toggle" type="button" data-theme-toggle title="Cambiar apariencia" aria-label="Cambiar apariencia">◐</button>
+                    <a class="btn btn-outline-secondary btn-sm portal-btn" href="https://portal.carrousel-apps.com/portal/" title="Volver al Portal">
+                        <span aria-hidden="true">←</span>
+                        <span class="portal-label">Portal</span>
+                    </a>
+                    <div class="user-summary">
+                        <strong>{{ auth()->user()->name }}</strong>
+                    </div>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
                         <button type="submit" class="btn btn-outline-secondary btn-sm">Salir</button>
