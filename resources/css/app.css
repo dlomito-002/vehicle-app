@@ -1595,3 +1595,91 @@ html[data-theme="dark"] .btn-primary {
 	color: var(--muted);
 }
 
+
+/* ==========================================================================
+   Form UX 4B — patrones de formularios empresariales
+   ========================================================================== */
+.form-error-summary {
+    margin: 0 0 18px;
+    padding: 14px 16px;
+    border: 1px solid color-mix(in srgb, var(--danger) 40%, var(--border) 60%);
+    border-left: 4px solid var(--danger);
+    border-radius: 12px;
+    background: var(--danger-bg);
+    color: var(--ink);
+}
+
+.form-error-summary strong {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--danger);
+}
+
+.form-error-summary ul {
+    margin: 0;
+    padding-left: 20px;
+    color: var(--danger);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.form-action-bar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 4px;
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--card) 82%, var(--bg) 18%);
+    box-shadow: var(--shadow);
+}
+
+.form-action-bar.is-between {
+    justify-content: space-between;
+}
+
+.form-label:has(+ input[required])::after,
+.form-label:has(+ select[required])::after,
+.form-label:has(+ textarea[required])::after {
+    content: " · Requerido";
+    margin-left: 4px;
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.file-btn::after {
+    content: "Opcional";
+    margin-left: 3px;
+    color: var(--muted);
+    font-size: 10px;
+    font-weight: 600;
+}
+
+.file-btn.is-attached::after {
+    display: none;
+}
+
+.checklist-item:has(input[value="1"]:checked) {
+    border-color: color-mix(in srgb, var(--success) 34%, var(--border) 66%);
+    background: color-mix(in srgb, var(--success-bg) 34%, var(--card) 66%);
+}
+
+.checklist-item:has(input[value="0"]:checked) {
+    border-color: color-mix(in srgb, var(--danger) 30%, var(--border) 70%);
+    background: color-mix(in srgb, var(--danger-bg) 30%, var(--card) 70%);
+}
+
+@media (max-width: 640px) {
+    .form-action-bar,
+    .form-action-bar.is-between {
+        align-items: stretch;
+        flex-direction: column-reverse;
+    }
+
+    .form-action-bar .btn {
+        width: 100%;
+    }
+}

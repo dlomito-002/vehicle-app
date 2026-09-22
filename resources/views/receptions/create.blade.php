@@ -39,6 +39,17 @@
           @submit.prevent="const form = $event.currentTarget; if (form.reportValidity()) { form.querySelectorAll('fieldset').forEach(fieldset => fieldset.disabled = false); form.submit(); }">
         @csrf
 
+        @if ($errors->any())
+            <div class="form-error-summary" role="alert" tabindex="-1">
+                <strong>Revisa la informaci&oacute;n antes de continuar</strong>
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
         <div class="step-indicator">
             <div class="step-indicator-item" :class="{ 'is-active': step === 1 }">
                 <span class="step-indicator-num">1</span>
@@ -135,7 +146,7 @@
                 </div>
             </div>
 
-            <div style="display:flex;align-items:center;justify-content:flex-end;gap:12px;margin-top:4px;padding-top:18px;border-top:1px solid var(--border)">
+            <div class="form-action-bar">
                 <button type="button" @click="if ($el.closest('form').reportValidity()) { step = 2; window.scrollTo({top: 0, behavior: 'smooth'}) }"
                         class="btn btn-primary">
                     Siguiente: Inspección y evidencia
@@ -188,7 +199,7 @@
                 </div>
             </div>
 
-            <div style="display:flex;justify-content:space-between">
+            <div class="form-action-bar is-between">
                 <button type="button" @click="step = 1; window.scrollTo({top: 0, behavior: 'smooth'})" class="btn btn-outline-secondary">
                     Atrás
                 </button>

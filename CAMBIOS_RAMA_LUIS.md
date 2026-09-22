@@ -122,3 +122,14 @@ Se comparo directamente contra el estandar vigente de `FernandoZL/helpdesk-carro
 - Alcance: solo presentacion/layout. No se modifican rutas, permisos, controladores, modelos, migraciones, datos ni flujos.
 
 No se incorporan busqueda, notificaciones ni modulos propios del Helpdesk.
+
+## FORM UX — ronda 4B: formularios empresariales (2026-09-22)
+
+Se refinó el formulario de recepción tomando como referencia patrones de formularios empresariales de ServiceNow Horizon, Atlassian Design System y GOV.UK/Baymard, sin cambiar la lógica de negocio.
+
+- Resumen de errores visible al inicio cuando Laravel devuelve validaciones.
+- Barra de acciones consistente al cerrar cada paso.
+- Campos requeridos identificados visualmente; adjuntos marcados como opcionales.
+- Feedback visual sutil en cada elemento del checklist al responder Sí/No.
+- Acciones adaptadas a móvil en una sola columna.
+- Se conserva el flujo de 2 pasos y la grilla compacta para el checklist operativo.
