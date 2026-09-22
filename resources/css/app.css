@@ -2,7 +2,71 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * Tokens y capa de marca Carrousel.
+ * Misma línea visual que FernandoZL/helpdesk-carrousel (ver su
+ * docs/ESTANDAR_VISUAL_CARROUSEL.md): azul corporativo, franja de marca con
+ * gradiente, y modo oscuro activado por [data-theme="dark"] en <html>
+ * (persistido en localStorage bajo la clave "carrousel-theme").
+ */
 @layer base {
+	:root {
+		--brand: #213a8f;
+		--brand-dark: #15255d;
+		--brand-2: #2d4db1;
+		--blue: #0d6efd;
+		--violet: #6b46c1;
+		--pink: #e62e7c;
+		--orange: #f28b24;
+		--yellow: #f4c430;
+
+		--ink: #1f2937;
+		--muted: #667085;
+		--bg: #eef2f7;
+		--card: #ffffff;
+		--border: #d0d5dd;
+
+		--danger: #b42318;
+		--danger-bg: #fef3f2;
+		--success: #067647;
+		--success-bg: #ecfdf3;
+		--warning: #9a6700;
+		--warning-bg: #fffaeb;
+		--info: #175cd3;
+		--info-bg: #eff8ff;
+
+		--shadow: 0 1px 3px rgba(16, 24, 40, 0.08);
+		--shadow-lg: 0 18px 45px rgba(16, 24, 40, 0.16);
+		--brand-gradient: linear-gradient(90deg, #213a8f 0%, #6b46c1 28%, #e62e7c 52%, #f28b24 76%, #f4c430 100%);
+	}
+
+	[data-theme="dark"] {
+		color-scheme: dark;
+		--ink: #f5f7fb;
+		--muted: #aeb8ca;
+		--bg: #0b0f17;
+		--card: #121821;
+		--border: #2a3545;
+		--danger-bg: #351b20;
+		--success-bg: #113226;
+		--warning-bg: #332b17;
+		--info-bg: #142743;
+		--shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+		--shadow-lg: 0 18px 45px rgba(0, 0, 0, 0.45);
+	}
+
+	html {
+		color-scheme: light;
+	}
+
+	html[data-theme="dark"] {
+		color-scheme: dark;
+	}
+
+	body {
+		background-color: var(--bg);
+	}
+
 	input:not([type="radio"]):not([type="checkbox"]),
 	select,
 	textarea {
@@ -20,8 +84,8 @@
 	input:not([type="radio"]):not([type="checkbox"]):focus,
 	select:focus,
 	textarea:focus {
-		border-color: rgb(13 179 217) !important;
-		box-shadow: 0 0 0 3px rgb(13 179 217 / 0.16);
+		border-color: rgb(13 110 253) !important;
+		box-shadow: 0 0 0 3px rgb(13 110 253 / 0.16);
 		outline: none;
 	}
 
@@ -32,9 +96,568 @@
 	}
 
 	input[type="file"]:hover {
-		border-color: rgb(13 179 217) !important;
+		border-color: rgb(13 110 253) !important;
 		background-color: rgb(240 249 255);
 	}
+}
+
+/* ==========================================================================
+   Franja de marca — barra fija con el gradiente corporativo, presente en
+   toda la app (pantallas de acceso y pantallas autenticadas).
+   ========================================================================== */
+.brand-strip {
+	position: fixed;
+	inset: 0 0 auto 0;
+	height: 4px;
+	background: var(--brand-gradient);
+	z-index: 1000;
+}
+
+/* ==========================================================================
+   Toggle de modo claro/oscuro — mismo patrón visual en auth y en el shell.
+   ========================================================================== */
+.theme-toggle {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 38px;
+	height: 38px;
+	padding: 0;
+	border-radius: 10px;
+	border: 1px solid var(--border);
+	background: var(--card);
+	color: var(--ink);
+	font-size: 15px;
+	cursor: pointer;
+	transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.theme-toggle:hover {
+	background: color-mix(in srgb, var(--card) 90%, var(--bg) 10%);
+}
+
+/* ==========================================================================
+   Acceso (login / verificación de código) — panel de marca + panel de
+   formulario, igual que el patrón de acceso Carrousel.
+   ========================================================================== */
+.auth-body {
+	min-height: 100vh;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 28px;
+	position: relative;
+	background: radial-gradient(circle at 15% 15%, #315f9b 0%, #173d75 34%, #0c294f 74%);
+}
+
+.auth-layout {
+	width: min(1080px, 100%);
+	min-height: 600px;
+	margin: auto;
+	display: grid;
+	grid-template-columns: minmax(0, 1.15fr) minmax(380px, 0.85fr);
+	overflow: hidden;
+	border-radius: 26px;
+	box-shadow: 0 35px 100px rgba(7, 24, 48, 0.32);
+	background: var(--card);
+}
+
+.auth-brand {
+	position: relative;
+	overflow: hidden;
+	display: flex;
+	align-items: center;
+	padding: 54px 50px;
+	color: #fff;
+	background: linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.025)), #123563;
+}
+
+.auth-brand::before {
+	content: "";
+	position: absolute;
+	width: 330px;
+	height: 330px;
+	border: 62px solid rgba(230, 62, 141, 0.16);
+	border-radius: 50%;
+	right: -145px;
+	bottom: -160px;
+	pointer-events: none;
+}
+
+.auth-brand::after {
+	content: "";
+	position: absolute;
+	width: 170px;
+	height: 170px;
+	border-radius: 50%;
+	background: rgba(242, 201, 76, 0.1);
+	left: -70px;
+	top: -60px;
+	pointer-events: none;
+}
+
+.auth-brand-content {
+	position: relative;
+	z-index: 1;
+	max-width: 520px;
+}
+
+.auth-product-pill {
+	display: inline-flex;
+	align-items: center;
+	border: 1px solid rgba(255, 255, 255, 0.18);
+	background: rgba(255, 255, 255, 0.11);
+	border-radius: 999px;
+	padding: 7px 12px;
+	font-size: 12px;
+	font-weight: 800;
+	letter-spacing: 0.02em;
+}
+
+.auth-brand h1 {
+	max-width: 500px;
+	margin: 18px 0;
+	font-size: 38px;
+	line-height: 1.1;
+	font-weight: 800;
+	letter-spacing: -0.02em;
+}
+
+.auth-brand p {
+	max-width: 520px;
+	margin: 0;
+	color: #d8e5f4;
+	font-size: 15px;
+	line-height: 1.65;
+}
+
+.auth-points {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin-top: 24px;
+}
+
+.auth-points span {
+	display: inline-flex;
+	align-items: center;
+	min-height: 31px;
+	padding: 6px 11px;
+	border: 1px solid rgba(255, 255, 255, 0.19);
+	border-radius: 999px;
+	color: #f4f7fb;
+	background: rgba(255, 255, 255, 0.06);
+	font-size: 11px;
+	font-weight: 700;
+}
+
+.auth-panel {
+	display: flex;
+	min-width: 0;
+	background: var(--card);
+}
+
+.auth-card {
+	width: 100%;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	padding: 50px 44px;
+	background: var(--card);
+	color: var(--ink);
+}
+
+.auth-mobile-brand {
+	display: none;
+}
+
+.auth-eyebrow {
+	display: block;
+	margin: 0 0 7px;
+	color: var(--pink);
+	font-size: 11px;
+	font-weight: 800;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+}
+
+.auth-card h2 {
+	margin: 0 0 8px;
+	color: var(--brand-dark);
+	font-size: 25px;
+	line-height: 1.2;
+	font-weight: 800;
+	letter-spacing: -0.015em;
+}
+
+[data-theme="dark"] .auth-card h2 {
+	color: var(--ink);
+}
+
+.auth-lead {
+	margin: 0 0 22px;
+	color: var(--muted);
+	font-size: 14px;
+	line-height: 1.5;
+}
+
+.auth-lead strong {
+	color: var(--ink);
+	overflow-wrap: anywhere;
+}
+
+.auth-helper {
+	display: flex;
+	align-items: flex-start;
+	gap: 8px;
+	margin-top: 18px;
+	padding: 12px 13px;
+	border: 1px solid var(--border);
+	border-radius: 11px;
+	background: color-mix(in srgb, var(--card) 92%, var(--bg) 8%);
+	color: var(--muted);
+	font-size: 12px;
+	line-height: 1.5;
+}
+
+.auth-helper > span {
+	color: var(--blue);
+	font-weight: 900;
+}
+
+.auth-helper strong {
+	color: var(--ink);
+}
+
+.auth-security {
+	margin: 22px 0 0;
+	padding-top: 16px;
+	border-top: 1px solid var(--border);
+	color: var(--muted);
+	font-size: 11px;
+	line-height: 1.55;
+}
+
+@media (max-width: 900px) {
+	.auth-body {
+		padding: 18px;
+	}
+
+	.auth-layout {
+		display: block;
+		width: min(480px, 100%);
+		min-height: 0;
+		border-radius: 22px;
+	}
+
+	.auth-brand {
+		display: none;
+	}
+
+	.auth-card {
+		padding: 36px 30px;
+	}
+
+	.auth-mobile-brand {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		margin-bottom: 26px;
+	}
+
+	.auth-mobile-brand strong {
+		color: var(--brand);
+		font-size: 15px;
+	}
+
+	[data-theme="dark"] .auth-mobile-brand strong {
+		color: var(--ink);
+	}
+}
+
+@media (max-width: 640px) {
+	.auth-body {
+		align-items: flex-start;
+		padding: 12px;
+	}
+
+	.auth-layout {
+		margin-top: 18px;
+		border-radius: 18px;
+	}
+
+	.auth-card {
+		padding: 26px 20px;
+	}
+
+	.auth-card h2 {
+		font-size: 22px;
+	}
+}
+
+/* ==========================================================================
+   Shell autenticado — sidebar + topbar + contenido, mismo patrón que el
+   panel corporativo Carrousel.
+   ========================================================================== */
+.app-shell {
+	min-height: 100vh;
+	display: flex;
+}
+
+.sidebar {
+	width: 255px;
+	flex: 0 0 auto;
+	background: var(--brand-dark);
+	color: #fff;
+	position: fixed;
+	inset: 4px auto 0 0;
+	overflow-y: auto;
+	z-index: 20;
+	transition: transform 0.18s ease;
+}
+
+.sidebar-brand {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 18px 16px;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.sidebar-brand strong {
+	font-size: 16px;
+	display: block;
+}
+
+.sidebar-brand span {
+	color: #aebbe9;
+	font-size: 11px;
+}
+
+.nav-section {
+	padding: 16px 16px 4px;
+	color: #aebbe9;
+	text-transform: uppercase;
+	font-size: 10.5px;
+	font-weight: 800;
+	letter-spacing: 0.06em;
+}
+
+.side-link {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 10px 14px;
+	margin: 2px 8px;
+	border-radius: 8px;
+	color: #e8ecff;
+	text-decoration: none;
+	font-size: 13.5px;
+	font-weight: 600;
+}
+
+.side-link:hover {
+	background: rgba(255, 255, 255, 0.1);
+	color: #fff;
+}
+
+.side-link.active {
+	background: rgba(255, 255, 255, 0.16);
+	color: #fff;
+	box-shadow: inset 3px 0 0 var(--pink);
+}
+
+.main-wrap {
+	margin-left: 255px;
+	width: calc(100% - 255px);
+	min-height: 100vh;
+	display: flex;
+	flex-direction: column;
+	background: var(--bg);
+}
+
+.topbar {
+	min-height: 66px;
+	background: var(--card);
+	border-bottom: 1px solid var(--border);
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 14px;
+	padding: 10px 24px;
+	position: sticky;
+	top: 4px;
+	z-index: 10;
+}
+
+.topbar-title {
+	font-weight: 700;
+	color: var(--ink);
+	font-size: 15px;
+}
+
+.content {
+	flex: 1 0 auto;
+	display: flex;
+	flex-direction: column;
+	padding: 24px;
+	max-width: 1400px;
+	width: 100%;
+	margin: 0 auto;
+}
+
+.sidebar-toggle {
+	display: none;
+}
+
+.app-corporate-footer {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 12px;
+	flex-wrap: wrap;
+	margin-top: auto;
+	padding: 30px 2px 18px;
+	color: var(--muted);
+	font-size: 12px;
+	border-top: 1px solid var(--border);
+}
+
+@media (max-width: 900px) {
+	.sidebar {
+		transform: translateX(-100%);
+		width: 255px;
+		z-index: 1400;
+	}
+
+	.sidebar.is-open {
+		transform: none;
+	}
+
+	.main-wrap {
+		margin-left: 0;
+		width: 100%;
+	}
+
+	.topbar {
+		padding: 10px 14px;
+	}
+
+	.content {
+		padding: 16px;
+	}
+
+	.sidebar-toggle {
+		display: inline-flex;
+	}
+}
+
+/* ==========================================================================
+   Tarjetas / badges / botones reutilizables (complementan las utilidades
+   Tailwind ya usadas en las vistas).
+   ========================================================================== */
+.card {
+	background: var(--card);
+	border: 1px solid var(--border);
+	border-radius: 14px;
+	box-shadow: var(--shadow);
+}
+
+.btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 7px;
+	border: 1px solid transparent;
+	border-radius: 8px;
+	padding: 9px 15px;
+	font-weight: 700;
+	font-size: 13.5px;
+	line-height: 1.15;
+	min-height: 40px;
+	cursor: pointer;
+	text-decoration: none;
+	transition: filter 0.12s ease, background-color 0.12s ease;
+}
+
+.btn-primary {
+	background: var(--brand);
+	color: #fff;
+}
+
+.btn-primary:hover {
+	filter: brightness(1.08);
+}
+
+.btn-outline-secondary {
+	background: var(--card);
+	border-color: var(--border);
+	color: var(--ink);
+}
+
+.btn-outline-secondary:hover {
+	background: color-mix(in srgb, var(--card) 90%, var(--bg) 10%);
+}
+
+.btn-danger {
+	background: var(--danger);
+	color: #fff;
+}
+
+.btn-danger:hover {
+	filter: brightness(1.08);
+}
+
+/* ==========================================================================
+   Modo oscuro — sobreescribe el vocabulario Tailwind (slate/white) ya usado
+   en las vistas existentes, para no tener que reescribir cada clase a mano.
+   ========================================================================== */
+[data-theme="dark"] .bg-white {
+	background-color: var(--card) !important;
+}
+
+[data-theme="dark"] .bg-slate-50 {
+	background-color: var(--bg) !important;
+}
+
+[data-theme="dark"] .bg-slate-100 {
+	background-color: color-mix(in srgb, var(--card) 85%, var(--bg) 15%) !important;
+}
+
+[data-theme="dark"] .bg-slate-200 {
+	background-color: color-mix(in srgb, var(--card) 75%, var(--bg) 25%) !important;
+}
+
+[data-theme="dark"] .border-slate-100,
+[data-theme="dark"] .border-slate-200,
+[data-theme="dark"] .border-slate-300,
+[data-theme="dark"] .divide-slate-100 {
+	border-color: var(--border) !important;
+}
+
+[data-theme="dark"] .text-slate-900,
+[data-theme="dark"] .text-slate-800 {
+	color: var(--ink) !important;
+}
+
+[data-theme="dark"] .text-slate-700,
+[data-theme="dark"] .text-slate-600,
+[data-theme="dark"] .text-slate-500,
+[data-theme="dark"] .text-slate-400 {
+	color: var(--muted) !important;
+}
+
+[data-theme="dark"] .bg-brand-magenta\/10 {
+	background-color: color-mix(in srgb, var(--brand) 18%, transparent) !important;
+}
+
+[data-theme="dark"] .bg-brand-olive\/10 {
+	background-color: color-mix(in srgb, var(--success) 20%, transparent) !important;
+}
+
+[data-theme="dark"] .bg-brand-orange\/10 {
+	background-color: color-mix(in srgb, var(--danger) 20%, transparent) !important;
 }
 
 @layer components {
@@ -73,6 +696,11 @@
 			background: white;
 		}
 
+		[data-theme="dark"] .responsive-table tr {
+			border-color: var(--border);
+			background: var(--card);
+		}
+
 		.responsive-table td {
 			display: flex;
 			justify-content: space-between;
@@ -81,6 +709,10 @@
 			padding: 0.75rem;
 			text-align: right;
 			overflow-wrap: anywhere;
+		}
+
+		[data-theme="dark"] .responsive-table td {
+			border-color: var(--border);
 		}
 
 		.responsive-table td:last-child {
@@ -94,6 +726,10 @@
 			font-size: 0.75rem;
 			font-weight: 600;
 			text-align: left;
+		}
+
+		[data-theme="dark"] .responsive-table td[data-label]::before {
+			color: var(--muted);
 		}
 
 		.responsive-table td[data-label=""]::before {

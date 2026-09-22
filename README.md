@@ -107,19 +107,21 @@ Si se utiliza XAMPP, el proyecto puede ubicarse dentro de `htdocs`, pero se reco
 
 ## Usuarios de prueba
 
-El seeder crea los siguientes usuarios. Todos los usuarios creados por la factory usan inicialmente la contrasena `password`, excepto el usuario `Ad`, cuya contrasena es `123`.
+El login **no usa contrasena**: se accede con correo + un codigo de un solo uso enviado por email (ver `App\Http\Controllers\Auth\LoginController`). La columna `password` de la tabla `users` existe solo porque es NOT NULL en el esquema; el seeder le pone un valor aleatorio inutilizable, no es una credencial real.
 
-| Rol | Nombre | Correo | Contrasena |
-| --- | --- | --- | --- |
-| Administrador | Admin User | `admin@example.com` | `password` |
-| Agente | Agent User | `agent@example.com` | `password` |
-| Agente | Pierre | `pierre.mazariegos@carrousel.com.gt` | `password` |
-| Agente | Luis | `luis@carrousel.com.gt` | `password` |
-| Agente | Diego Velasquez | `diego2402alejandrov@gmail.com` | `password` |
-| Agente | Rocio | `rocio@carrousel.com.gt` | `password` |
-| Agente | Ad | `ad.@gmail.com` | `123` |
+El seeder crea los siguientes usuarios (cualquiera puede iniciar sesion con su correo, recibiendo el codigo por email; en local, si `MAIL_MAILER=log`, el codigo queda escrito en `storage/logs/laravel.log`):
 
-Estas credenciales son exclusivamente para desarrollo. Deben cambiarse o eliminarse antes de desplegar la aplicacion en un entorno real.
+| Rol | Nombre | Correo |
+| --- | --- | --- |
+| Administrador | Admin User | `admin@example.com` |
+| Agente | Agent User | `agent@example.com` |
+| Agente | Pierre | `pierre.mazariegos@carrousel.com.gt` |
+| Agente | Luis | `luis@carrousel.com.gt` |
+| Agente | Diego Velasquez | `diego2402alejandrov@gmail.com` |
+| Agente | Rocio | `rocio@carrousel.com.gt` |
+| Administrador | Ad | `ad@gmail.com` |
+
+Estos usuarios son exclusivamente para desarrollo. Deben eliminarse antes de desplegar la aplicacion en un entorno real.
 
 ## Flujo de uso
 

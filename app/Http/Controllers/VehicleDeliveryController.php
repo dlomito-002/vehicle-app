@@ -82,6 +82,7 @@ class VehicleDeliveryController extends Controller
     public function damageReport(VehicleReception $reception): View
     {
         $this->authorize('create', VehicleDelivery::class);
+        $this->authorize('view', $reception);
 
         if ($reception->status !== ReceptionStatus::Open) {
             abort(409, 'Esta recepción ya fue cerrada por una devolución.');
@@ -95,6 +96,7 @@ class VehicleDeliveryController extends Controller
     public function damageReportPdf(VehicleReception $reception): Response
     {
         $this->authorize('create', VehicleDelivery::class);
+        $this->authorize('view', $reception);
 
         $reception->load(['vehicle', 'creator', 'photos', 'equipmentChecks', 'conditionItems']);
 
@@ -110,6 +112,7 @@ class VehicleDeliveryController extends Controller
     public function create(VehicleReception $reception): View
     {
         $this->authorize('create', VehicleDelivery::class);
+        $this->authorize('view', $reception);
 
         if ($reception->status !== ReceptionStatus::Open) {
             abort(409, 'Esta recepción ya fue cerrada por una devolución.');
@@ -123,6 +126,7 @@ class VehicleDeliveryController extends Controller
     public function store(StoreVehicleDeliveryRequest $request, VehicleReception $reception): RedirectResponse
     {
         $this->authorize('create', VehicleDelivery::class);
+        $this->authorize('view', $reception);
 
         if ($reception->status !== ReceptionStatus::Open) {
             throw ValidationException::withMessages([

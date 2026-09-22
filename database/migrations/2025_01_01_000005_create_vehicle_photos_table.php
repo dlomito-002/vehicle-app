@@ -25,7 +25,10 @@ return new class extends Migration
 
             $table->timestamps();
 
-            $table->index(['photographable_type', 'photographable_id', 'position']);
+            $table->index(
+                ['photographable_type', 'photographable_id', 'position'],
+                'vehicle_photos_photographable_position_idx'
+            );
         });
     }
 
