@@ -3,22 +3,23 @@
 @section('title', 'Registrar devolución: seleccionar vehículo')
 
 @section('content')
-    <h1 class="text-xl font-semibold text-slate-900 mb-1">Registrar una devolución</h1>
-    <p class="text-sm text-slate-500 mb-6">Paso 1 de 2: selecciona el vehículo que será devuelto.</p>
+    <div class="page-heading">
+        <div>
+            <h1 class="page-title">Registrar una devolución</h1>
+            <p class="page-subtitle">Paso 1 de 2: selecciona el vehículo que será devuelto.</p>
+        </div>
+    </div>
 
     @if ($vehicles->isEmpty())
-        <div class="bg-white border border-slate-200 rounded-lg p-6 text-sm text-slate-500">
-            No hay vehículos con una recepción abierta en este momento.
-        </div>
+        <div class="card"><div class="card-body empty-state">No hay vehículos con una recepción abierta en este momento.</div></div>
     @else
-        <div class="grid sm:grid-cols-2 gap-3">
+        <div class="grid grid-2">
             @foreach ($vehicles as $vehicle)
-                <a href="{{ route('deliveries.select-reception', $vehicle) }}"
-                   class="block bg-white border border-slate-200 rounded-lg p-4 hover:border-brand-cyan transition-colors">
-                    <p class="font-medium text-slate-900">{{ $vehicle->displayName() }}</p>
-                    <p class="text-sm text-slate-500 mt-0.5">
-                        {{ $vehicle->openReceptions()->count() }} recepción(es) abierta(s)
-                    </p>
+                <a href="{{ route('deliveries.select-reception', $vehicle) }}" class="card list-row" style="box-shadow:var(--shadow)">
+                    <div>
+                        <p class="list-row-title">{{ $vehicle->displayName() }}</p>
+                        <p class="list-row-meta">{{ $vehicle->openReceptions()->count() }} recepción(es) abierta(s)</p>
+                    </div>
                 </a>
             @endforeach
         </div>

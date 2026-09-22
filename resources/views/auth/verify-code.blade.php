@@ -8,15 +8,11 @@
     <p class="auth-lead">Ingresa el código de 6 dígitos que enviamos a <strong>{{ $email }}</strong>.</p>
 
     @if ($errors->any())
-        <div class="mb-4 rounded-md border-l-4 border-brand-orange bg-brand-orange/10 px-4 py-3 text-sm" style="color:var(--ink)">
-            {{ $errors->first() }}
-        </div>
+        <div class="alert alert-danger">{{ $errors->first() }}</div>
     @endif
 
     @if (session('status'))
-        <div class="mb-4 rounded-md border-l-4 border-brand-olive bg-brand-olive/10 px-4 py-3 text-sm" style="color:var(--ink)">
-            {{ session('status') }}
-        </div>
+        <div class="alert alert-success">{{ session('status') }}</div>
     @endif
 
     <form method="POST" action="{{ route('login.verify') }}" class="space-y-4">
@@ -37,10 +33,10 @@
         <form method="POST" action="{{ route('login') }}">
             @csrf
             <input type="hidden" name="email" value="{{ $email }}">
-            <button type="submit" class="btn btn-outline-secondary btn-sm" style="min-height:36px;padding:7px 11px;font-size:12px">Reenviar código</button>
+            <button type="submit" class="btn btn-outline-secondary btn-sm">Reenviar código</button>
         </form>
 
-        <a href="{{ route('login') }}" class="btn btn-outline-secondary btn-sm" style="min-height:36px;padding:7px 11px;font-size:12px">Usar otro correo</a>
+        <a href="{{ route('login') }}" class="btn btn-outline-secondary btn-sm">Usar otro correo</a>
 
         <button class="theme-toggle" type="button" data-theme-toggle title="Cambiar apariencia" aria-label="Cambiar apariencia">◐</button>
     </div>

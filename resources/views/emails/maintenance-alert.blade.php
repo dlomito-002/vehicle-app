@@ -23,7 +23,7 @@
                     <td style="padding:26px 32px 0;">
                         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
                             <tr>
-                                <td><img src="{{ asset('images/logo.png') }}" alt="Corporación Carrousel" width="48" height="48" style="display:block;width:48px;height:48px;object-fit:contain;"></td>
+                                <td><img src="{{ $message->embed(public_path('images/logo.png')) }}" alt="Corporación Carrousel" width="48" height="48" style="display:block;width:48px;height:48px;object-fit:contain;"></td>
                                 <td align="right">
                                     <span style="display:inline-block;padding:6px 10px;border-radius:999px;background:{{ $statusBg }};color:{{ $statusColor }};font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;">{{ $statusLabel }}</span>
                                 </td>
@@ -61,7 +61,7 @@
                 </tr>
                 <tr>
                     <td style="padding:16px 32px;background:#f8fafc;border-top:1px solid #e4e7ec;color:#98a2b3;font-size:11px;text-align:center;">
-                        Fleet Desk · Corporación Carrousel
+                        Control de Vehículos · Corporación Carrousel
                     </td>
                 </tr>
             </table>

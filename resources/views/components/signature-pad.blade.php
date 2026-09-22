@@ -107,43 +107,41 @@
         },
     }"
 >
-    <p class="text-sm font-medium text-slate-700 mb-1">Firma</p>
+    <p class="section-label">Firma</p>
 
-    <div class="flex items-center gap-1 mb-2">
-        <button type="button" @click="useDrawMode()"
-                class="px-2.5 py-1 rounded-md text-xs font-medium"
-                :class="mode === 'draw' ? 'bg-brand-cyan/10 text-brand-cyan' : 'text-slate-500 hover:bg-slate-100'">
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px">
+        <button type="button" @click="useDrawMode()" class="btn btn-sm"
+                :class="mode === 'draw' ? 'btn-primary' : 'btn-outline-secondary'">
             Dibujar firma
         </button>
-        <button type="button" @click="useUploadMode()"
-                class="px-2.5 py-1 rounded-md text-xs font-medium"
-                :class="mode === 'upload' ? 'bg-brand-cyan/10 text-brand-cyan' : 'text-slate-500 hover:bg-slate-100'">
+        <button type="button" @click="useUploadMode()" class="btn btn-sm"
+                :class="mode === 'upload' ? 'btn-primary' : 'btn-outline-secondary'">
             Subir PNG
         </button>
     </div>
 
     <div x-show="mode === 'draw'">
-        <p class="text-xs text-slate-500 mb-2">Firma con el dedo o el mouse dentro del recuadro.</p>
+        <p class="section-hint">Firma con el dedo o el mouse dentro del recuadro.</p>
 
-        <div class="rounded-md border border-dashed border-slate-300 bg-white overflow-hidden">
+        <div style="border:1px dashed var(--border);border-radius:10px;background:#fff;overflow:hidden">
             <canvas
                 x-ref="canvas"
-                class="w-full h-40 touch-none cursor-crosshair"
+                style="width:100%;height:160px;touch-action:none;cursor:crosshair;display:block"
                 @mousedown="start($event)" @mousemove="move($event)" @mouseup="end()" @mouseleave="end()"
                 @touchstart="start($event)" @touchmove="move($event)" @touchend="end()"
             ></canvas>
         </div>
 
-        <div class="flex items-center justify-between mt-2">
-            <button type="button" @click="clear()" class="text-xs text-brand-orange hover:underline">Borrar firma</button>
-            <span class="text-xs text-slate-400" x-show="!hasStroke">Sin firmar</span>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px">
+            <button type="button" @click="clear()" style="background:none;border:0;padding:0;cursor:pointer;color:var(--danger);font-size:12.5px;font-weight:700">Borrar firma</button>
+            <span style="font-size:12px;color:var(--muted)" x-show="!hasStroke">Sin firmar</span>
         </div>
     </div>
 
     <div x-show="mode === 'upload'" x-cloak>
-        <p class="text-xs text-slate-500 mb-2">Sube la firma como un archivo PNG.</p>
+        <p class="section-hint">Sube la firma como un archivo PNG.</p>
 
-        <label class="flex items-center justify-center rounded-md border border-dashed border-slate-300 bg-white h-40 cursor-pointer text-sm text-slate-500 hover:border-brand-cyan">
+        <label style="display:flex;align-items:center;justify-content:center;border:1px dashed var(--border);border-radius:10px;background:var(--card);height:160px;cursor:pointer;font-size:13px;color:var(--muted)">
             <span x-text="fileName || 'Selecciona un archivo PNG…'"></span>
             <input type="file" name="{{ $fileFieldName }}" x-ref="fileInput" accept="image/png,.png"
                    data-skip-compress class="sr-only" @change="onFileChosen($event)">
@@ -151,6 +149,6 @@
     </div>
 
     <input type="hidden" name="{{ $fieldName }}" x-ref="input" value="{{ old($fieldName) }}">
-    @error($fieldName)<p class="mt-1 text-sm text-brand-orange">{{ $message }}</p>@enderror
-    @error($fileFieldName)<p class="mt-1 text-sm text-brand-orange">{{ $message }}</p>@enderror
+    @error($fieldName)<p class="field-error">{{ $message }}</p>@enderror
+    @error($fileFieldName)<p class="field-error">{{ $message }}</p>@enderror
 </div>

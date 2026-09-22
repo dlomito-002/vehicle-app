@@ -15,13 +15,13 @@
                 </tr>
                 <tr>
                     <td style="padding:26px 32px 0;">
-                        <img src="{{ asset('images/logo.png') }}" alt="Corporación Carrousel" width="52" height="52" style="display:block;width:52px;height:52px;object-fit:contain;">
+                        <img src="{{ $message->embed(public_path('images/logo.png')) }}" alt="Corporación Carrousel" width="52" height="52" style="display:block;width:52px;height:52px;object-fit:contain;">
                     </td>
                 </tr>
                 <tr>
                     <td style="padding:18px 32px 8px;">
                         <div style="font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#e62e7c;margin-bottom:6px;">Acceso seguro</div>
-                        <h1 style="margin:0 0 8px;font-size:22px;line-height:1.25;color:#15255d;">Fleet Desk</h1>
+                        <h1 style="margin:0 0 8px;font-size:22px;line-height:1.25;color:#15255d;">Control de Vehículos</h1>
                         <p style="margin:0 0 20px;color:#667085;font-size:14px;line-height:1.6;">Usa este código temporal para iniciar sesión. No necesitas contraseña.</p>
                     </td>
                 </tr>
@@ -47,7 +47,7 @@
                 </tr>
                 <tr>
                     <td style="padding:16px 32px;background:#f8fafc;border-top:1px solid #e4e7ec;color:#98a2b3;font-size:11px;text-align:center;">
-                        Fleet Desk · Corporación Carrousel
+                        Control de Vehículos · Corporación Carrousel
                     </td>
                 </tr>
             </table>

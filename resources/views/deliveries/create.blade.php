@@ -27,151 +27,161 @@
         }
     @endphp
 
-    <h1 class="text-xl font-semibold text-slate-900 mb-1">Devolución del vehículo</h1>
-    <p class="text-sm text-slate-500 mb-6">
-        Cierre de la recepción de {{ $reception->vehicle->displayName() }},
-        recibido el {{ $reception->reception_date->format('d/m/Y') }} por {{ $reception->received_by_name }}.
-    </p>
+    <div class="page-heading">
+        <div>
+            <h1 class="page-title">Devolución del vehículo</h1>
+            <p class="page-subtitle">
+                Cierre de la recepción de {{ $reception->vehicle->displayName() }},
+                recibido el {{ $reception->reception_date->format('d/m/Y') }} por {{ $reception->received_by_name }}.
+            </p>
+        </div>
+    </div>
 
-        <form method="POST" action="{{ route('deliveries.store', $reception) }}" enctype="multipart/form-data" novalidate
-                    data-compress-images data-delivery-form x-data="{ step: {{ $initialStep }} }"
-                    @submit.prevent="const form = $event.currentTarget; if (form.reportValidity()) { form.querySelectorAll('fieldset').forEach(fieldset => fieldset.disabled = false); form.submit(); }"
-                    class="max-w-3xl">
+    <form method="POST" action="{{ route('deliveries.store', $reception) }}" enctype="multipart/form-data" novalidate
+          data-compress-images data-delivery-form x-data="{ step: {{ $initialStep }} }"
+          @submit.prevent="const form = $event.currentTarget; if (form.reportValidity()) { form.querySelectorAll('fieldset').forEach(fieldset => fieldset.disabled = false); form.submit(); }">
         @csrf
 
-        <div class="flex items-center gap-2 mb-6">
-            <div class="flex items-center gap-2 text-xs font-medium" :class="step === 1 ? 'text-brand-magenta' : 'text-slate-400'">
-                <span class="flex items-center justify-center w-5 h-5 rounded-full border"
-                      :class="step === 1 ? 'border-brand-magenta bg-brand-magenta/10' : 'border-slate-300'">1</span>
+        <div class="step-indicator">
+            <div class="step-indicator-item" :class="{ 'is-active': step === 1 }">
+                <span class="step-indicator-num">1</span>
                 Datos, documentos y equipo
             </div>
-            <div class="flex-1 h-px bg-slate-200"></div>
-            <div class="flex items-center gap-2 text-xs font-medium" :class="step === 2 ? 'text-brand-magenta' : 'text-slate-400'">
-                <span class="flex items-center justify-center w-5 h-5 rounded-full border"
-                      :class="step === 2 ? 'border-brand-magenta bg-brand-magenta/10' : 'border-slate-300'">2</span>
+            <div class="step-indicator-line"></div>
+            <div class="step-indicator-item" :class="{ 'is-active': step === 2 }">
+                <span class="step-indicator-num">2</span>
                 Estado y evidencia
             </div>
         </div>
 
-        <fieldset x-show="step === 1" :disabled="step !== 1" class="space-y-6">
-            <section class="bg-white border border-slate-200 rounded-lg p-5 border-l-4 border-l-brand-magenta">
-                <h2 class="text-sm font-semibold text-slate-900 mb-4">Personas</h2>
-                <div class="grid sm:grid-cols-2 gap-4">
-                    <div>
-                        <label for="returned_by_name" class="block text-sm font-medium text-slate-700 mb-1">Persona que devuelve el vehículo</label>
-                        <input id="returned_by_name" name="returned_by_name" value="{{ old('returned_by_name') }}" required
-                               class="w-full rounded-md border-slate-300 focus:border-brand-cyan focus:ring-brand-cyan text-sm">
-                        @error('returned_by_name')<p class="mt-1 text-sm text-brand-orange">{{ $message }}</p>@enderror
-                    </div>
-                    <div>
-                        <label for="keys_received_by_name" class="block text-sm font-medium text-slate-700 mb-1">Persona que recibe las llaves</label>
-                        <input id="keys_received_by_name" name="keys_received_by_name" value="{{ old('keys_received_by_name') }}" required
-                               class="w-full rounded-md border-slate-300 focus:border-brand-cyan focus:ring-brand-cyan text-sm">
-                        @error('keys_received_by_name')<p class="mt-1 text-sm text-brand-orange">{{ $message }}</p>@enderror
-                    </div>
-                </div>
-            </section>
-
-            <section class="bg-white border border-slate-200 rounded-lg p-5 border-l-4 border-l-brand-cyan">
-                <h2 class="text-sm font-semibold text-slate-900 mb-4">Detalles de la devolución</h2>
-                <div class="grid sm:grid-cols-3 gap-4">
-                    <div>
-                        <label for="return_date" class="block text-sm font-medium text-slate-700 mb-1">Fecha de devolución</label>
-                        <input type="date" id="return_date" name="return_date" value="{{ old('return_date') }}" required
-                               class="w-full rounded-md border-slate-300 focus:border-brand-cyan focus:ring-brand-cyan text-sm">
-                        @error('return_date')<p class="mt-1 text-sm text-brand-orange">{{ $message }}</p>@enderror
-                    </div>
-                    <div>
-                        <label for="return_time" class="block text-sm font-medium text-slate-700 mb-1">Hora de devolución</label>
-                        <input type="time" id="return_time" name="return_time" value="{{ old('return_time') }}" required
-                               class="w-full rounded-md border-slate-300 focus:border-brand-cyan focus:ring-brand-cyan text-sm">
-                        @error('return_time')<p class="mt-1 text-sm text-brand-orange">{{ $message }}</p>@enderror
-                    </div>
-                    <div>
-                        <label for="final_mileage" class="block text-sm font-medium text-slate-700 mb-1">Kilometraje final</label>
-                        <input type="number" min="{{ $reception->initial_mileage }}" id="final_mileage" name="final_mileage"
-                               value="{{ old('final_mileage') }}" required
-                               class="w-full rounded-md border-slate-300 focus:border-brand-cyan focus:ring-brand-cyan text-sm font-data">
-                        <p class="mt-1 text-xs text-slate-400">Inicial: {{ number_format($reception->initial_mileage) }}</p>
-                        @error('final_mileage')<p class="mt-1 text-sm text-brand-orange">{{ $message }}</p>@enderror
-                    </div>
-                    <div class="sm:col-span-3">
-                        <label for="location" class="block text-sm font-medium text-slate-700 mb-1">Ubicación de devolución</label>
-                        <input id="location" name="location" value="{{ old('location') }}" required
-                               placeholder="Ej. Oficina central, aeropuerto, sitio del cliente..."
-                               class="w-full rounded-md border-slate-300 focus:border-brand-cyan focus:ring-brand-cyan text-sm">
-                        @error('location')<p class="mt-1 text-sm text-brand-orange">{{ $message }}</p>@enderror
+        <fieldset x-show="step === 1" :disabled="step !== 1" style="display:grid;gap:18px">
+            <div class="grid grid-2">
+                <div class="card">
+                    <div class="card-header">Personas</div>
+                    <div class="card-body" style="display:grid;gap:16px">
+                        <div>
+                            <label for="returned_by_name" class="form-label" style="margin-top:0">Persona que devuelve el vehículo</label>
+                            <input id="returned_by_name" name="returned_by_name" value="{{ old('returned_by_name') }}" required style="width:100%">
+                            @error('returned_by_name')<p class="field-error">{{ $message }}</p>@enderror
+                        </div>
+                        <div>
+                            <label for="keys_received_by_name" class="form-label" style="margin-top:0">Persona que recibe las llaves</label>
+                            <input id="keys_received_by_name" name="keys_received_by_name" value="{{ old('keys_received_by_name') }}" required style="width:100%">
+                            @error('keys_received_by_name')<p class="field-error">{{ $message }}</p>@enderror
+                        </div>
                     </div>
                 </div>
-            </section>
 
-            <section class="bg-white border border-slate-200 rounded-lg p-5 border-l-4 border-l-brand-cyan space-y-4">
-                <h2 class="text-sm font-semibold text-slate-900">Combustible</h2>
-                <x-fuel-level-selector />
-                <x-fuel-type-selector />
-            </section>
+                <div class="card">
+                    <div class="card-header">Detalles de la devolución</div>
+                    <div class="card-body" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:16px">
+                        <div>
+                            <label for="return_date" class="form-label" style="margin-top:0">Fecha</label>
+                            <input type="date" id="return_date" name="return_date" value="{{ old('return_date') }}" required style="width:100%">
+                            @error('return_date')<p class="field-error">{{ $message }}</p>@enderror
+                        </div>
+                        <div>
+                            <label for="return_time" class="form-label" style="margin-top:0">Hora</label>
+                            <input type="time" id="return_time" name="return_time" value="{{ old('return_time') }}" required style="width:100%">
+                            @error('return_time')<p class="field-error">{{ $message }}</p>@enderror
+                        </div>
+                        <div style="grid-column:1/-1">
+                            <label for="final_mileage" class="form-label" style="margin-top:0">Kilometraje final</label>
+                            <input type="number" min="{{ $reception->initial_mileage }}" id="final_mileage" name="final_mileage"
+                                   value="{{ old('final_mileage') }}" required class="font-data" style="width:100%">
+                            <p class="field-help">Inicial: {{ number_format($reception->initial_mileage) }}</p>
+                            @error('final_mileage')<p class="field-error">{{ $message }}</p>@enderror
+                        </div>
+                        <div style="grid-column:1/-1">
+                            <label for="location" class="form-label" style="margin-top:0">Ubicación de devolución</label>
+                            <input id="location" name="location" value="{{ old('location') }}" required
+                                   placeholder="Ej. Oficina central, aeropuerto, sitio del cliente..." style="width:100%">
+                            @error('location')<p class="field-error">{{ $message }}</p>@enderror
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-            <section class="bg-white border border-slate-200 rounded-lg p-5 border-l-4 border-l-brand-magenta">
-                <x-documentation-checklist :document-types="DocumentType::forDelivery()" />
-            </section>
+            <div class="grid grid-2">
+                <div class="card">
+                    <div class="card-header">Combustible</div>
+                    <div class="card-body" style="display:grid;gap:16px">
+                        <x-fuel-level-selector />
+                        <x-fuel-type-selector />
+                    </div>
+                </div>
 
-            <section class="bg-white border border-slate-200 rounded-lg p-5 border-l-4 border-l-brand-cyan">
-                <x-equipment-checklist />
-            </section>
+                <div class="card">
+                    <div class="card-body">
+                        <x-documentation-checklist :document-types="DocumentType::forDelivery()" />
+                    </div>
+                </div>
+            </div>
 
-            <div class="flex justify-end">
+            <div class="card">
+                <div class="card-body">
+                    <x-equipment-checklist />
+                </div>
+            </div>
+
+            <div style="display:flex;justify-content:flex-end">
                 <button type="button" @click="if ($el.closest('form').reportValidity()) { step = 2; window.scrollTo({top: 0, behavior: 'smooth'}) }"
-                        class="inline-flex items-center px-5 py-2.5 rounded-md text-sm font-medium text-white bg-brand-cyan hover:bg-brand-cyan/90">
+                        class="btn btn-primary">
                     Siguiente: Estado y evidencia
                 </button>
             </div>
         </fieldset>
 
-        <fieldset x-show="step === 2" :disabled="step !== 2" class="space-y-6">
-            <section class="bg-white border border-slate-200 rounded-lg p-5 border-l-4 border-l-brand-olive space-y-5">
-                <h2 class="text-sm font-semibold text-slate-900">Estado a la devolución</h2>
+        <fieldset x-show="step === 2" :disabled="step !== 2" style="display:grid;gap:18px">
+            <div class="card">
+                <div class="card-header">Estado a la devolución</div>
+                <div class="card-body" style="display:grid;gap:16px">
+                    @foreach (ConditionStatus::fieldLabels() as $field => $label)
+                        <x-condition-field :field="$field" :label="$label" />
+                    @endforeach
 
-                @foreach (ConditionStatus::fieldLabels() as $field => $label)
-                    <x-condition-field :field="$field" :label="$label" />
-                @endforeach
+                    <fieldset>
+                        <p class="section-label">Vehículo lavado</p>
+                        <div style="display:flex;gap:10px">
+                            <label class="choice-chip is-yes">
+                                <input type="radio" name="washed" value="1" @checked(old('washed') === '1') required> Sí
+                            </label>
+                            <label class="choice-chip is-no">
+                                <input type="radio" name="washed" value="0" @checked(old('washed') === '0')> No
+                            </label>
+                        </div>
+                        @error('washed')<p class="field-error">{{ $message }}</p>@enderror
+                    </fieldset>
 
-                <fieldset>
-                    <legend class="text-sm font-medium text-slate-700 mb-2">Vehículo lavado</legend>
-                    <div class="flex gap-3">
-                        <label class="flex items-center gap-2 px-3 py-2 rounded-md border text-sm cursor-pointer border-slate-200 hover:bg-slate-50">
-                            <input type="radio" name="washed" value="1" @checked(old('washed') === '1') required class="text-brand-olive focus:ring-brand-olive"> Sí
-                        </label>
-                        <label class="flex items-center gap-2 px-3 py-2 rounded-md border text-sm cursor-pointer border-slate-200 hover:bg-slate-50">
-                            <input type="radio" name="washed" value="0" @checked(old('washed') === '0') class="text-brand-olive focus:ring-brand-olive"> No
-                        </label>
+                    <div style="padding-top:6px;border-top:1px solid var(--border)">
+                        <x-condition-checklist />
                     </div>
-                    @error('washed')<p class="mt-1 text-sm text-brand-orange">{{ $message }}</p>@enderror
-                </fieldset>
-
-                <div class="pt-2 border-t border-slate-100">
-                    <x-condition-checklist />
                 </div>
-            </section>
+            </div>
 
-            <section class="bg-white border border-slate-200 rounded-lg p-5 border-l-4 border-l-brand-orange">
-                <x-anomaly-field />
-            </section>
+            <div class="card">
+                <div class="card-body">
+                    <x-anomaly-field />
+                </div>
+            </div>
 
-            <section class="bg-white border border-slate-200 rounded-lg p-5 border-l-4 border-l-brand-amber">
-                <x-photo-uploader :positions="PhotoPosition::standardPositions()" />
-            </section>
+            <div class="card">
+                <div class="card-body">
+                    <x-photo-uploader :positions="PhotoPosition::standardPositions()" />
+                </div>
+            </div>
 
-            <section class="bg-white border border-slate-200 rounded-lg p-5 border-l-4 border-l-brand-magenta">
-                <x-signature-pad />
-            </section>
+            <div class="card">
+                <div class="card-body">
+                    <x-signature-pad />
+                </div>
+            </div>
 
-            <div class="flex justify-between">
-                <button type="button" @click="step = 1; window.scrollTo({top: 0, behavior: 'smooth'})"
-                        class="inline-flex items-center px-5 py-2.5 rounded-md text-sm font-medium text-slate-700 border border-slate-300 hover:bg-slate-50">
+            <div style="display:flex;justify-content:space-between">
+                <button type="button" @click="step = 1; window.scrollTo({top: 0, behavior: 'smooth'})" class="btn btn-outline-secondary">
                     Atrás
                 </button>
-                <button type="submit"
-                        class="inline-flex items-center px-5 py-2.5 rounded-md text-sm font-medium text-white bg-brand-magenta hover:bg-brand-magenta/90">
+                <button type="submit" class="btn btn-primary">
                     Guardar devolución
                 </button>
             </div>

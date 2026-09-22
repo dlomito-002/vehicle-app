@@ -1,6 +1,15 @@
 # Cambios en la rama `luis/setup-local`
 
-Notas para Diego (dlomito-002): esto resume todo lo que se hizo en esta rama, agrupado por tipo, con el porqué de cada cambio. Nada de esto está en `main` todavía — está esperando que se le dé a `FernandoZL` acceso de escritura en el repo para poder subirlo.
+Notas para Diego (dlomito-002): esto resume todo lo que se hizo en esta rama, agrupado por tipo, con el porqué de cada cambio.
+
+## 🔴 IMPORTANTE PARA DIEGO — revisa esto antes de correr `php artisan test`
+
+Encontré y arreglé un bug real de compatibilidad entre tu entorno (Ubuntu) y el mío (Windows) que **te habría roto la suite de tests por completo** si tu `.env` sigue con `DB_CONNECTION=sqlite` (el valor por defecto de `.env.example`):
+
+- `phpunit.xml` forzaba `DB_DATABASE=vehiculos_carrousel_test` asumiendo MySQL. En una máquina con `DB_CONNECTION=sqlite`, SQLite exige una ruta *absoluta* — con ese valor tal cual, fallan 58/60 tests con `Database file at path [vehiculos_carrousel_test] does not exist`. Lo comprobé forzando `DB_CONNECTION=sqlite` localmente y reproduje el error exacto.
+- **Fix**: `phpunit.xml` ahora fuerza `DB_CONNECTION=sqlite` + `DB_DATABASE=:memory:` para los tests, sin importar qué motor tengas configurado en tu `.env` real (mysql, sqlite, lo que sea). Los tests corren siempre aislados en SQLite en memoria — más rápido (2.3s vs 6-12s en MySQL) y ya no depende de que exista una base `..._test` en ningún motor.
+- Verifiqué que las 60 pruebas pasan igual en SQLite en memoria y en MySQL desde cero (`migrate:fresh` limpio), así que las migraciones actuales son compatibles con ambos motores — el único punto de fricción real era este de `phpunit.xml`, ya resuelto.
+- Si tu `.env` local ya apunta a MySQL/MariaDB para desarrollo, no cambia nada para ti; si sigues en SQLite (el default del proyecto), esto es lo que te habría bloqueado al hacer pull.
 
 ## 1. Bugs de migraciones corregidos (bloqueaban MySQL/MariaDB)
 
@@ -53,32 +62,48 @@ Es 100% capa de presentación — no se tocó lógica de negocio, rutas, modelos
 
 `composer.lock` y `package-lock.json` siguen exactamente iguales a como estaban — nada de esto cambió versiones de dependencias compartidas.
 
-## ⏭️ PENDIENTE PRIORITARIO — mensaje para continuar
+## ✅ Logo en correos — resuelto
 
-**Problema reportado por Luis:** "el diseño no se parece en nada" a `helpdesk-carrousel`.
+Los 3 correos (`emails/login-code.blade.php`, `help-request.blade.php`, `maintenance-alert.blade.php`) ya usan `{{ $message->embed(public_path('images/logo.png')) }}` en vez de `asset('images/logo.png')`. El logo ahora viaja incrustado en el correo (CID de MIME) y se ve igual en local, Ubuntu o cualquier bandeja de entrada, sin depender de `APP_URL`. Suite completa verificada de nuevo tras el cambio: 60/60 tests pasan.
 
-**Diagnóstico ya hecho (para no repetir la investigación):**
-- Comparé `auth-v2.css` real de HelpdeskCarrousel contra `resources/css/app.css` de vehicle-app línea por línea. El login (`auth-body`/`auth-layout`/`auth-brand`/`auth-card`) **sí coincide casi exacto**: mismo gradiente radial, mismo `grid-template-columns`, mismo `border-radius:26px`, mismo `box-shadow`. El logo sirve bien (`HTTP 200`, ~286KB). No hay ningún `<script src="cdn.tailwindcss.com">` residual. Build de Vite está limpio y actualizado.
-- **La causa más probable está en las otras ~20 vistas** (dashboard, receptions, deliveries, vehicles, users, maintenance-schedules, calendar, etc.): el primer fork de rediseño remapeó los *colores* de Tailwind (`brand-magenta` → azul, etc.) sobre el marcado Tailwind genérico que ya existía (`bg-white`, `border-slate-*`, `rounded-md`), pero **no reconstruyó la estructura visual** (tarjetas, tablas, densidad de espaciado) usando el sistema real de HelpdeskCarrousel (`.card`/`.card-header`/`.card-body`, `.data-table` con colapso a filas en móvil, las reglas de `layout-density-v25.css`, `components.css`, `data-tables.css` — archivos que sí existen en `C:\xampp\htdocs\HelpdeskCarrousel\public\assets\css\` pero que no se usaron a fondo). Colores correctos, estructura genérica: por eso "no se parece".
+## ✅ REDISEÑO VISUAL — completo (2026-09-22)
 
-**Antes de seguir mañana:**
-1. Pedirle a Luis que diga *específicamente* qué pantalla mira cuando dice que no se parece (¿dashboard? ¿la lista de recepciones? ¿una tarjeta en particular?) — así el esfuerzo va directo ahí en vez de reconstruir las 20 vistas a ciegas.
-2. Con esa pantalla concreta, comparar su HTML/CSS renderizado contra el equivalente real en HelpdeskCarrousel (mismo método que se usó aquí para el login: `curl` a ambas, comparar clases y reglas CSS reales, no solo los nombres de archivo).
-3. Reconstruir el marcado de esa vista (y luego el resto) usando `.card`/`.data-table` y los espaciados reales, no solo colores — este sí es un cambio más profundo que el remapeo de colores que ya se hizo.
+**Problema reportado por Luis:** "el diseño no se parece en nada" a `helpdesk-carrousel` (confirmado explícitamente contra `https://github.com/FernandoZL/helpdesk-carrousel`, que es el mismo repo clonado en `C:\xampp\htdocs\HelpdeskCarrousel`).
 
-**Bug adicional encontrado y diagnosticado (falta aplicar el fix, ya está identificado exactamente):** el logo en los 3 correos (`emails/login-code.blade.php`, `help-request.blade.php`, `maintenance-alert.blade.php`) usa `asset('images/logo.png')`, que resuelve a `http://localhost/ControlVehiculosCarrousel/public/images/logo.png` — una URL que **solo existe en esta máquina Windows**. Gmail (o cualquier cliente de correo, desde cualquier otro dispositivo) nunca va a poder cargarla, sin importar el diseño. No es un problema de estilos, es que la imagen es físicamente inalcanzable desde fuera de esta PC.
+**Diagnóstico (confirmado):** el login ya coincidía con HelpdeskCarrousel; el resto de vistas tenía los *colores* remapeados sobre marcado Tailwind genérico (`bg-white`, `border-slate-*`) sin usar los componentes reales del sistema de HelpdeskCarrousel (`.card`/`.card-header`/`.card-body`, `.page-heading`, `.data-table`, `.badge`, `.alert`, `.stat`). Se confirmó leyendo `HelpdeskCarrousel/public/assets/css/app.css` línea por línea. Además, los formularios largos (recepción/entrega) usaban una paleta "arcoíris" propia del scaffold viejo (`brand-cyan`/`brand-olive`/`brand-orange`/`brand-magenta`/`brand-amber`) que no existe en el diseño real de Carrousel.
 
-Fix (2 minutos, ya identificado, falta solo aplicarlo): Laravel inyecta automáticamente una variable `$message` en las vistas Blade de correo, con un método `embed()` que incrusta la imagen directamente en el correo (technique CID de MIME), sin depender de ninguna URL pública. Cambiar en los 3 archivos:
+**Hecho:**
+- `resources/css/app.css`: componentes reales de HelpdeskCarrousel portados — `.page-heading`, `.card-header`/`.card-body`, `.grid-2/3/4`, `.stat`, `.badge` + variantes, `.alert-success/.alert-danger`, `.empty-state`, `.data-table-shell`/`.data-table` (colapsa a tarjetas en móvil), `.btn-sm`, `.list-row`, `.form-label`/`.field-error`/`.field-help`, `.step-indicator` (wizard 1/2), `.choice-chip` (radios tipo combustible/condición/sí-no, con resaltado en vivo vía `:has()`, sin depender de Alpine para el estilo), `.field-item`/`.item-row` (checklists de equipo/condición), `.upload-tile`, `.kv-list` (listas clave-valor en vistas de detalle), `.photo-grid`.
+- `<x-status-badge>` ahora emite `.badge badge-*` — se propaga a las 9+ vistas que lo usan.
+- Reconstruidas TODAS las vistas de las 3 áreas que Luis confirmó (dashboard, recepciones/entregas, vehículos/usuarios/mantenimiento), incluyendo formularios largos y vistas de detalle: `dashboard/index`, `receptions/index`, `receptions/create`, `receptions/show`, `deliveries/index`, `deliveries/select-vehicle`, `deliveries/select-reception`, `deliveries/damage-report`, `deliveries/create`, `deliveries/show`, `vehicles/index`, `vehicles/create`, `users/index`, `users/create`, `users/edit`, `maintenance-schedules/index`, alertas de `layouts/app.blade.php`.
+- Los 9 componentes de formulario compartidos retemados sin tocar su lógica Alpine.js: `fuel-level-selector`, `fuel-type-selector`, `documentation-checklist`, `equipment-checklist`, `condition-field`, `condition-checklist`, `anomaly-field`, `photo-uploader`, `signature-pad`.
 
-```blade
-<!-- Antes -->
-<img src="{{ asset('images/logo.png') }}" ...>
+**Verificado:**
+- `artisan view:cache` compila sin errores en todas las vistas.
+- Suite completa (ahora en SQLite en memoria, ver sección de arriba): 60/60, incluyendo tests reales que hacen GET con `assertOk()` sobre `receptions.show`, `deliveries.select-reception` y `deliveries.create` con datos reales — o sea que esas plantillas ya se probaron renderizando de verdad, no solo por inspección.
+- Smoke test manual autenticado (login OTP real vía `tinker` + Apache/XAMPP) sobre las 11 pantallas principales: todas 200, sin excepciones PHP en el HTML devuelto.
+- `npm run build` limpio.
 
-<!-- Después -->
-<img src="{{ $message->embed(public_path('images/logo.png')) }}" ...>
-```
+## ✅ REDISEÑO VISUAL — ronda 2: auditoría de botones + checklists compactos (2026-09-22, misma tarde)
 
-Esto funciona igual en local, en Ubuntu, y en cualquier lado — no depende de `APP_URL`. Verificar después con un envío real (ya hay SMTP configurado en el `.env` local) que el logo se vea en la bandeja de Gmail.
+Luis pidió revisar **todos** los botones de la app y quitar redundancias, y después que los checklists largos (equipo 26 ítems / condición 12 ítems) se sintieran más profesionales.
+
+- **`auth/login`, `auth/verify-code`, `help/create`, `calendar/index`, `comparisons/show`**: eran las últimas 5 vistas con el estilo viejo (`bg-brand-*`, alertas sin `.alert`, botones sin `.btn`). Ya quedaron en el mismo sistema. `comparisons/show` en particular se reconstruyó completo (ya no usa `.responsive-table`).
+- **Auditoría con grep sobre toda `resources/views`**: cero clases `bg-brand-*`/`text-brand-*`/`border-brand-*` restantes, cero `<button>` sin `.btn`.
+- **Redundancias eliminadas de `app.css`**: el bloque `.responsive-table` (ya no lo usa nadie), el parche completo de modo oscuro para clases Tailwind sueltas (`bg-white`, `border-slate-*`, `bg-brand-*/10` — cero usos verificados), y `.field-item-row/-label/-choices` (huérfanas tras el punto siguiente). CSS final bajó de 35.97kB a 28.90kB solo en esta limpieza.
+- **Bug real encontrado**: `.grid-2/3/4` no tenían reglas responsive — se habrían quedado fijas en varias columnas en celular. Agregado.
+- **Bug real encontrado (el "botón pegado a la línea" que reportó Luis)**: los `<fieldset>` usados para agrupar/deshabilitar campos por paso (vía Alpine `:disabled`) nunca tuvieron reset de su borde/relleno nativo del navegador (`border: 2px groove` por defecto) — se veía como una línea gris pegada al botón "Siguiente". Reseteado globalmente (`fieldset{margin:0;padding:0;border:0;min-width:0}`).
+- **Input de archivo nativo reemplazado en toda la app**: el texto nativo "No se ha seleccionado ningún archivo" no se puede repintar con CSS y se veía fuera de lugar. Ahora hay un `.file-btn` propio (input real oculto con `.sr-only`, sigue siendo 100% funcional — confirmado con los tests que suben archivos de verdad) con estado visual "adjuntado" (✓ + verde) en equipo/condición, y lo mismo en `photo-uploader`/`anomaly-field`.
+- **Checklists de equipo y condición: de tabla de una columna a grilla compacta** (`.checklist-grid`, `repeat(auto-fill,minmax(250px,1fr))`): la tabla de 26+12 filas de una sola columna obligaba a un scroll larguísimo para algo que es, en esencia, marcar Sí/No. Ahora son tarjetas compactas (2-4 columnas según el ancho) con el nombre arriba y Sí/No + botón de foto en la misma fila, usando `.choice-chip` (mismo componente que combustible/condición) en vez de radios nativos sueltos — corrige también el desalineado de altura entre el radio y el botón de foto que Luis señaló en la captura. `documentation-checklist` (solo 2-3 ítems) se actualizó al mismo estilo de chip para consistencia, sin convertirla a grilla (no la necesita).
+- Verificado: `artisan view:cache` limpio, `npm run build` limpio, 60/60 tests (incluye los que suben archivos reales a los campos que ahora están ocultos tras `.file-btn`).
+
+## ✅ REDISEÑO VISUAL — ronda 3: "Fleet Desk", ancho de pantalla, bug de modo oscuro (2026-09-22, noche)
+
+- **"Fleet Desk" en el remitente del correo**: no era el asunto ni el cuerpo (ya arreglados en la ronda 1), sino `APP_NAME` en `.env` — Laravel lo usa como `MAIL_FROM_NAME`. Cambiado a `"Control de Vehiculos"` en `.env` (máquina de Luis) y en `.env.example` (para que el setup de Diego arranque bien desde cero). `php artisan config:clear` corrido después.
+- **Bug real de modo oscuro encontrado y corregido**: la regla base de `input`/`select`/`textarea` tenía `background-color: rgb(255 255 255)` fijo (no `var(--card)`) y sin `color` explícito — en modo oscuro, **todos** los campos de texto del formulario quedaban blancos con texto potencialmente ilegible. Corregido a `var(--card)`/`var(--ink)`.
+- **"Aprovechar la pantalla"**: `receptions/create` y `deliveries/create` tenían el `<form>` limitado a `max-width:56rem` (896px) mientras el resto de la app usa hasta 1400px (`.content`). Se quitó el límite y se reestructuró el paso 1 en pares de tarjetas lado a lado (`.grid.grid-2`: Vehículo/Persona + Detalles, luego Combustible + Documentación) en vez de apiladas, dejando el checklist de equipo a ancho completo.
+- **Pendiente sin resolver**: Luis reporta que el modo oscuro "sigue sin ser en toda la app" después del fix de inputs. Hice una auditoría completa por grep (cero clases Tailwind `bg/text/border-slate/gray/zinc/*`, cero hex fijos fuera de logo/firma/emails/PDF que deben quedar blancos a propósito, `:root`/`[data-theme="dark"]` sin duplicados) y no encontré más candidatos por código estático. **Se le pidió una captura de pantalla con el modo oscuro activado para localizar el elemento exacto que sigue claro — todavía no la mandó.** Este es el hilo suelto más importante para retomar.
+- Verificado: `npm run build` limpio, 60/60 tests, smoke test real de `receptions/create` (200, sin excepciones, estructura de 2 columnas presente en el HTML).
 
 ## Configuración local (no está en git, cada quien la suya)
 

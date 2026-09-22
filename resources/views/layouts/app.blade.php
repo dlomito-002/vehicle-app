@@ -60,7 +60,7 @@
         ];
     @endphp
 
-    <div class="app-shell" x-data="{ open: false }">
+    <div class="app-shell" x-data="{ open: false, collapsed: (function () { try { return localStorage.getItem('carrousel-sidebar-collapsed') === '1'; } catch (e) { return false; } })() }" :class="{ 'is-collapsed': collapsed }">
         <div class="sidebar-backdrop" x-show="open" x-cloak @click="open = false"
              style="display:none;position:fixed;inset:4px 0 0;background:rgba(15,23,42,.42);z-index:1300"></div>
 
@@ -69,7 +69,7 @@
                 <img src="{{ asset('images/logo.png') }}" alt="Corporación Carrousel" style="width:40px;height:40px;object-fit:contain;background:#fff;border-radius:8px;padding:3px;">
                 <div>
                     <strong>Control de Vehículos</strong>
-                    <span style="display:block">Carrousel</span>
+                    <span style="display:block">Corporación Carrousel</span>
                 </div>
             </div>
 
@@ -95,33 +95,34 @@
             <header class="topbar">
                 <div style="display:flex;align-items:center;gap:12px">
                     <button class="sidebar-toggle theme-toggle" type="button" @click="open = !open" aria-label="Abrir menú">☰</button>
+                    <button class="sidebar-toggle-desktop theme-toggle" type="button"
+                            @click="collapsed = !collapsed; try { localStorage.setItem('carrousel-sidebar-collapsed', collapsed ? '1' : '0') } catch (e) {}"
+                            title="Ocultar/mostrar panel" aria-label="Ocultar/mostrar panel">☰</button>
                     <span class="topbar-title">@yield('title', 'Gestión de Flota')</span>
                 </div>
 
                 <div style="display:flex;align-items:center;gap:10px">
-                    <a href="{{ route('receptions.create') }}" class="btn btn-primary btn-sm" style="min-height:36px;padding:7px 12px;font-size:12.5px">
+                    <a href="{{ route('receptions.create') }}" class="btn btn-primary btn-sm">
                         Nueva recepción
                     </a>
                     <span class="text-sm hidden md:inline" style="color:var(--muted)">{{ auth()->user()->name }}</span>
                     <button class="theme-toggle" type="button" data-theme-toggle title="Cambiar apariencia" aria-label="Cambiar apariencia">◐</button>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
-                        <button type="submit" class="btn btn-outline-secondary btn-sm" style="min-height:36px;padding:7px 12px;font-size:12.5px">Salir</button>
+                        <button type="submit" class="btn btn-outline-secondary btn-sm">Salir</button>
                     </form>
                 </div>
             </header>
 
             <main class="content">
                 @if (session('status'))
-                    <div class="mb-6 rounded-md border-l-4 border-brand-olive bg-brand-olive/10 px-4 py-3 text-sm" style="color:var(--ink)">
-                        {{ session('status') }}
-                    </div>
+                    <div class="alert alert-success">{{ session('status') }}</div>
                 @endif
 
                 @if ($errors->any())
-                    <div class="mb-6 rounded-md border-l-4 border-brand-orange bg-brand-orange/10 px-4 py-3 text-sm" style="color:var(--ink)">
-                        <p class="font-medium mb-1">Corrige lo siguiente:</p>
-                        <ul class="list-disc list-inside space-y-0.5">
+                    <div class="alert alert-danger">
+                        <p>Corrige lo siguiente:</p>
+                        <ul style="margin:0;padding-left:18px">
                             @foreach ($errors->all() as $error)
                                 <li>{{ $error }}</li>
                             @endforeach
