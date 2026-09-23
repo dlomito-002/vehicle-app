@@ -23,3 +23,10 @@ yarn-error.log
 /.zed
 /database/*.sqlite
 /database/*.sqlite-journal
+/2402
+/2402.pub
+/.agents/
+/.claude/
+/AGENTS.md
+/CLAUDE.md
+/skills-lock.json
