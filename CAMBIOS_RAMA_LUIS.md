@@ -133,3 +133,88 @@ Se refinó el formulario de recepción tomando como referencia patrones de formu
 - Feedback visual sutil en cada elemento del checklist al responder Sí/No.
 - Acciones adaptadas a móvil en una sola columna.
 - Se conserva el flujo de 2 pasos y la grilla compacta para el checklist operativo.
+
+## ✅ Estado compartido para continuar con Claudio — 2026-09-22
+
+### Rama `luis/setup-local`
+
+Últimos hitos:
+
+- `1200703` — Completar modo oscuro del acceso.
+- `0445121` — Agregar selects buscables globales.
+- `6524b17` — Limpiar archivos auxiliares y retirar credenciales del repositorio.
+- `707bdab` — Mejorar UX empresarial del formulario de recepción.
+- `2e9c27a` — Mejorar cierre del formulario y asignar admin a Luis.
+- `98335b3` — Alinear interfaz con Helpdesk Carrousel.
+- `10c67ad` — Actualizar Laravel 12 y compatibilidad PHP 8.2.
+
+Estado validado de esta rama:
+
+- Laravel 12.69.x.
+- PHP 8.2 / Composer platform 8.2.12.
+- `npm run build`: OK.
+- `php artisan test`: 60 tests / 194 assertions.
+- Smart Select global integrado.
+- Modo oscuro completo en app y login/OTP.
+- Flujo de trabajo acordado: consola + Git; no usar Codex para continuar este proyecto.
+
+### Relación con la rama `Claudio`
+
+Las ramas están divergidas: ambas tienen trabajo propio. Mientras cada desarrollador trabaje en su rama no se interfieren; el rietgo está en la futura integración.
+
+No hacer merge automático todavía.
+
+Cambios propios de `Claudio` que deben conservarse/revisarse:
+
+- `HandlesVehicleFormUploads` y manejo de almacenamiento;
+- configuración `filesystems` / Cloudinary;
+- cierre concurrente seguro de recepciones al registrar devolución;
+- `FullFlowTest`;
+- ampliaciones de `VehicleDeliveryTest`;
+- `VEHICLE_PHOTOS_DISK=public` en pruebas;
+- cambios intencionales en seeder.
+
+Cambios propios de `luis/setup-local` que deben conservarse/revisarse:
+
+- Laravel 12 / PHP 8.2;
+- SQLite `:memory:` para tests y `APP_URL=http://localhost`;
+- compatibilidad de migraciones con MySQL/MariaDB;
+- autorización de recepciones/devoluciones;
+- rediseño Helpdesk;
+- dark mode;
+- UX de formularios;
+- Smart Select;
+- correos/OTP;
+- documentación Windows/Ubuntu.
+
+Archivos con conflicto probable:
+
+- `phpunit.xml`
+- `resources/js/app.js`
+- `resources/views/receptions/create.blade.php`
+- `resources/views/deliveries/create.blade.php`
+- `app/Http/Controllers/VehicleDeliveryController.php`
+
+Resultado deseado de `phpunit.xml`: conservar **ambas** configuraciones `APP_URL=http://localhost` y `VEHICLE_PHOTOS_DISK=public`.
+
+### Compatibilidad Windows / Ubuntu
+
+- Luis: Windows + XAMPP, ruta local `C:\xampp\htdocs\ControlVehiculosCarrousel`.
+- Claudio: Ubuntu.
+- No introducir rutas absolutas de ningún SO en código compartido.
+- `MAIN.bat` es ayuda opcional de Windows, no requisito del proyecto.
+- Comandos compartidos: Composer, Artisan y npm.
+
+### Seguridad pendiente
+
+La llave privada SSH `2402` fue eliminada de la rama actual, pero permanece en el historial previo y estuvo en `main`. Debe rotarse/revocarse. Una futura limpieza del historial requiere coordinación porque reescribe commits.
+
+### Próximos pasos
+
+1. Limpiar `MAIN.bat` y eliminar el script temporal `tools/APLICAR_RONDA_4A_HELPDESK.ps1`.
+2. Actualizar `index.html`.
+3. Implementar buscador global de topbar + `Ctrl+K` + `/buscar?q=`.
+4. Agregar búsqueda server-side `?q=` a Recepciones, Devoluciones, Vehículos, Usuarios y Mantenimiento.
+5. Integrar `Claudio` ↔ `luis/setup-local` de forma controlada.
+6. Ejecutar build/tests completos.
+7. Solo después evaluar PR hacia `main`.

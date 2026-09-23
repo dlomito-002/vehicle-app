@@ -1,8 +1,8 @@
-# Vehicle App
+# Control de Vehiculos Carrousel
 
 Aplicacion web para administrar la recepcion, uso y devolucion de vehiculos. Permite registrar el estado del vehiculo antes y despues de un viaje, adjuntar evidencias y generar un reporte comparativo en PDF.
 
-El proyecto esta construido con Laravel 11, PHP 8.2+, Blade, Tailwind CSS, Vite y Dompdf.
+El proyecto esta construido con Laravel 12.69.x, PHP 8.2+, Blade, Tailwind CSS, Vite y Dompdf.
 
 ## Funcionalidades
 
