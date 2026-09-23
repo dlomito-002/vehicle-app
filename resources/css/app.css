@@ -1769,3 +1769,27 @@ html[data-theme="dark"] .smart-select-option-group{color:var(--dark-muted,#a9b4c
 
 .smart-select-option[hidden]{display:none!important}
 select.smart-select-native{position:absolute!important;width:1px!important;height:1px!important;opacity:0!important;pointer-events:none!important}
+
+/* Auth dark refinement - aligned with Helpdesk Carrousel */
+html[data-theme="dark"] .auth-body{background:#0b0f17;}
+html[data-theme="dark"] .auth-layout{background:#121821;border:1px solid #2a3545;box-shadow:0 28px 80px rgba(0,0,0,.42);}
+html[data-theme="dark"] .auth-brand{background:linear-gradient(145deg,rgba(255,255,255,.05),rgba(255,255,255,.015)),#0f172a;}
+html[data-theme="dark"] .auth-panel,
+html[data-theme="dark"] .auth-card{background:#121821;color:#f2f5f9;}
+html[data-theme="dark"] .auth-card h2,
+html[data-theme="dark"] .auth-lead strong,
+html[data-theme="dark"] .auth-helper strong{color:#f2f5f9;}
+html[data-theme="dark"] .auth-lead,
+html[data-theme="dark"] .auth-security{color:#9eacbd;}
+html[data-theme="dark"] .auth-helper{background:#18212e;border-color:#2a3545;color:#9eacbd;}
+html[data-theme="dark"] .auth-security{border-top-color:#2a3545;}
+html[data-theme="dark"] .auth-card input:not([type="checkbox"]):not([type="radio"]){background:#0f151e;border-color:#354254 !important;color:#f2f5f9;}
+html[data-theme="dark"] .auth-card input::placeholder{color:#748397;}
+html[data-theme="dark"] .auth-card input:focus{border-color:#6188d2 !important;box-shadow:0 0 0 3px rgba(127,167,255,.18);}
+html[data-theme="dark"] .auth-points span,
+html[data-theme="dark"] .auth-product-pill{border-color:rgba(255,255,255,.14);background:rgba(255,255,255,.06);}
+html[data-theme="dark"] .auth-mobile-brand strong{color:#f2f5f9;}
+html[data-theme="dark"] .auth-card .theme-toggle,
+html[data-theme="dark"] .auth-card .btn-outline-secondary{background:#141b25;border-color:#3b485a;color:#e1e8f1;}
+html[data-theme="dark"] .auth-card .theme-toggle:hover,
+html[data-theme="dark"] .auth-card .btn-outline-secondary:hover{background:#1d2734;border-color:#53657d;color:#fff;}
