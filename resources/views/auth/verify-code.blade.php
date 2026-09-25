@@ -30,7 +30,7 @@
     </form>
 
     <div class="auth-actions" style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-top:18px">
-        <form method="POST" action="{{ route('login') }}">
+        <form method="POST" action="{{ route('login') }}" onsubmit="this.querySelector('[type=submit]').disabled = true">
             @csrf
             <input type="hidden" name="email" value="{{ $email }}">
             <button type="submit" class="btn btn-outline-secondary btn-sm">Reenviar código</button>

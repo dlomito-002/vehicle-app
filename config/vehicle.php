@@ -37,4 +37,18 @@ return [
 
     'photos_disk' => env('VEHICLE_PHOTOS_DISK', 'public'),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Login code cooldown
+    |--------------------------------------------------------------------------
+    |
+    | Minimum seconds between login (OTP) code emails for the same address,
+    | regardless of IP or browser session. Set to 0 to disable. This sits on
+    | top of the existing limit in LoginController (3 requests / 10 min per
+    | email + IP).
+    |
+    */
+
+    'login_code_cooldown_seconds' => (int) env('LOGIN_CODE_COOLDOWN_SECONDS', 60),
+
 ];
