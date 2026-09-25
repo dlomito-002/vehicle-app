@@ -1,0 +1,128 @@
+INSTALACION EN WINDOWS (XAMPP) - Control de Vehiculos Carrousel
+================================================================
+
+El instalador (php artisan app:install) crea una instalacion LIMPIA: esquema
+de base de datos + usuarios iniciales, sin vehiculos, recepciones,
+devoluciones, mantenimiento ni fotos. Nunca borra datos existentes.
+
+1. REQUISITOS (instalar una sola vez)
+-------------------------------------
+- XAMPP con PHP 8.2 o superior (Apache y MySQL/MariaDB).
+- Composer 2        https://getcomposer.org
+- Node.js + npm     https://nodejs.org
+- Git (si vas a clonar el repositorio).
+
+Extensiones PHP necesarias (en C:\xampp\php\php.ini, sin ";" al inicio):
+  extension=curl
+  extension=fileinfo
+  extension=gd
+  extension=mbstring
+  extension=openssl
+  extension=pdo_mysql
+(ctype, dom, json, tokenizer y xml ya vienen activas en XAMPP.)
+
+Si "php" no se reconoce en la consola, agrega C:\xampp\php al PATH de Windows
+o usa la ruta completa: C:\xampp\php\php.exe
+
+2. CREAR LA BASE DE DATOS
+-------------------------
+1. Abre el panel de XAMPP y arranca Apache y MySQL.
+2. Entra a http://localhost/phpmyadmin
+3. Crea una base de datos VACIA, por ejemplo "vehiculos"
+   (cotejamiento utf8mb4_unicode_ci).
+4. Recomendado: crea un usuario propio con permisos solo sobre esa base
+   (en XAMPP, "root" sin contrasena solo debe usarse en pruebas locales).
+
+3. INSTALAR
+-----------
+Abre "Simbolo del sistema" (cmd) o PowerShell en la carpeta del proyecto
+(por ejemplo C:\xampp\htdocs\vehicle-app) y ejecuta:
+
+  composer install --no-dev --optimize-autoloader
+  npm ci
+  npm run build
+  php artisan app:install
+
+El instalador te pregunta:
+  - URL de la aplicacion (ej. http://localhost/vehicle-app/public)
+  - Motor de base de datos: elige MySQL / MariaDB
+  - Host (127.0.0.1), puerto (3306), nombre de la base, usuario y contrasena
+    (la contrasena no se muestra al escribirla)
+
+Luego prueba la conexion, ejecuta las migraciones, crea los usuarios
+iniciales y muestra un resumen. Para servidores de produccion agrega
+--optimize al ultimo comando.
+
+Opciones utiles:
+  --admin-email=correo@dominio.com   administrador inicial
+  --admin-name="Nombre Apellido"
+  --no-team-users                    crear solo ese administrador
+  --optimize                         cachear config, rutas y vistas
+
+4. USUARIOS INICIALES
+---------------------
+- Se crean los usuarios del equipo y el administrador indicado.
+- El inicio de sesion es por CODIGO ENVIADO AL CORREO; no hay contrasenas.
+- Volver a ejecutar el instalador NO duplica ni modifica usuarios existentes.
+
+5. CONFIGURAR .env DESPUES DE INSTALAR (obligatorio: correo)
+-----------------------------------------------------------
+Abre el archivo .env en la raiz del proyecto y completa:
+
+  MAIL_MAILER=smtp
+  MAIL_HOST=...
+  MAIL_PORT=...
+  MAIL_USERNAME=...
+  MAIL_PASSWORD=...
+  MAIL_FROM_ADDRESS=...
+
+SIN CORREO CONFIGURADO NADIE PUEDE INICIAR SESION (los codigos no llegan).
+
+Produccion:
+  APP_ENV=production
+  APP_DEBUG=false
+
+Opcional:
+  VEHICLE_MANAGER_EMAIL=            correo de respaldo para Ayuda/alertas
+  VEHICLE_PHOTOS_DISK=public        o "cloudinary" con:
+  CLOUDINARY_CLOUD_NAME=
+  CLOUDINARY_API_KEY=
+  CLOUDINARY_API_SECRET=
+
+Si cambias .env despues de usar --optimize, ejecuta: php artisan optimize:clear
+
+6. PROBAR
+---------
+Desarrollo rapido:   php artisan serve   ->  http://127.0.0.1:8000
+Con Apache: apunta el DocumentRoot (o VirtualHost) a la carpeta "public".
+Entra con el correo de un usuario inicial y usa el codigo recibido.
+Los vehiculos se agregan desde la administracion (la instalacion inicia
+sin ninguno).
+
+7. ALERTAS DE MANTENIMIENTO (opcional)
+--------------------------------------
+No se usa cola. Para que las alertas salgan aunque nadie abra la pantalla,
+crea una tarea en el Programador de tareas de Windows que ejecute cada hora:
+  C:\xampp\php\php.exe C:\xampp\htdocs\vehicle-app\artisan maintenance:check-alerts
+
+8. PROBLEMAS COMUNES
+--------------------
+- "Access denied" o "Unknown database": revisa usuario/contrasena y que la
+  base exista y este vacia o sea la correcta.
+- "No se pudo crear public/storage": en Windows el enlace simbolico requiere
+  ejecutar la consola como Administrador (o activar el Modo desarrollador) y
+  luego correr:  php artisan storage:link
+- Requisito en FALLA: activa la extension indicada en php.ini y reinicia
+  Apache; verifica con: php -m
+- Faltan estilos: ejecuta  npm ci  y  npm run build
+
+9. ACTUALIZAR UNA INSTALACION EXISTENTE
+---------------------------------------
+Ejecuta de nuevo  php artisan app:install  (solo aplica migraciones
+pendientes y agrega usuarios faltantes; no borra datos).
+
+10. ATAJO: INSTALAR.bat
+-----------------------
+Doble clic en INSTALAR.bat ejecuta los pasos del punto 3 (composer install,
+npm ci, npm run build y php artisan app:install). Es opcional: hace lo mismo
+que los comandos manuales. Requiere PHP, Composer y npm ya instalados.
