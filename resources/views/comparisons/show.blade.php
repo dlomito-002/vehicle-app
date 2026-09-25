@@ -11,9 +11,6 @@
             <p class="page-subtitle">
                 Recepción {{ $reception->reception_date->format('d/m/Y') }} → Devolución {{ $delivery->return_date->format('d/m/Y') }}
             </p>
-            <p class="page-subtitle">
-                Recibió y firmó: {{ $reception->received_by_name }} · Devolvió y firmó: {{ $delivery->returned_by_name }}
-            </p>
         </div>
         <a href="{{ route('comparisons.pdf', $reception) }}" class="btn btn-primary">Descargar PDF</a>
     </div>
@@ -263,6 +260,9 @@
                                     Sin fotografía
                                 </div>
                             @endforelse
+                            @if ($group['position'] === 'signature' && $reception->received_by_name)
+                                <p style="margin:6px 0 0;font-size:12.5px"><strong>Firmado por:</strong> {{ $reception->received_by_name }}</p>
+                            @endif
                         </div>
                         <div>
                             <p style="margin:0 0 6px;font-size:11.5px;color:var(--muted)">Devolución</p>
@@ -275,6 +275,9 @@
                                     Sin fotografía
                                 </div>
                             @endforelse
+                            @if ($group['position'] === 'signature' && $delivery->returned_by_name)
+                                <p style="margin:6px 0 0;font-size:12.5px"><strong>Firmado por:</strong> {{ $delivery->returned_by_name }}</p>
+                            @endif
                         </div>
                     </div>
                 </div>

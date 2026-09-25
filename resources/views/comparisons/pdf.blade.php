@@ -195,6 +195,9 @@
                         @php $img = PdfImageEncoder::fromModel($photo); @endphp
                         @if ($img)<img src="{{ $img }}">@else<div class="no-photo"></div>@endif
                         <p class="photo-caption">Recepción</p>
+                        @if ($group['position'] === 'signature' && $reception->received_by_name)
+                            <p class="photo-caption"><strong>Firmado por:</strong> {{ $reception->received_by_name }}</p>
+                        @endif
                     </td>
                 @empty
                     <td><div class="no-photo"></div><p class="photo-caption">Recepción — sin foto</p></td>
@@ -204,6 +207,9 @@
                         @php $img = PdfImageEncoder::fromModel($photo); @endphp
                         @if ($img)<img src="{{ $img }}">@else<div class="no-photo"></div>@endif
                         <p class="photo-caption">Devolución</p>
+                        @if ($group['position'] === 'signature' && $delivery->returned_by_name)
+                            <p class="photo-caption"><strong>Firmado por:</strong> {{ $delivery->returned_by_name }}</p>
+                        @endif
                     </td>
                 @empty
                     <td><div class="no-photo"></div><p class="photo-caption">Devolución — sin foto</p></td>
