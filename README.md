@@ -39,6 +39,34 @@ Un agente no puede administrar el catalogo de vehiculos ni consultar las recepci
 - SQLite (configuracion predeterminada) o MySQL/MariaDB.
 - Extensiones PHP habituales de Laravel, incluyendo `pdo`, `mbstring`, `openssl`, `fileinfo` y `tokenizer`.
 
+## Instalacion en un servidor nuevo (instalador)
+
+El comando `php artisan app:install` prepara una instalacion **limpia**: crea el esquema con las migraciones existentes y los usuarios iniciales, sin ningun dato historico (vehiculos, recepciones, devoluciones, mantenimiento, fotos). Nunca borra ni trunca datos: si detecta una instalacion existente solo aplica migraciones pendientes y agrega usuarios faltantes.
+
+### Requisitos
+
+- PHP 8.2+ con extensiones `ctype`, `curl`, `dom`, `fileinfo`, `gd`, `json`, `mbstring`, `openssl`, `pdo`, `pdo_mysql`, `tokenizer`, `xml`.
+- Composer 2 y Node.js/npm (para compilar los assets una vez).
+- MySQL/MariaDB con una base de datos **ya creada** y un usuario con permisos sobre ella (SQLite tambien funciona: `--db=sqlite`).
+- Servidor web (Apache/Nginx) con document root en `public/`; permisos de escritura para el usuario del servidor en `storage/` y `bootstrap/cache/`.
+- Correo SMTP: el acceso es por codigo enviado por correo, sin el no se puede iniciar sesion (`MAIL_MAILER=smtp`, `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM_ADDRESS`).
+- Opcional: Cloudinary (`VEHICLE_PHOTOS_DISK=cloudinary`, `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`); `VEHICLE_MANAGER_EMAIL` como destinatario de respaldo.
+- Cola: no se usa. Cron opcional: `* * * * * cd /ruta/app && php artisan maintenance:check-alerts` para alertas de mantenimiento aunque nadie abra la pantalla.
+
+### Pasos
+
+```bash
+composer install --no-dev --optimize-autoloader
+npm ci && npm run build
+php artisan app:install --optimize
+```
+
+El instalador verifica requisitos, crea `.env` desde `.env.example` (y `APP_KEY`), pide URL y datos de MySQL (la contrasena se pide de forma oculta, o se toma de `DB_PASSWORD` en `.env`), prueba la conexion, migra, crea usuarios, enlaza `public/storage` y muestra un resumen. Sin interaccion: `php artisan app:install --no-interaction --db=mysql --db-host=... --db-name=... --db-user=... --admin-email=...` (con `DB_PASSWORD` ya en `.env`). Despues edita `.env` para configurar correo y `APP_ENV=production`, `APP_DEBUG=false`.
+
+### Usuarios iniciales
+
+`Database\Seeders\InitialUsersSeeder` crea los usuarios del equipo (lista en el seeder) mas el administrador indicado con `--admin-email`/`--admin-name` (o `INSTALL_ADMIN_EMAIL`/`INSTALL_ADMIN_NAME`). Usa `--no-team-users` para crear solo ese administrador. Se identifican por correo y los existentes nunca se modifican, por lo que se puede ejecutar varias veces sin duplicar. No hay contrasenas: el inicio de sesion es por codigo por correo y la columna `password` recibe un valor aleatorio desconocido.
+
 ## Instalacion local
 
 Desde la carpeta raiz del proyecto:
