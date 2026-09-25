@@ -4,12 +4,14 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Vehicle manager notification email
+    | Vehicle manager notification email (fallback)
     |--------------------------------------------------------------------------
     |
-    | Recipient for Help/support submissions and maintenance alert emails.
-    | Must be set in .env — intentionally has no default so a missing
-    | configuration fails loudly instead of silently emailing no one.
+    | Help/support submissions and maintenance alert emails go to the users
+    | marked "Recibir correos de Fleet Desk" in User Management. This address
+    | is only used when no user is selected (see
+    | App\Support\NotificationRecipients), so existing deployments keep
+    | receiving emails until an admin picks recipients. Optional.
     |
     */
 

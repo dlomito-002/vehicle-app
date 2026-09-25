@@ -19,6 +19,7 @@
                         <th>Nombre</th>
                         <th>Correo</th>
                         <th>Rol</th>
+                        <th>Correos Fleet Desk</th>
                         <th></th>
                     </tr>
                 </thead>
@@ -29,6 +30,13 @@
                             <td data-label="Correo">{{ $user->email }}</td>
                             <td data-label="Rol">
                                 <x-status-badge :status="$user->isAdmin() ? 'pending' : 'ok'">{{ $user->role->label() }}</x-status-badge>
+                            </td>
+                            <td data-label="Correos Fleet Desk">
+                                @if ($user->receives_notification_emails)
+                                    <x-status-badge status="ok">Recibe correos</x-status-badge>
+                                @else
+                                    <x-status-badge status="none">No recibe</x-status-badge>
+                                @endif
                             </td>
                             <td data-label="" class="data-table-actions">
                                 <a href="{{ route('users.edit', $user) }}">Editar</a>
@@ -43,7 +51,7 @@
                             </td>
                         </tr>
                     @empty
-                        <tr><td colspan="4" class="data-table-empty">Todavía no hay usuarios.</td></tr>
+                        <tr><td colspan="5" class="data-table-empty">Todavía no hay usuarios.</td></tr>
                     @endforelse
                 </tbody>
             </table>

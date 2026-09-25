@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\MaintenanceCategory;
 use App\Mail\MaintenanceAlertMail;
+use App\Support\NotificationRecipients;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -144,9 +145,9 @@ class VehicleMaintenanceSchedule extends Model
      * Send the maintenance alert email once per warning window: if the
      * vehicle has just entered (or already is in) the due_soon/overdue
      * status and no alert has been sent for it yet, email the configured
-     * vehicle manager and mark it sent. Does nothing if already notified
-     * for this window, if the vehicle isn't due yet, or if no manager
-     * email is configured.
+     * notification recipients and mark it sent. Does nothing if already
+     * notified for this window, if the vehicle isn't due yet, or if no
+     * recipient is configured (see NotificationRecipients).
      */
     public function checkAndNotify(): void
     {
@@ -158,13 +159,13 @@ class VehicleMaintenanceSchedule extends Model
             return;
         }
 
-        $managerEmail = config('vehicle.manager_email');
+        $recipients = NotificationRecipients::emails();
 
-        if (! $managerEmail) {
+        if ($recipients === []) {
             return;
         }
 
-        Mail::to($managerEmail)->send(new MaintenanceAlertMail($this));
+        Mail::to($recipients)->send(new MaintenanceAlertMail($this));
 
         $this->update(['alert_sent_at' => now()]);
     }

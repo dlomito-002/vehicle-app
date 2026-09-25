@@ -303,6 +303,101 @@ class UserManagementTest extends TestCase
         $this->assertSame(UserRole::Agent, $target->fresh()->role);
     }
 
+    public function test_admin_can_create_a_user_with_or_without_fleet_desk_emails(): void
+    {
+        $admin = User::factory()->admin()->create();
+
+        $this->actingAs($admin)->post(route('users.store'), [
+            'name' => 'Con correos',
+            'email' => 'con@example.com',
+            'role' => 'agent',
+            'receives_notification_emails' => '1',
+        ])->assertRedirect(route('users.index'));
+
+        $this->actingAs($admin)->post(route('users.store'), [
+            'name' => 'Sin correos',
+            'email' => 'sin@example.com',
+            'role' => 'agent',
+            'receives_notification_emails' => '0',
+        ])->assertRedirect(route('users.index'));
+
+        $this->assertTrue(User::where('email', 'con@example.com')->first()->receives_notification_emails);
+        $this->assertFalse(User::where('email', 'sin@example.com')->first()->receives_notification_emails);
+    }
+
+    public function test_new_users_do_not_receive_fleet_desk_emails_by_default(): void
+    {
+        $admin = User::factory()->admin()->create();
+
+        // Unchecked checkbox: the field is not submitted at all.
+        $this->actingAs($admin)->post(route('users.store'), [
+            'name' => 'Default',
+            'email' => 'default@example.com',
+            'role' => 'agent',
+        ])->assertRedirect(route('users.index'));
+
+        $this->assertFalse(User::where('email', 'default@example.com')->first()->receives_notification_emails);
+        $this->assertFalse($admin->fresh()->receives_notification_emails);
+    }
+
+    public function test_admin_can_toggle_a_users_fleet_desk_emails(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $agent = User::factory()->create();
+
+        $payload = ['name' => $agent->name, 'email' => $agent->email, 'role' => 'agent'];
+
+        $this->actingAs($admin)->put(route('users.update', $agent), $payload + ['receives_notification_emails' => '1'])
+            ->assertRedirect(route('users.index'));
+        $this->assertTrue($agent->fresh()->receives_notification_emails);
+
+        $this->actingAs($admin)->put(route('users.update', $agent), $payload + ['receives_notification_emails' => '0'])
+            ->assertRedirect(route('users.index'));
+        $this->assertFalse($agent->fresh()->receives_notification_emails);
+    }
+
+    public function test_forms_and_list_show_the_fleet_desk_email_setting(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $subscribed = User::factory()->create(['receives_notification_emails' => true]);
+
+        $this->actingAs($admin)->get(route('users.create'))
+            ->assertOk()->assertSee('Recibir correos de Fleet Desk')
+            ->assertSee('name="receives_notification_emails"', false);
+
+        $this->actingAs($admin)->get(route('users.edit', $subscribed))
+            ->assertOk()->assertSee('Recibir correos de Fleet Desk')
+            ->assertSee('value="1" checked', false);
+
+        $this->actingAs($admin)->get(route('users.index'))
+            ->assertOk()->assertSee('Correos Fleet Desk')
+            ->assertSee('Recibe correos')
+            ->assertSee('No recibe');
+    }
+
+    public function test_agent_cannot_change_fleet_desk_emails_through_a_direct_request(): void
+    {
+        $agent = User::factory()->create();
+        $target = User::factory()->create();
+
+        $this->actingAs($agent)->put(route('users.update', $target), [
+            'name' => $target->name,
+            'email' => $target->email,
+            'role' => 'agent',
+            'receives_notification_emails' => '1',
+        ])->assertForbidden();
+
+        $this->actingAs($agent)->put(route('users.update', $agent), [
+            'name' => $agent->name,
+            'email' => $agent->email,
+            'role' => 'agent',
+            'receives_notification_emails' => '1',
+        ])->assertForbidden();
+
+        $this->assertFalse($target->fresh()->receives_notification_emails);
+        $this->assertFalse($agent->fresh()->receives_notification_emails);
+    }
+
     public function test_guest_cannot_access_user_management(): void
     {
         $target = User::factory()->create();

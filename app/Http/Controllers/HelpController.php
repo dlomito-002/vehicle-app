@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreHelpRequest;
 use App\Mail\HelpRequestMail;
+use App\Support\NotificationRecipients;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\View\View;
@@ -17,15 +18,15 @@ class HelpController extends Controller
 
     public function store(StoreHelpRequest $request): RedirectResponse
     {
-        $managerEmail = config('vehicle.manager_email');
+        $recipients = NotificationRecipients::emails();
 
-        if (! $managerEmail) {
+        if ($recipients === []) {
             return back()
                 ->withInput()
                 ->withErrors(['message' => 'No hay un correo de soporte configurado. Contacta a un administrador.']);
         }
 
-        Mail::to($managerEmail)->send(new HelpRequestMail(
+        Mail::to($recipients)->send(new HelpRequestMail(
             reporter: $request->user(),
             reportMessage: $request->validated('message'),
         ));

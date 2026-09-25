@@ -43,12 +43,12 @@ Revisa **`LEEME.txt`** en la raíz — tiene los pasos manuales pendientes espec
 | Mantenimiento (registro manual) | `VehicleService`, `App\Enums\ServiceType` | Bitácora libre de servicios (cambio de aceite, frenos, etc.) con `next_service_mileage`/`next_service_date` capturados a mano |
 | Mantenimiento (intervalos fijos) | `VehicleMaintenanceSchedule`, `VehicleMaintenanceCompletion`, `App\Enums\MaintenanceCategory` | Sistema separado y en paralelo al anterior: Básico (1,000 km) y Mayor (4,000 km). Calcula desde el último servicio completado de esa categoría, no desde el kilometraje actual. Alerta a 200 km o menos, una sola vez por ventana, se resetea al completar el servicio |
 | Autenticación | `LoginController`, `LoginVerificationCode` | Login por código de un solo uso enviado por correo (NO es OAuth/"Sign in with Google" — el código lo genera la app, el correo solo es el transporte). Expira, un solo uso, con rate limiting y límite de intentos fallidos |
-| Ayuda/soporte | `HelpController` | Formulario simple → correo a `VEHICLE_MANAGER_EMAIL`. No persiste en base de datos |
-| Usuarios/roles | `User`, `App\Enums\UserRole` | Solo `Admin`/`Agent`. Gestión de usuarios es admin-only |
+| Ayuda/soporte | `HelpController` | Formulario simple → correo a los destinatarios de `App\Support\NotificationRecipients`. No persiste en base de datos |
+| Usuarios/roles | `User`, `App\Enums\UserRole` | Solo `Admin`/`Agent`. Gestión de usuarios es admin-only. `receives_notification_emails` ("Recibir correos de Fleet Desk") define quién recibe Ayuda y alertas de mantenimiento |
 
 ## Configuración específica de este proyecto
 
-- `config/vehicle.php` — `manager_email` (destinatario de Ayuda y alertas de mantenimiento) y `photos_disk` (disco de Storage para fotos/firmas, default `'public'`, cámbialo a `'cloudinary'` solo cuando el paquete `cloudinary-labs/cloudinary-laravel` esté instalado y las credenciales configuradas).
+- `config/vehicle.php` — `manager_email` (respaldo opcional: solo se usa para Ayuda y alertas de mantenimiento cuando ningún usuario tiene activado "Recibir correos de Fleet Desk"; ver `App\Support\NotificationRecipients`) y `photos_disk` (disco de Storage para fotos/firmas, default `'public'`, cámbialo a `'cloudinary'` solo cuando el paquete `cloudinary-labs/cloudinary-laravel` esté instalado y las credenciales configuradas).
 - `config/cloudinary.php` — credenciales de Cloudinary armadas a partir de tres variables separadas en `.env` (`CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`) en vez del formato combinado `CLOUDINARY_URL` que usa el paquete por defecto.
 - Variables de `.env` propias del proyecto (no son de Laravel por defecto): `VEHICLE_MANAGER_EMAIL`, `VEHICLE_PHOTOS_DISK`, `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`.
 

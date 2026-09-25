@@ -4,10 +4,12 @@ namespace Tests\Feature;
 
 use App\Enums\MaintenanceCategory;
 use App\Enums\ReceptionStatus;
+use App\Mail\MaintenanceAlertMail;
 use App\Models\User;
 use App\Models\Vehicle;
 use App\Models\VehicleMaintenanceSchedule;
 use App\Models\VehicleReception;
+use App\Support\NotificationRecipients;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;
@@ -89,5 +91,57 @@ class MaintenanceScheduleTest extends TestCase
             ->assertSee('Sin registro')
             ->assertSee('Registra un servicio para iniciar el conteo.')
             ->assertDontSee('Faltan');
+    }
+
+    public function test_maintenance_alert_is_sent_once_to_the_selected_users(): void
+    {
+        Mail::fake();
+        config(['vehicle.manager_email' => 'gerente@example.com']);
+
+        $admin = User::factory()->admin()->create(['email' => 'admin@example.com', 'receives_notification_emails' => true]);
+        User::factory()->create(['email' => 'flota@example.com', 'receives_notification_emails' => true]);
+        $vehicle = Vehicle::factory()->create();
+
+        VehicleMaintenanceSchedule::firstOrCreateFor($vehicle, MaintenanceCategory::Basic)
+            ->recordCompletion(10000, now()->toDateString(), $admin->id);
+        $this->recordReception($vehicle, $admin, 10900);
+
+        $this->actingAs($admin)->get(route('maintenance-schedules.index'))->assertOk();
+        $this->actingAs($admin)->get(route('maintenance-schedules.index'))->assertOk();
+
+        Mail::assertSentCount(1);
+        Mail::assertSent(MaintenanceAlertMail::class, fn (MaintenanceAlertMail $mail) => count($mail->to) === 2
+            && $mail->hasTo('admin@example.com')
+            && $mail->hasTo('flota@example.com'));
+    }
+
+    public function test_maintenance_alert_is_skipped_safely_without_recipients(): void
+    {
+        Mail::fake();
+        config(['vehicle.manager_email' => null]);
+
+        $admin = User::factory()->admin()->create();
+        $vehicle = Vehicle::factory()->create();
+
+        $schedule = VehicleMaintenanceSchedule::firstOrCreateFor($vehicle, MaintenanceCategory::Basic);
+        $schedule->recordCompletion(10000, now()->toDateString(), $admin->id);
+        $this->recordReception($vehicle, $admin, 10900);
+
+        $this->actingAs($admin)->get(route('maintenance-schedules.index'))->assertOk();
+
+        Mail::assertNothingSent();
+        // Not marked as sent, so the alert still fires once recipients exist.
+        $this->assertNull($schedule->fresh()->alert_sent_at);
+    }
+
+    public function test_notification_recipients_are_unique_and_ignore_unselected_users(): void
+    {
+        config(['vehicle.manager_email' => 'gerente@example.com']);
+
+        User::factory()->create(['email' => 'uno@example.com', 'receives_notification_emails' => true]);
+        User::factory()->create(['email' => 'UNO@example.com', 'receives_notification_emails' => true]);
+        User::factory()->create(['email' => 'otro@example.com']);
+
+        $this->assertSame(['uno@example.com'], NotificationRecipients::emails());
     }
 }
