@@ -50,7 +50,7 @@ Tests use `RefreshDatabase`, so `php artisan test` should never be pointed at a 
 
 ## Architecture
 
-Laravel 11, server-rendered Blade + Tailwind + Alpine.js — no SPA/JS framework, no API layer. Everything is a classic controller → Blade view request/response cycle; state lives in the database, not in a JS store.
+Laravel 12.69.x, server-rendered Blade + Tailwind + Alpine.js — no SPA/JS framework, no API layer. Everything is a classic controller → Blade view request/response cycle; state lives in the database, not in a JS store.
 
 **Request flow**: `routes/web.php` → controller (`app/Http/Controllers`) → Form Request for validation (`app/Http/Requests`) → Policy for authorization (`app/Policies`, invoked via `$this->authorize()`) → Eloquent model (`app/Models`) → Blade view (`resources/views`). There is no service/repository layer beyond `app/Support/` — controllers talk to models directly.
 
@@ -66,3 +66,38 @@ File uploads (photos, signatures) all go through the `HandlesVehicleFormUploads`
 Two independent maintenance systems coexist on purpose: a free-text service log (`VehicleService`/`ServiceType`) and a fixed-interval schedule tracker (`VehicleMaintenanceSchedule`/`VehicleMaintenanceCompletion`/`MaintenanceCategory`) that computes due dates from the last completed service per category and fires email alerts synchronously on page visit (no queue/scheduler is wired up — `QUEUE_CONNECTION=database` is configured but unused).
 
 Enums under `App\Enums` are string-backed and drive form options, validation, and report iteration dynamically (e.g. `DocumentType::forReception()`, `PhotoPosition::standardPositions()`) — adding a catalog option means editing the enum, not the views.
+
+## Current collaboration state — 2026-09-22
+
+Read `AGENTS.md` and `CAMBIOS_RAMA_LUIS.md` before changing shared files.
+
+Current `luis/setup-local` baseline:
+
+- Laravel 12.69.x / PHP 8.2.
+- OTP email authentication.
+- Helpdesk-aligned UI, complete dark mode and global Smart Select.
+- PHPUnit isolated with SQLite `:memory:`.
+- Known baseline: 60 tests / 194 assertions.
+
+The `Claudio` and `luis/setup-local` branches are diverged. Do not resolve by taking one whole file over the other. Reconcile behavior deliberately, especially in:
+
+- `phpunit.xml`
+- `resources/js/app.js`
+- reception/delivery create views
+- `VehicleDeliveryController`
+- upload/filesystem configuration
+- seeders and flow tests
+
+Cross-platform rule: application code and tests must work on both Windows and Ubuntu. `MAIN.bat` is optional Windows tooling only.
+
+Before proposing a merge:
+
+```bash
+composer install
+npm ci
+php artisan optimize:clear
+npm run build
+php artisan test
+composer validate --strict
+git diff --check
+```

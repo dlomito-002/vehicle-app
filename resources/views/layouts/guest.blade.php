@@ -3,42 +3,68 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>@yield('title', 'Gestión de Flota')</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <meta name="color-scheme" content="light dark">
+    <meta name="theme-color" content="#173d75">
+    <title>@yield('title', 'Acceso')  &middot; Control de Vehículos Carrousel</title>
+
     <script>
-        tailwind.config = { theme: { extend: { colors: { brand: {
-            magenta: '#BF1F94', cyan: '#0DB3D9', olive: '#ACBF17', amber: '#F2B705', orange: '#F28705',
-        } } } } }
+        try {
+            const stored = localStorage.getItem('carrousel-theme') || 'system';
+            const resolved = stored === 'system'
+                ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+                : stored;
+            document.documentElement.dataset.theme = resolved;
+        } catch (e) {}
     </script>
+
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Public Sans', system-ui, sans-serif; }
-        input:not([type="radio"]):not([type="checkbox"]),
-        select,
-        textarea {
-            border: 1px solid #94a3b8 !important;
-            background-color: #fff;
-            border-radius: 0.375rem;
-        }
-        input:not([type="radio"]):not([type="checkbox"]):focus,
-        select:focus,
-        textarea:focus {
-            border-color: #0db3d9 !important;
-            box-shadow: 0 0 0 3px rgb(13 179 217 / 16%);
-            outline: none;
-        }
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
 </head>
-<body class="h-full bg-slate-50">
-    <div class="min-h-full flex items-center justify-center px-4">
-        <div class="w-full max-w-sm">
-            <div class="text-center mb-8">
-                <span class="font-semibold text-2xl tracking-tight text-slate-900">Fleet <span class="text-brand-magenta">Desk</span></span>
-                <p class="text-sm text-slate-500 mt-1">Registro de recepción y devolución de vehículos</p>
+<body class="h-full font-sans">
+<div class="brand-strip"></div>
+<main class="auth-body">
+    <div class="auth-layout">
+        <section class="auth-brand" aria-label="Control de Vehículos Carrousel">
+            <div class="auth-brand-content">
+                <img src="{{ asset('images/logo.png') }}" alt="Corporación Carrousel"
+                     style="display:block;width:150px;max-height:84px;object-fit:contain;background:#fff;border-radius:14px;padding:8px;margin-bottom:28px;">
+                <span class="auth-product-pill">Control de Vehículos</span>
+                <h1>Recepción y devolución de vehículos, con evidencia en cada paso.</h1>
+                <p>Registra el estado del vehículo al salir y al volver, compara ambos momentos y mantén el mantenimiento al día.</p>
+                <div class="auth-points">
+                    <span>Trazabilidad</span>
+                    <span>Fotografías</span>
+                    <span>Mantenimiento</span>
+                </div>
             </div>
-            @yield('content')
-        </div>
+        </section>
+
+        <section class="auth-panel">
+            <div class="auth-card">
+                <div class="auth-mobile-brand">
+                    <img src="{{ asset('images/logo.png') }}" alt="Corporación Carrousel" style="width:70px;height:46px;object-fit:contain;padding:4px;background:#fff;border-radius:9px;">
+                    <strong>Control de Vehículos</strong>
+                </div>
+
+                @yield('content')
+            </div>
+        </section>
     </div>
+</main>
+
+<script>
+    (function () {
+        var btn = document.querySelector('[data-theme-toggle]');
+        if (!btn) return;
+        btn.addEventListener('click', function () {
+            var current = document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
+            var next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.dataset.theme = next;
+            try { localStorage.setItem('carrousel-theme', next); } catch (e) {}
+        });
+    })();
+</script>
 </body>
 </html>

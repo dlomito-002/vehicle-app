@@ -6,19 +6,17 @@
 @endphp
 
 <fieldset>
-    <legend class="text-sm font-medium text-slate-700 mb-2">{{ $label }}</legend>
-    <div class="flex flex-wrap gap-3">
+    <p class="section-label">{{ $label }}</p>
+    <div style="display:flex;flex-wrap:wrap;gap:8px">
         @foreach (ConditionStatus::cases() as $case)
-            <label class="flex items-center gap-2 px-3 py-2 rounded-md border text-sm cursor-pointer transition-colors
-                          {{ $selected === $case->value ? 'border-brand-cyan bg-brand-cyan/5' : 'border-slate-200 hover:bg-slate-50' }}">
+            <label class="choice-chip {{ $selected === $case->value ? 'is-selected' : '' }}">
                 <input type="radio" name="{{ $field }}" value="{{ $case->value }}"
-                       @checked($selected === $case->value) required
-                       class="text-brand-cyan focus:ring-brand-cyan">
+                       @checked($selected === $case->value) required>
                 {{ $case->label($field) }}
             </label>
         @endforeach
     </div>
     @error($field)
-        <p class="mt-1 text-sm text-brand-orange">{{ $message }}</p>
+        <p class="field-error">{{ $message }}</p>
     @enderror
 </fieldset>

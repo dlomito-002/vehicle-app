@@ -4,32 +4,33 @@
 @endphp
 
 <div>
-    <p class="text-sm font-medium text-slate-700 mb-1">Estado general del vehículo (detalle por componente)</p>
-    <p class="text-xs text-slate-500 mb-3">
-        Marca el estado de cada componente. Puedes adjuntar una fotografía opcional por elemento.
-    </p>
+    <p class="section-label">Estado general del vehículo (detalle por componente)</p>
+    <p class="section-hint">Marca el estado de cada componente. Puedes adjuntar una fotografía opcional por elemento.</p>
 
-    <div class="grid sm:grid-cols-2 gap-3">
+    <div class="checklist-grid">
         @foreach (ConditionComponent::cases() as $item)
             @php $key = $item->value; $selected = old("condition_items.$key"); @endphp
-            <div class="rounded-md border border-slate-200 p-3">
-                <div class="flex items-center justify-between gap-3 mb-2">
-                    <span class="text-sm text-slate-700 flex-1 min-w-0">{{ $item->label() }}</span>
-                    <div class="flex gap-3 shrink-0">
+            <div class="checklist-item">
+                <span class="checklist-item-label">{{ $item->label() }}</span>
+                <div class="checklist-item-controls">
+                    <div class="checklist-item-choices">
                         @foreach (ConditionStatus::cases() as $case)
-                            <label class="flex items-center gap-1.5 text-sm cursor-pointer">
+                            <label class="choice-chip choice-chip-sm {{ $case->value === 'ok' ? 'is-yes' : 'is-no' }}">
                                 <input type="radio" name="condition_items[{{ $key }}]" value="{{ $case->value }}"
-                                       @checked($selected === $case->value) required
-                                       class="text-brand-cyan focus:ring-brand-cyan">
+                                       @checked($selected === $case->value) required>
                                 {{ $case->label($key) }}
                             </label>
                         @endforeach
                     </div>
+                    <label class="file-btn" x-data="{ name: '' }" :class="{ 'is-attached': name }">
+                        <span class="file-btn-check">✓</span>
+                        <span x-text="name || 'Foto'">Foto</span>
+                        <input type="file" name="condition_photos[{{ $key }}]" accept="image/png,image/jpeg,image/webp"
+                               class="sr-only" @change="name = $event.target.files[0]?.name ?? ''">
+                    </label>
                 </div>
-                <input type="file" name="condition_photos[{{ $key }}]" accept="image/png,image/jpeg,image/webp"
-                       class="text-xs w-full file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:bg-brand-cyan/10 file:text-brand-cyan">
-                @error("condition_items.$key")<p class="mt-1 text-xs text-brand-orange">{{ $message }}</p>@enderror
-                @error("condition_photos.$key")<p class="mt-1 text-xs text-brand-orange">{{ $message }}</p>@enderror
+                @error("condition_items.$key")<p class="field-error">{{ $message }}</p>@enderror
+                @error("condition_photos.$key")<p class="field-error">{{ $message }}</p>@enderror
             </div>
         @endforeach
     </div>

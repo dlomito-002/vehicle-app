@@ -14,13 +14,13 @@
         table.data th { text-align: left; font-size: 8px; text-transform: uppercase; color: #64748b; border-bottom: 1px solid #cbd5e1; padding: 4px 6px; }
         table.data td { padding: 4px 6px; border-bottom: 1px solid #f1f5f9; vertical-align: top; }
         .badge { display: inline-block; padding: 1px 6px; border-radius: 8px; font-size: 8.5px; font-weight: bold; }
-        .badge-bad { background: #fde3c8; color: #a34a04; }
+        .badge-bad { background: #fffaeb; color: #9a6700; }
         .thumb { width: 45px; height: 45px; object-fit: cover; border: 1px solid #cbd5e1; margin-top: 2px; }
         .photo-grid { width: 100%; border-collapse: collapse; }
         .photo-grid td { width: 25%; text-align: center; padding: 4px; vertical-align: top; }
         .photo-grid img { width: 100%; height: 80px; object-fit: cover; border: 1px solid #cbd5e1; }
-        .anomaly-box { background: #fde3c8; border: 1px solid #f2b705; padding: 6px 8px; margin-bottom: 6px; font-size: 9.5px; }
-        .ok-box { background: #f0f5d0; border: 1px solid #acbf17; padding: 6px 8px; margin-bottom: 6px; font-size: 9.5px; }
+        .anomaly-box { background: #fffaeb; border: 1px solid #9a6700; padding: 6px 8px; margin-bottom: 6px; font-size: 9.5px; }
+        .ok-box { background: #ecfdf3; border: 1px solid #067647; padding: 6px 8px; margin-bottom: 6px; font-size: 9.5px; }
     </style>
 </head>
 <body>

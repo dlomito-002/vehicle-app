@@ -4,12 +4,12 @@ Contexto para agentes de IA (Claude Code u otros) que trabajen en este repositor
 
 ## Qué es esto
 
-**Fleet Desk** — app Laravel 11 en español para control de flota vehicular: recepción y devolución de vehículos con inspecciones fotográficas, firma, reporte de comparación (recepción vs. entrega) en PDF, mantenimiento y gestión de usuarios/roles.
+**Control de Vehiculos Carrousel** — app Laravel 12.69.x en español para control de flota vehicular: recepción y devolución de vehículos con inspecciones fotográficas, firma, reporte de comparación (recepción vs. entrega) en PDF, mantenimiento y gestión de usuarios/roles.
 
-- PHP 8.2, Laravel 11.56
+- PHP 8.2, Laravel 12.69.x
 - Base de datos: SQLite (desarrollo)
 - Frontend: Blade + Tailwind + Alpine.js (sin framework JS pesado, sin build de SPA)
-- Sin cola/scheduler configurado — no asumas que existe un worker corriendo
+- Scheduler: revisar el estado compartido al final; no asumir worker de colas.
 
 ## Cómo correr el proyecto
 
@@ -62,3 +62,81 @@ Revisa **`LEEME.txt`** en la raíz — tiene los pasos manuales pendientes espec
 1. Busca si ya existe un patrón similar en el código (un enum, un trait, una policy) antes de crear uno nuevo — este proyecto reutiliza agresivamente.
 2. Si el cambio toca una migración, revisa si la tabla ya puede tener filas (ver nota de SQLite arriba).
 3. Si el cambio implica una regla de negocio no explícita en el código o en este archivo (un intervalo, un rol, un monto, una condición), pregunta en vez de asumir — así se ha trabajado en este proyecto hasta ahora.
+## Estado compartido de colaboración — 2026-09-22
+
+Nombre actual del sistema: **Control de Vehículos Carrousel**.
+
+Estado técnico de `luis/setup-local`:
+
+- Laravel `^12.69.0` (actualmente 12.69.x).
+- PHP objetivo `8.2` con plataforma Composer `8.2.12`.
+- Blade + Tailwind + Alpine + Vite.
+- Login por OTP enviado por correo; no hay login por contraseña.
+- Rediseño visual alineado con `FernandoZL/helpdesk-carrousel`.
+- Modo oscuro completo, incluido acceso/login.
+- Smart Select global propio en `resources/js/app.js` + `resources/css/app.css`.
+- Base de referencia de calidad de esta rama: 60 tests / 194 assertions.
+
+### Compatibilidad Windows / Ubuntu
+
+El código de aplicación debe ser multiplataforma.
+
+- Luis: Windows + XAMPP.
+- Claudio: Ubuntu.
+- No hardcodear rutas `C:\...` ni rutas Linux dentro de controladores, modelos, vistas, configuración compartida o tests.
+- `MAIN.bat` es solo una ayuda local para Windows y no debe ser una dependencia funcional.
+- Usar APIs de Laravel (`storage_path`, `public_path`, `base_path`) y variables de entorno.
+
+Comandos comunes:
+
+```bash
+composer install
+npm ci
+npm run build
+php artisan optimize:clear
+php artisan test
+composer validate --strict
+```
+
+### Ramas y reconciliación
+
+`luis/setup-local` y `Claudio` están divergidas. No hacer merge a ciegas.
+
+Cambios de Claudio que deben revisarse/conservarse al integrar:
+
+- mejoras en `HandlesVehicleFormUploads`;
+- configuración Cloudinary/filesystems;
+- cierre concurrente seguro de devoluciones;
+- `FullFlowTest` y ampliaciones de `VehicleDeliveryTest`;
+- `VEHICLE_PHOTOS_DISK=public` en PHPUnit;
+- cambios de seeder que sean intencionales.
+
+Cambios de `luis/setup-local` que deben revisarse/conservarse:
+
+- Laravel 12 y lock compatible con PHP 8.2;
+- `APP_URL=http://localhost` y SQLite `:memory:` en tests;
+- correcciones de migraciones MySQL/MariaDB;
+- seguridad/autorización del flujo de entregas;
+- sistema visual Helpdesk, dark mode, formularios y Smart Select;
+- OTP/correos y documentación de compatibilidad.
+
+Archivos con mayor probabilidad de conflicto:
+
+- `phpunit.xml`
+- `resources/js/app.js`
+- `resources/views/receptions/create.blade.php`
+- `resources/views/deliveries/create.blade.php`
+- `app/Http/Controllers/VehicleDeliveryController.php`
+
+### Seguridad
+
+La llave SSH privada `2402` fue retirada de `luis/setup-local`, pero existió en el historial y también en `main`. Debe rotarse/revocarse donde haya sido autorizada. Cualquier limpieza del historial con `git filter-repo` debe coordinarse con todos los colaboradores porque reescribe SHAs.
+
+### Próximos pasos de `luis/setup-local`
+
+1. Limpiar `MAIN.bat` y retirar `tools/APLICAR_RONDA_4A_HELPDESK.ps1`.
+2. Actualizar `index.html`.
+3. Implementar búsqueda global visible + `Ctrl+K` + `/buscar?q=`.
+4. Agregar búsquedas server-side `?q=` a listados paginados.
+5. Reconciliar cambios con `Claudio`.
+6. Ejecutar build/tests completos antes de cualquier PR hacia `main`.

@@ -31,6 +31,8 @@ class VehicleController extends Controller
 
     public function store(StoreVehicleRequest $request): RedirectResponse
     {
+        $this->authorize('create', Vehicle::class);
+
         Vehicle::create($request->validated());
 
         return redirect()->route('vehicles.index')->with('status', 'Vehículo agregado.');

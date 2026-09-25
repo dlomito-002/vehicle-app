@@ -60,28 +60,21 @@ class LoginController extends Controller
             ]);
         }
 
-        // Only known users can log in — the previous password flow behaved
-        // the same way (a generic "incorrect" message either way), so this
-        // doesn't add a new user-enumeration surface beyond what already
-        // existed.
-        if (! User::where('email', $email)->exists()) {
-            RateLimiter::hit($throttleKey, self::CODE_REQUEST_DECAY_SECONDS);
-
-            throw ValidationException::withMessages([
-                'email' => 'No existe una cuenta con ese correo electrónico.',
-            ]);
-        }
-
         RateLimiter::hit($throttleKey, self::CODE_REQUEST_DECAY_SECONDS);
 
-        [, $plainCode] = LoginVerificationCode::generateFor($email);
+        // The response is identical whether or not the account exists, so
+        // this form can't be used to discover which emails have access here.
+        // Only known users actually get a code generated and emailed.
+        if (User::where('email', $email)->exists()) {
+            [, $plainCode] = LoginVerificationCode::generateFor($email);
 
-        Mail::to($email)->send(new LoginVerificationCodeMail($plainCode));
+            Mail::to($email)->send(new LoginVerificationCodeMail($plainCode));
+        }
 
         $request->session()->put('login.pending_email', $email);
         $request->session()->put('login.remember', $request->boolean('remember'));
 
-        return redirect()->route('login.verify')->with('status', 'Te enviamos un código de verificación por correo.');
+        return redirect()->route('login.verify')->with('status', 'Si el correo tiene una cuenta, te enviamos un código de verificación.');
     }
 
     /** Step 2: enter the code. */
