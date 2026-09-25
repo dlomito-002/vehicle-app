@@ -1,6 +1,6 @@
 @php $hasAnomalyOld = old('has_anomaly'); @endphp
 
-<div x-data="{ hasAnomaly: {{ $hasAnomalyOld === '1' ? 'true' : 'false' }}, fileCount: 0 }" class="field-item">
+<div x-data="{ hasAnomaly: {{ $hasAnomalyOld === '1' ? 'true' : 'false' }} }" class="field-item">
     <fieldset>
         <p class="section-label">Daño o anomalía adicional</p>
         <div style="display:flex;gap:10px">
@@ -27,11 +27,7 @@
 
         <div>
             <label class="form-label" style="margin-top:0">Fotografía(s) de la anomalía</label>
-            <label class="file-btn">
-                <span x-text="fileCount ? fileCount + ' archivo(s) seleccionado(s)' : 'Adjuntar fotografía(s)'">Adjuntar fotografía(s)</span>
-                <input type="file" name="anomaly_photos[]" accept="image/png,image/jpeg,image/webp" multiple
-                       class="sr-only" @change="fileCount = $event.target.files.length">
-            </label>
+            <x-photo-input name="anomaly_photos" label="Fotografía(s) de la anomalía" multiple />
             @error('anomaly_photos')
                 <p class="field-error">{{ $message }}</p>
             @enderror

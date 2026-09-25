@@ -6,15 +6,13 @@
 
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px">
         @foreach ($positions as $position)
-            <label class="upload-tile" x-data="{ name: '' }">
+            <div class="upload-tile">
                 <span class="upload-tile-label">{{ $position->label() }}</span>
-                <span style="font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%" x-text="name || 'Toca para elegir una foto'"></span>
-                <input type="file" name="position_photos[{{ $position->value }}]" accept="image/png,image/jpeg,image/webp"
-                       class="sr-only" @change="name = $event.target.files[0]?.name ?? ''">
+                <x-photo-input name="position_photos[{{ $position->value }}]" :label="$position->label()" />
                 @error("position_photos.{$position->value}")
                     <span class="field-error">{{ $message }}</span>
                 @enderror
-            </label>
+            </div>
         @endforeach
     </div>
 

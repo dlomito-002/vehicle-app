@@ -24,12 +24,7 @@
                             No
                         </label>
                     </div>
-                    <label class="file-btn" x-data="{ name: '' }" :class="{ 'is-attached': name }">
-                        <span class="file-btn-check">✓</span>
-                        <span x-text="name || 'Foto'">Foto</span>
-                        <input type="file" name="equipment_photos[{{ $key }}]" accept="image/png,image/jpeg,image/webp"
-                               class="sr-only" @change="name = $event.target.files[0]?.name ?? ''">
-                    </label>
+                    <x-photo-input name="equipment_photos[{{ $key }}]" :label="$item->label()" />
                 </div>
                 @error("equipment_checks.$key")<p class="field-error">{{ $message }}</p>@enderror
                 @error("equipment_photos.$key")<p class="field-error">{{ $message }}</p>@enderror

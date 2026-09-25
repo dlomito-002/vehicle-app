@@ -1793,3 +1793,77 @@ html[data-theme="dark"] .auth-card .theme-toggle,
 html[data-theme="dark"] .auth-card .btn-outline-secondary{background:#141b25;border-color:#3b485a;color:#e1e8f1;}
 html[data-theme="dark"] .auth-card .theme-toggle:hover,
 html[data-theme="dark"] .auth-card .btn-outline-secondary:hover{background:#1d2734;border-color:#53657d;color:#fff;}
+
+/* ==========================================================================
+   Campo de foto (components/photo-input): "Tomar foto" abre la cámara del
+   dispositivo (capture) y "Elegir archivo" el selector; ambos usan el mismo
+   <input type="file"> oculto, con vista previa de lo seleccionado.
+   ========================================================================== */
+.photo-field {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	min-width: 0;
+}
+
+.photo-field-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+}
+
+.upload-tile .photo-field-actions {
+	justify-content: center;
+}
+
+.photo-btn {
+	padding: 7px 11px;
+	min-height: 34px;
+	border: 1px dashed var(--border);
+	border-radius: 7px;
+	background: var(--card);
+	color: var(--muted);
+	font-size: 12px;
+	font-weight: 600;
+	line-height: 1.2;
+	cursor: pointer;
+}
+
+.photo-btn:hover {
+	border-color: color-mix(in srgb, var(--brand) 40%, var(--border) 60%);
+	color: var(--brand);
+}
+
+.photo-field.is-attached .photo-btn:first-child {
+	border-style: solid;
+	border-color: color-mix(in srgb, var(--success) 45%, var(--border) 55%);
+	background: var(--success-bg);
+	color: var(--success);
+}
+
+.photo-field-preview {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+}
+
+.upload-tile .photo-field-preview {
+	justify-content: center;
+}
+
+.photo-field-thumb {
+	width: 56px;
+	height: 56px;
+	object-fit: cover;
+	border-radius: 6px;
+	border: 1px solid var(--border);
+}
+
+.photo-field-name {
+	max-width: 100%;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	font-size: 11px;
+	color: var(--muted);
+}

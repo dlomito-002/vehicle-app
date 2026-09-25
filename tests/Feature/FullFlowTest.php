@@ -61,6 +61,41 @@ class FullFlowTest extends TestCase
         ], $this->checklistPhotos(), $overrides);
     }
 
+    public function test_reception_and_delivery_forms_offer_camera_capture_for_every_photo_field(): void
+    {
+        Storage::fake('public');
+
+        $user = User::factory()->create();
+        $vehicle = Vehicle::factory()->create();
+
+        $this->actingAs($user)->post(route('receptions.store'), $this->formPayload([
+            'vehicle_id' => $vehicle->id,
+            'received_by_name' => 'Jane Doe',
+            'trip_reason' => 'Visita a cliente',
+            'reception_date' => now()->toDateString(),
+            'reception_time' => '09:30',
+            'initial_mileage' => 1000,
+        ]))->assertSessionHasNoErrors();
+        $reception = VehicleReception::firstOrFail();
+
+        $expected = [
+            ...array_map(fn ($p) => "position_photos[{$p->value}]", PhotoPosition::standardPositions()),
+            ...array_map(fn ($i) => "equipment_photos[{$i->value}]", EquipmentItem::cases()),
+            ...array_map(fn ($c) => "condition_photos[{$c->value}]", ConditionComponent::cases()),
+            'anomaly_photos[]',
+        ];
+
+        foreach ([route('receptions.create'), route('deliveries.create', $reception)] as $url) {
+            $html = $this->actingAs($user)->get($url)->assertOk()->getContent();
+
+            $this->assertSame(count($expected), substr_count($html, 'aria-label="Tomar foto'));
+            foreach ($expected as $name) {
+                // Each field has exactly one real input, so a capture can only land under its own name.
+                $this->assertSame(1, substr_count($html, 'name="'.$name.'" accept='), $name);
+            }
+        }
+    }
+
     public function test_full_reception_delivery_comparison_flow(): void
     {
         Storage::fake('public');

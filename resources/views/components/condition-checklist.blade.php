@@ -22,12 +22,7 @@
                             </label>
                         @endforeach
                     </div>
-                    <label class="file-btn" x-data="{ name: '' }" :class="{ 'is-attached': name }">
-                        <span class="file-btn-check">✓</span>
-                        <span x-text="name || 'Foto'">Foto</span>
-                        <input type="file" name="condition_photos[{{ $key }}]" accept="image/png,image/jpeg,image/webp"
-                               class="sr-only" @change="name = $event.target.files[0]?.name ?? ''">
-                    </label>
+                    <x-photo-input name="condition_photos[{{ $key }}]" :label="$item->label()" />
                 </div>
                 @error("condition_items.$key")<p class="field-error">{{ $message }}</p>@enderror
                 @error("condition_photos.$key")<p class="field-error">{{ $message }}</p>@enderror
