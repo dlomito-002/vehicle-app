@@ -116,10 +116,14 @@ class VehicleMovementMailTest extends TestCase
         $this->actingAs($user)->post(route('receptions.store'), $this->receptionPayload($vehicle));
 
         $html = (new VehicleMovementMail(VehicleReception::first()))->render();
-        $this->assertStringContainsString('Vehículo recibido', $html);
+        $this->assertStringContainsString('Recepción de vehículo', $html);
         $this->assertStringContainsString('P999XYZ', $html);
         $this->assertStringContainsString('Jane Doe', $html);
-        $this->assertStringContainsString('Lavado (carwash)', $html);
+        $this->assertStringContainsString('Oficina central', $html);
+        $this->assertStringContainsString('09:30', $html);
+        foreach (['Kilometraje', 'combustible', 'Lavado', 'Motivo', 'Documento', 'Client visit'] as $excluded) {
+            $this->assertStringNotContainsString($excluded, $html);
+        }
     }
 
     public function test_delivery_emails_recipients(): void
@@ -186,5 +190,40 @@ class VehicleMovementMailTest extends TestCase
         $this->actingAs($user)->post(route('receptions.store'), $this->receptionPayload($vehicle))
             ->assertRedirect()->assertSessionHas('status');
         $this->assertDatabaseCount('vehicle_receptions', 1);
+    }
+
+    public function test_reception_form_suggests_previous_mileage_and_saves_submitted_value(): void
+    {
+        Storage::fake('public');
+        $user = User::factory()->create();
+        $withKm = Vehicle::factory()->create();
+        $without = Vehicle::factory()->create();
+        VehicleReception::create([
+            'vehicle_id' => $withKm->id, 'created_by' => $user->id, 'received_by_name' => 'Old',
+            'trip_reason' => 'Old', 'location' => 'HQ', 'reception_date' => now()->toDateString(),
+            'reception_time' => '08:00', 'initial_mileage' => 4321, 'washed' => false,
+            'fuel_level' => 'full', 'fuel_type' => 'gasoline_super', 'general_condition' => 'ok',
+            'windows_mirrors_lights' => 'ok', 'tires_condition' => 'ok', 'dashboard_indicators' => 'ok',
+            'has_anomaly' => false, 'status' => ReceptionStatus::Closed,
+        ]);
+
+        $html = $this->actingAs($user)->get(route('receptions.create'))->assertOk()->getContent();
+        $this->assertStringContainsString('"'.$withKm->id.'":4321', str_replace(' ', '', $html));
+        $this->assertStringContainsString('"'.$without->id.'":null', str_replace(' ', '', $html));
+
+        $this->actingAs($user)->post(route('receptions.store'), $this->receptionPayload($withKm, ['initial_mileage' => 4400]))->assertRedirect();
+        $this->assertDatabaseHas('vehicle_receptions', ['vehicle_id' => $withKm->id, 'initial_mileage' => 4400]);
+    }
+
+    public function test_comparison_shows_signer_names(): void
+    {
+        Storage::fake('public');
+        $user = User::factory()->create();
+        $vehicle = Vehicle::factory()->create();
+        $reception = $this->openReception($vehicle, $user);
+        $this->actingAs($user)->post(route('deliveries.store', $reception), $this->deliveryPayload())->assertRedirect();
+
+        $this->actingAs($user)->get(route('comparisons.show', $reception))
+            ->assertOk()->assertSee('Jane')->assertSee('John Smith');
     }
 }

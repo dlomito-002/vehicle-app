@@ -41,7 +41,10 @@ class VehicleReceptionController extends Controller
         // again until it's returned.
         $vehicles = Vehicle::available()->orderBy('make')->get();
 
-        return view('receptions.create', compact('vehicles'));
+        // Suggested initial mileage per vehicle (same source as service alerts).
+        $suggestedMileage = $vehicles->mapWithKeys(fn (Vehicle $v) => [$v->id => $v->currentMileage()])->all();
+
+        return view('receptions.create', compact('vehicles', 'suggestedMileage'));
     }
 
     public function store(StoreVehicleReceptionRequest $request): RedirectResponse

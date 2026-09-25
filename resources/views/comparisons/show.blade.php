@@ -11,6 +11,9 @@
             <p class="page-subtitle">
                 Recepción {{ $reception->reception_date->format('d/m/Y') }} → Devolución {{ $delivery->return_date->format('d/m/Y') }}
             </p>
+            <p class="page-subtitle">
+                Recibió y firmó: {{ $reception->received_by_name }} · Devolvió y firmó: {{ $delivery->returned_by_name }}
+            </p>
         </div>
         <a href="{{ route('comparisons.pdf', $reception) }}" class="btn btn-primary">Descargar PDF</a>
     </div>

@@ -25,7 +25,7 @@ class VehicleMovementNotifier
                 return;
             }
 
-            $movement->loadMissing(['vehicle', 'documentation']);
+            $movement->loadMissing('vehicle');
 
             Mail::to($recipients)->send(new VehicleMovementMail($movement));
         } catch (Throwable $e) {

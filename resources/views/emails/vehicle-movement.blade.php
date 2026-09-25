@@ -1,36 +1,17 @@
 @php
     $isReception = $movement instanceof \App\Models\VehicleReception;
     $vehicle = $movement->vehicle;
-    $title = $isReception ? 'Vehículo recibido' : 'Vehículo devuelto';
+    $title = $isReception ? 'Recepción de vehículo' : 'Entrega de vehículo';
     $when = $isReception
         ? $movement->reception_date->format('d/m/Y').' '.$movement->reception_time
         : $movement->return_date->format('d/m/Y').' '.$movement->return_time;
     $rows = [
         'Vehículo' => $vehicle->displayName(),
-        'Marca' => $vehicle->make,
-        'Modelo' => $vehicle->model ?: '—',
-        'Placa' => $vehicle->license_plate,
-        'Fecha y hora' => $when,
+        'Fecha' => ($isReception ? $movement->reception_date : $movement->return_date)->format('d/m/Y'),
+        'Hora' => $isReception ? $movement->reception_time : $movement->return_time,
+        'Persona' => $isReception ? $movement->received_by_name : $movement->returned_by_name,
+        'Ubicación' => $movement->location ?: '—',
     ];
-    if ($isReception) {
-        $rows['Recibido por'] = $movement->received_by_name;
-        $rows['Motivo del viaje'] = $movement->trip_reason;
-        $rows['Kilometraje inicial'] = number_format($movement->initial_mileage).' km';
-    } else {
-        $rows['Devuelto por'] = $movement->returned_by_name;
-        $rows['Llaves recibidas por'] = $movement->keys_received_by_name;
-        $rows['Kilometraje final'] = number_format($movement->final_mileage).' km';
-    }
-    $rows['Ubicación'] = $movement->location ?: '—';
-    $rows['Nivel de combustible'] = $movement->fuel_level->label();
-    $rows['Lavado (carwash)'] = $movement->washed ? 'Sí' : 'No';
-    foreach (\App\Enums\ConditionStatus::fieldLabels() as $field => $label) {
-        $rows[$label] = $movement->{$field}->label($field);
-    }
-    $rows['Anomalías'] = $movement->has_anomaly ? ($movement->anomaly_description ?: 'Sí') : 'Ninguna';
-    foreach ($movement->documentation as $doc) {
-        $rows['Documento: '.$doc->document_type->label()] = $doc->is_valid ? 'Sí' : 'No';
-    }
 @endphp
 <!DOCTYPE html>
 <html lang="es">

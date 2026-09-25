@@ -34,6 +34,24 @@
         </div>
     </div>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const suggested = @json($suggestedMileage);
+            const vehicle = document.getElementById('vehicle_id');
+            const mileage = document.getElementById('initial_mileage');
+            const hint = document.getElementById('initial_mileage_hint');
+            let userEdited = mileage.value !== '';
+            mileage.addEventListener('input', (e) => { if (e.isTrusted) userEdited = true; });
+            vehicle.addEventListener('change', () => {
+                const km = suggested[vehicle.value];
+                hint.hidden = !km;
+                if (!km) return;
+                hint.textContent = 'Último kilometraje registrado: ' + Number(km).toLocaleString('es-GT') + ' km (puedes modificarlo).';
+                if (!userEdited || mileage.value === '') { mileage.value = km; userEdited = false; }
+            });
+        });
+    </script>
+
     <form method="POST" action="{{ route('receptions.store') }}" enctype="multipart/form-data"
           x-data="{ step: {{ $initialStep }} }" novalidate
           @submit.prevent="submitFormOnce($event.currentTarget)">
@@ -112,6 +130,7 @@
                         <div style="grid-column:1/-1">
                             <label for="initial_mileage" class="form-label" style="margin-top:0">Kilometraje inicial</label>
                             <input type="number" min="0" id="initial_mileage" name="initial_mileage" value="{{ old('initial_mileage') }}" required class="font-data" style="width:100%">
+                            <p class="field-help" id="initial_mileage_hint" hidden></p>
                             @error('initial_mileage')<p class="field-error">{{ $message }}</p>@enderror
                         </div>
                         <div style="grid-column:1/-1">
