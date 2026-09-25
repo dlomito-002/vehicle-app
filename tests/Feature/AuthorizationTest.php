@@ -83,7 +83,7 @@ class AuthorizationTest extends TestCase
         $response->assertOk();
     }
 
-    public function test_agent_cannot_view_another_agents_reception(): void
+    public function test_agent_can_view_another_agents_reception(): void
     {
         $owner = User::factory()->create();
         $otherAgent = User::factory()->create();
@@ -106,9 +106,13 @@ class AuthorizationTest extends TestCase
             'has_anomaly' => false,
         ]);
 
-        $response = $this->actingAs($otherAgent)->get(route('receptions.show', $reception));
+        $this->actingAs($otherAgent)->get(route('receptions.show', $reception))->assertOk();
+        $this->actingAs($otherAgent)->get(route('receptions.index'))->assertOk()->assertSee($vehicle->license_plate);
+        $this->actingAs($otherAgent)->get(route('dashboard'))->assertOk()->assertSee($vehicle->license_plate);
 
-        $response->assertStatus(403);
+        // Read access only: amending/deleting stays admin-only.
+        $this->assertFalse($otherAgent->can('update', $reception));
+        $this->assertFalse($otherAgent->can('delete', $reception));
     }
 
     public function test_admin_can_view_any_agents_reception(): void

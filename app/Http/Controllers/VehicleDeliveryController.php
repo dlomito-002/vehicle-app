@@ -29,10 +29,6 @@ class VehicleDeliveryController extends Controller
 
         $query = VehicleDelivery::query()->with(['vehicle', 'reception', 'creator']);
 
-        if (! $request->user()->isAdmin()) {
-            $query->where('created_by', $request->user()->id);
-        }
-
         $deliveries = $query->latest('return_date')->paginate(20);
 
         return view('deliveries.index', compact('deliveries'));

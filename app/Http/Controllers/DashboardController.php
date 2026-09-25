@@ -13,10 +13,6 @@ class DashboardController extends Controller
     {
         $query = VehicleReception::query()->with(['vehicle', 'creator']);
 
-        if (! $request->user()->isAdmin()) {
-            $query->where('created_by', $request->user()->id);
-        }
-
         $openReceptions = (clone $query)
             ->where('status', ReceptionStatus::Open)
             ->latest('reception_date')

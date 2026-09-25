@@ -25,10 +25,6 @@ class VehicleReceptionController extends Controller
 
         $query = VehicleReception::query()->with(['vehicle', 'creator', 'delivery']);
 
-        if (! $request->user()->isAdmin()) {
-            $query->where('created_by', $request->user()->id);
-        }
-
         $receptions = $query->latest('reception_date')->paginate(20);
 
         return view('receptions.index', compact('receptions'));
