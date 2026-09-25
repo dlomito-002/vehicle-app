@@ -10,8 +10,8 @@ use Illuminate\Console\Command;
 /**
  * Runs the same due-soon/overdue check that VehicleMaintenanceScheduleController::index()
  * triggers on page view, so alerts still go out even if nobody opens that
- * screen. Safe to run as often as needed — checkAndNotify() only ever sends
- * once per alert window (see VehicleMaintenanceSchedule::checkAndNotify()).
+ * screen. Safe to run as often as needed — checkAndNotify() only re-sends
+ * after meaningful mileage progress (see VehicleMaintenanceSchedule::checkAndNotify()).
  */
 class CheckMaintenanceAlerts extends Command
 {
@@ -29,10 +29,10 @@ class CheckMaintenanceAlerts extends Command
                 $schedule = VehicleMaintenanceSchedule::firstOrCreateFor($vehicle, $category);
                 $schedule->setRelation('vehicle', $vehicle);
 
-                $wasSent = $schedule->alert_sent_at;
+                $wasSent = $schedule->alert_sent_at?->timestamp;
                 $schedule->checkAndNotify();
 
-                if (! $wasSent && $schedule->fresh()->alert_sent_at) {
+                if ($schedule->fresh()->alert_sent_at?->timestamp !== $wasSent) {
                     $sent++;
                 }
             }

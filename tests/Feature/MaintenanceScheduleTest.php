@@ -11,6 +11,8 @@ use App\Models\VehicleMaintenanceSchedule;
 use App\Models\VehicleReception;
 use App\Support\NotificationRecipients;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Mail\Events\MessageSending;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;
 
@@ -112,6 +114,102 @@ class MaintenanceScheduleTest extends TestCase
         Mail::assertSent(MaintenanceAlertMail::class, fn (MaintenanceAlertMail $mail) => count($mail->to) === 2
             && $mail->hasTo('admin@example.com')
             && $mail->hasTo('flota@example.com'));
+    }
+
+    private function alertSetup(): array
+    {
+        Mail::fake();
+        $admin = User::factory()->admin()->create(['receives_notification_emails' => true]);
+        $vehicle = Vehicle::factory()->create();
+        $schedule = VehicleMaintenanceSchedule::firstOrCreateFor($vehicle, MaintenanceCategory::Basic);
+        $schedule->recordCompletion(9000, now()->toDateString(), $admin->id); // due at 10,000
+
+        return [$admin, $vehicle, $schedule];
+    }
+
+    private function check(Vehicle $vehicle, User $admin, int $mileage): void
+    {
+        $this->recordReception($vehicle, $admin, $mileage);
+        VehicleMaintenanceSchedule::checkAllFor($vehicle->fresh());
+    }
+
+    public function test_alert_is_resent_only_on_meaningful_mileage_progress(): void
+    {
+        [$admin, $vehicle] = $this->alertSetup();
+
+        $this->check($vehicle, $admin, 9700); // 300 km away: outside window
+        Mail::assertNothingSent();
+
+        $this->check($vehicle, $admin, 9800); // enters window
+        Mail::assertSentCount(1);
+
+        $this->check($vehicle, $admin, 9800); // same mileage
+        $this->check($vehicle, $admin, 9850); // +50 km: small
+        Mail::assertSentCount(1);
+
+        $this->check($vehicle, $admin, 9990); // +190 km: updated alert
+        Mail::assertSentCount(2);
+
+        $this->check($vehicle, $admin, 9990); // duplicate
+        Mail::assertSentCount(2);
+
+        $this->check($vehicle, $admin, 10005); // escalates to overdue
+        Mail::assertSentCount(3);
+        Mail::assertSent(MaintenanceAlertMail::class, fn ($m) => $m->schedule->alertStatus() === 'overdue');
+    }
+
+    public function test_completion_resets_the_cycle_and_next_interval_alerts_independently(): void
+    {
+        [$admin, $vehicle, $schedule] = $this->alertSetup();
+
+        $this->check($vehicle, $admin, 9990);
+        Mail::assertSentCount(1);
+
+        $this->actingAs($admin)->post(route('maintenance-schedules.complete', [$vehicle, MaintenanceCategory::Basic]), [
+            'mileage' => 10000,
+            'service_date' => now()->toDateString(),
+        ])->assertRedirect();
+
+        $schedule->refresh();
+        $this->assertNull($schedule->alert_mileage);
+        $this->assertNull($schedule->alert_status);
+        $this->assertSame(11000, $schedule->nextDueMileage());
+
+        $this->check($vehicle, $admin, 10500); // far from 11,000
+        Mail::assertSentCount(1);
+
+        $this->check($vehicle, $admin, 10800); // new cycle enters window
+        Mail::assertSentCount(2);
+    }
+
+    public function test_failed_email_is_not_recorded_and_is_retried(): void
+    {
+        [$admin, $vehicle, $schedule] = $this->alertSetup();
+
+        app()->forgetInstance('mail.manager');
+        Mail::clearResolvedInstances(); // real mailer instead of the fake, so a send can actually fail
+        config(['mail.default' => 'array']);
+        Event::listen(MessageSending::class, fn () => throw new \RuntimeException('smtp down'));
+        $this->recordReception($vehicle, $admin, 9900);
+        VehicleMaintenanceSchedule::checkAllFor($vehicle->fresh()); // must not throw
+
+        $this->assertNull($schedule->fresh()->alert_mileage);
+
+        Event::forget(MessageSending::class);
+        VehicleMaintenanceSchedule::checkAllFor($vehicle->fresh());
+        $this->assertSame(9900, $schedule->fresh()->alert_mileage);
+    }
+
+    public function test_reception_flow_triggers_the_maintenance_check(): void
+    {
+        [$admin, $vehicle, $schedule] = $this->alertSetup();
+        $this->recordReception($vehicle, $admin, 9800);
+
+        VehicleMaintenanceSchedule::checkAllFor($vehicle);
+        VehicleMaintenanceSchedule::checkAllFor($vehicle); // retried request
+
+        Mail::assertSentCount(1);
+        $this->assertSame(9800, $schedule->fresh()->alert_mileage);
     }
 
     public function test_maintenance_alert_is_skipped_safely_without_recipients(): void

@@ -8,7 +8,9 @@ use App\Support\NotificationRecipients;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Throwable;
 
 /**
  * One row per vehicle + MaintenanceCategory (basic/major).
@@ -22,11 +24,20 @@ class VehicleMaintenanceSchedule extends Model
     /** Vehicle enters the warning window this many km before the next due mileage. */
     public const ALERT_WINDOW_KM = 200;
 
+    /**
+     * Once alerted, the vehicle must cover at least this many km more (half
+     * the warning window) before another updated alert is sent. Reaching
+     * 'overdue' always alerts regardless.
+     */
+    public const ALERT_PROGRESS_KM = self::ALERT_WINDOW_KM / 2;
+
     protected $fillable = [
         'vehicle_id',
         'category',
         'interval_km',
         'alert_sent_at',
+        'alert_mileage',
+        'alert_status',
     ];
 
     protected function casts(): array
@@ -35,6 +46,7 @@ class VehicleMaintenanceSchedule extends Model
             'category' => MaintenanceCategory::class,
             'interval_km' => 'integer',
             'alert_sent_at' => 'datetime',
+            'alert_mileage' => 'integer',
         ];
     }
 
@@ -136,26 +148,51 @@ class VehicleMaintenanceSchedule extends Model
             'notes' => $notes,
         ]);
 
-        $this->update(['alert_sent_at' => null]);
+        $this->update(['alert_sent_at' => null, 'alert_mileage' => null, 'alert_status' => null]);
 
         return $completion;
     }
 
     /**
-     * Send the maintenance alert email once per warning window: if the
-     * vehicle has just entered (or already is in) the due_soon/overdue
-     * status and no alert has been sent for it yet, email the configured
-     * notification recipients and mark it sent. Does nothing if already
-     * notified for this window, if the vehicle isn't due yet, or if no
-     * recipient is configured (see NotificationRecipients).
+     * Whether an alert is warranted for the given mileage/status, given the
+     * mileage of the last alert of this cycle (alert_mileage):
+     *  - never alerted this cycle            -> yes (entered the warning window)
+     *  - escalated from due_soon to overdue  -> yes
+     *  - advanced >= ALERT_PROGRESS_KM since the last alert -> yes (updated alert)
+     *  - same/lower/slightly higher mileage  -> no (duplicate)
+     */
+    public function needsAlert(int $currentMileage, string $status): bool
+    {
+        if (! in_array($status, ['due_soon', 'overdue'], true)) {
+            return false;
+        }
+
+        if ($this->alert_mileage === null) {
+            return true;
+        }
+
+        if ($status === 'overdue' && $this->alert_status !== 'overdue') {
+            return true;
+        }
+
+        return $currentMileage - $this->alert_mileage >= self::ALERT_PROGRESS_KM;
+    }
+
+    /**
+     * Send the maintenance alert email when the vehicle enters the warning
+     * window and again each time it progresses ALERT_PROGRESS_KM further
+     * toward (or past) the due mileage — see needsAlert(). The mileage of
+     * the alert is claimed atomically before sending so retried/concurrent
+     * requests can't double-send, and released if the mail fails so the
+     * alert is retried on the next check. Does nothing if no recipient is
+     * configured (see NotificationRecipients). Never throws.
      */
     public function checkAndNotify(): void
     {
-        if ($this->alert_sent_at !== null) {
-            return;
-        }
+        $currentMileage = $this->vehicle?->currentMileage();
+        $status = $this->alertStatus($currentMileage);
 
-        if (! in_array($this->alertStatus(), ['due_soon', 'overdue'], true)) {
+        if ($currentMileage === null || ! $this->needsAlert($currentMileage, $status)) {
             return;
         }
 
@@ -165,8 +202,44 @@ class VehicleMaintenanceSchedule extends Model
             return;
         }
 
-        Mail::to($recipients)->send(new MaintenanceAlertMail($this));
+        $previous = [$this->alert_mileage, $this->alert_status, $this->alert_sent_at];
 
-        $this->update(['alert_sent_at' => now()]);
+        $claimed = static::whereKey($this->id)
+            ->where(fn ($q) => $this->alert_mileage === null
+                ? $q->whereNull('alert_mileage')
+                : $q->where('alert_mileage', $this->alert_mileage))
+            ->update(['alert_mileage' => $currentMileage, 'alert_status' => $status, 'alert_sent_at' => now()]);
+
+        if ($claimed === 0) {
+            return; // another request already sent this alert
+        }
+
+        $this->forceFill(['alert_mileage' => $currentMileage, 'alert_status' => $status, 'alert_sent_at' => now()])->syncOriginal();
+
+        try {
+            Mail::to($recipients)->send(new MaintenanceAlertMail($this));
+        } catch (Throwable $e) {
+            [$this->alert_mileage, $this->alert_status, $this->alert_sent_at] = $previous;
+            $this->update(['alert_mileage' => $previous[0], 'alert_status' => $previous[1], 'alert_sent_at' => $previous[2]]);
+
+            Log::error('Maintenance alert email failed.', [
+                'schedule_id' => $this->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    /** Evaluate every category for a vehicle — used right after its mileage changes (reception/delivery). Never throws. */
+    public static function checkAllFor(Vehicle $vehicle): void
+    {
+        try {
+            foreach (MaintenanceCategory::cases() as $category) {
+                $schedule = static::firstOrCreateFor($vehicle, $category);
+                $schedule->setRelation('vehicle', $vehicle);
+                $schedule->checkAndNotify();
+            }
+        } catch (Throwable $e) {
+            Log::error('Maintenance alert check failed.', ['vehicle_id' => $vehicle->id, 'error' => $e->getMessage()]);
+        }
     }
 }

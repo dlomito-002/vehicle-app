@@ -9,6 +9,7 @@ use App\Http\Requests\StoreVehicleDeliveryRequest;
 use App\Models\Vehicle;
 use App\Models\VehicleDelivery;
 use App\Models\VehicleReception;
+use App\Models\VehicleMaintenanceSchedule;
 use App\Support\VehicleMovementNotifier;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
@@ -183,6 +184,7 @@ class VehicleDeliveryController extends Controller
         });
 
         VehicleMovementNotifier::notify($delivery);
+        VehicleMaintenanceSchedule::checkAllFor($delivery->vehicle);
 
         return redirect()
             ->route('comparisons.show', $reception)

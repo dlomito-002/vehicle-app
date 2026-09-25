@@ -1,6 +1,6 @@
 @php
     $isOverdue = $schedule->alertStatus() === 'overdue';
-    $statusLabel = $isOverdue ? 'Vencido' : 'Próximo (dentro de 200 km)';
+    $statusLabel = $isOverdue ? 'Vencido' : 'Próximo (dentro de '.\App\Models\VehicleMaintenanceSchedule::ALERT_WINDOW_KM.' km)';
     $statusColor = $isOverdue ? '#b42318' : '#9a6700';
     $statusBg = $isOverdue ? '#fef3f2' : '#fffaeb';
 @endphp
@@ -53,8 +53,12 @@
                                 <td style="padding:12px 16px;border-bottom:1px solid #e4e7ec;color:#1f2937;font-size:13px;">{{ $schedule->vehicle->currentMileage() ? number_format($schedule->vehicle->currentMileage()) : '—' }} km</td>
                             </tr>
                             <tr>
-                                <td style="padding:12px 16px;color:#667085;font-size:12px;">Próximo servicio</td>
-                                <td style="padding:12px 16px;color:#1f2937;font-size:13px;font-weight:700;">{{ $schedule->nextDueMileage() ? number_format($schedule->nextDueMileage()) : '—' }} km</td>
+                                <td style="padding:12px 16px;border-bottom:1px solid #e4e7ec;color:#667085;font-size:12px;">Próximo servicio</td>
+                                <td style="padding:12px 16px;border-bottom:1px solid #e4e7ec;color:#1f2937;font-size:13px;font-weight:700;">{{ $schedule->nextDueMileage() ? number_format($schedule->nextDueMileage()) : '—' }} km</td>
+                            </tr>
+                            <tr>
+                                <td style="padding:12px 16px;color:#667085;font-size:12px;">{{ $isOverdue ? 'Km excedidos' : 'Km restantes' }}</td>
+                                <td style="padding:12px 16px;color:#1f2937;font-size:13px;font-weight:700;">{{ number_format(abs($schedule->kmRemaining() ?? 0)) }} km</td>
                             </tr>
                         </table>
                     </td>
