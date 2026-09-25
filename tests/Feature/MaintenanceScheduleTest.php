@@ -36,7 +36,6 @@ class MaintenanceScheduleTest extends TestCase
             'windows_mirrors_lights' => 'ok',
             'tires_condition' => 'ok',
             'dashboard_indicators' => 'ok',
-            'cleanliness' => 'ok',
             'has_anomaly' => false,
             'status' => ReceptionStatus::Open,
         ]);

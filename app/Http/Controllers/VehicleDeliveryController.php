@@ -166,7 +166,6 @@ class VehicleDeliveryController extends Controller
                 'windows_mirrors_lights' => $data['windows_mirrors_lights'],
                 'tires_condition' => $data['tires_condition'],
                 'dashboard_indicators' => $data['dashboard_indicators'],
-                'cleanliness' => $data['cleanliness'],
                 'has_anomaly' => $data['has_anomaly'],
                 'anomaly_description' => $data['anomaly_description'] ?? null,
             ]);

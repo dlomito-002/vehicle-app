@@ -34,7 +34,6 @@ class VehicleReception extends Model
         'windows_mirrors_lights',
         'tires_condition',
         'dashboard_indicators',
-        'cleanliness',
         'has_anomaly',
         'anomaly_description',
         'status',
@@ -52,7 +51,6 @@ class VehicleReception extends Model
             'windows_mirrors_lights' => ConditionStatus::class,
             'tires_condition' => ConditionStatus::class,
             'dashboard_indicators' => ConditionStatus::class,
-            'cleanliness' => ConditionStatus::class,
             'has_anomaly' => 'boolean',
             'status' => ReceptionStatus::class,
         ];

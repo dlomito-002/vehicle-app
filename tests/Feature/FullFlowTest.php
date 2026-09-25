@@ -50,7 +50,6 @@ class FullFlowTest extends TestCase
             'windows_mirrors_lights' => 'ok',
             'tires_condition' => 'ok',
             'dashboard_indicators' => 'ok',
-            'cleanliness' => 'ok',
             'has_anomaly' => '1',
             'anomaly_description' => 'Rayón en la puerta',
             'anomaly_photos' => [UploadedFile::fake()->image('anomaly.jpg')],

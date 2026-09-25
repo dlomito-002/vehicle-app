@@ -35,7 +35,6 @@ class VehicleReceptionTest extends TestCase
             'windows_mirrors_lights' => 'ok',
             'tires_condition' => 'ok',
             'dashboard_indicators' => 'ok',
-            'cleanliness' => 'ok',
             'has_anomaly' => '0',
             'signature_data' => self::TINY_SIGNATURE_PNG,
             'documentation' => [

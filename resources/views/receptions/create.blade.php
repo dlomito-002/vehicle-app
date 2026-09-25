@@ -12,7 +12,7 @@
         // form back up on page 2 so the person actually sees the error.
         $page2Prefixes = [
             'washed', 'general_condition', 'windows_mirrors_lights', 'tires_condition',
-            'dashboard_indicators', 'cleanliness', 'condition_items', 'condition_photos',
+            'dashboard_indicators', 'condition_items', 'condition_photos',
             'has_anomaly', 'anomaly_description', 'anomaly_photos',
             'position_photos', 'photos', 'signature_data', 'signature_file',
         ];
