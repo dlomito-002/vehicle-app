@@ -20,6 +20,7 @@ class EnvFileEditor
     public function set(string $key, ?string $value): void
     {
         $contents = $this->exists() ? (string) file_get_contents($this->path) : '';
+        $eol = str_contains($contents, "\r\n") ? "\r\n" : "\n";
         $line = $key.'='.$this->format($value ?? '');
         $quoted = preg_quote($key, '/');
 
@@ -29,7 +30,7 @@ class EnvFileEditor
         } elseif (preg_match('/^#\s*'.$quoted.'=.*$/m', $contents)) {
             $contents = preg_replace('/^#\s*'.$quoted.'=.*$/m', $this->escapeReplacement($line), $contents, 1);
         } else {
-            $contents = rtrim($contents, "\r\n").($contents === '' ? '' : PHP_EOL).$line.PHP_EOL;
+            $contents = rtrim($contents, "\r\n").($contents === '' ? '' : $eol).$line.$eol;
         }
 
         if (file_put_contents($this->path, $contents) === false) {
