@@ -20,6 +20,9 @@
                         <th>Placa</th>
                         <th>Recepciones</th>
                         <th>Devoluciones</th>
+                        @if (auth()->user()->isAdmin())
+                            <th></th>
+                        @endif
                     </tr>
                 </thead>
                 <tbody>
@@ -29,9 +32,24 @@
                             <td data-label="Placa" class="font-data">{{ $vehicle->license_plate }}</td>
                             <td data-label="Recepciones">{{ $vehicle->receptions_count }}</td>
                             <td data-label="Devoluciones">{{ $vehicle->deliveries_count }}</td>
+                            @canany(['update', 'delete'], $vehicle)
+                                <td data-label="" class="data-table-actions">
+                                    @can('update', $vehicle)
+                                        <a href="{{ route('vehicles.edit', $vehicle) }}">Editar</a>
+                                    @endcan
+                                    @can('delete', $vehicle)
+                                        <form method="POST" action="{{ route('vehicles.destroy', $vehicle) }}" style="display:inline"
+                                              onsubmit="return confirm('¿Eliminar el vehículo {{ $vehicle->license_plate }}?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" style="color:var(--danger);font-weight:800;background:none;border:0;cursor:pointer;padding:0;font:inherit">Eliminar</button>
+                                        </form>
+                                    @endcan
+                                </td>
+                            @endcanany
                         </tr>
                     @empty
-                        <tr><td colspan="4" class="data-table-empty">Todavía no hay vehículos.</td></tr>
+                        <tr><td colspan="5" class="data-table-empty">Todavía no hay vehículos.</td></tr>
                     @endforelse
                 </tbody>
             </table>

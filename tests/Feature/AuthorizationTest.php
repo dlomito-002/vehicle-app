@@ -140,4 +140,54 @@ class AuthorizationTest extends TestCase
 
         $response->assertOk();
     }
+
+    public function test_admin_can_update_a_vehicle(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $vehicle = Vehicle::factory()->create();
+
+        $this->actingAs($admin)->get(route('vehicles.edit', $vehicle))->assertOk();
+
+        $this->actingAs($admin)
+            ->put(route('vehicles.update', $vehicle), ['make' => 'Toyota', 'model' => 'Hilux', 'license_plate' => $vehicle->license_plate])
+            ->assertRedirect(route('vehicles.index'));
+
+        $this->assertSame('Toyota', $vehicle->fresh()->make);
+    }
+
+    public function test_admin_can_delete_a_vehicle(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $vehicle = Vehicle::factory()->create();
+
+        $this->actingAs($admin)->delete(route('vehicles.destroy', $vehicle))
+            ->assertRedirect(route('vehicles.index'));
+
+        $this->assertSoftDeleted($vehicle);
+    }
+
+    public function test_agent_cannot_update_or_delete_a_vehicle(): void
+    {
+        $agent = User::factory()->create();
+        $vehicle = Vehicle::factory()->create(['make' => 'Original']);
+
+        $this->actingAs($agent)->get(route('vehicles.edit', $vehicle))->assertForbidden();
+        $this->actingAs($agent)
+            ->put(route('vehicles.update', $vehicle), ['make' => 'Hack', 'license_plate' => $vehicle->license_plate])
+            ->assertForbidden();
+        $this->actingAs($agent)->delete(route('vehicles.destroy', $vehicle))->assertForbidden();
+
+        $this->assertSame('Original', $vehicle->fresh()->make);
+        $this->assertNotSoftDeleted($vehicle);
+    }
+
+    public function test_vehicle_index_shows_edit_and_delete_actions_only_to_admin(): void
+    {
+        $vehicle = Vehicle::factory()->create();
+        $admin = User::factory()->admin()->create();
+
+        $this->actingAs($admin)->get(route('vehicles.index'))
+            ->assertSee(route('vehicles.edit', $vehicle))
+            ->assertSee(route('vehicles.destroy', $vehicle));
+    }
 }
