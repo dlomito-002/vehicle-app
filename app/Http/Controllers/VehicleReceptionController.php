@@ -8,6 +8,7 @@ use App\Http\Controllers\Concerns\HandlesVehicleFormUploads;
 use App\Http\Requests\StoreVehicleReceptionRequest;
 use App\Models\Vehicle;
 use App\Models\VehicleReception;
+use App\Support\VehicleMovementNotifier;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -79,6 +80,8 @@ class VehicleReceptionController extends Controller
 
             return $reception;
         });
+
+        VehicleMovementNotifier::notify($reception);
 
         return redirect()->route('receptions.show', $reception)->with('status', 'Recepción registrada.');
     }

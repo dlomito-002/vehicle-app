@@ -44,7 +44,7 @@ Revisa **`LEEME.txt`** en la raíz — tiene los pasos manuales pendientes espec
 | Mantenimiento (intervalos fijos) | `VehicleMaintenanceSchedule`, `VehicleMaintenanceCompletion`, `App\Enums\MaintenanceCategory` | Sistema separado y en paralelo al anterior: Básico (1,000 km) y Mayor (4,000 km). Calcula desde el último servicio completado de esa categoría, no desde el kilometraje actual. Alerta a 200 km o menos, una sola vez por ventana, se resetea al completar el servicio |
 | Autenticación | `LoginController`, `LoginVerificationCode` | Login por código de un solo uso enviado por correo (NO es OAuth/"Sign in with Google" — el código lo genera la app, el correo solo es el transporte). Expira, un solo uso, con rate limiting y límite de intentos fallidos |
 | Ayuda/soporte | `HelpController` | Formulario simple → correo a los destinatarios de `App\Support\NotificationRecipients`. No persiste en base de datos |
-| Usuarios/roles | `User`, `App\Enums\UserRole` | Solo `Admin`/`Agent`. Gestión de usuarios es admin-only. `receives_notification_emails` ("Recibir correos de Fleet Desk") define quién recibe Ayuda y alertas de mantenimiento |
+| Usuarios/roles | `User`, `App\Enums\UserRole` | Solo `Admin`/`Agent`. Gestión de usuarios es admin-only. `receives_notification_emails` ("Recibir correos de Fleet Desk") define quién recibe Ayuda, alertas de mantenimiento y avisos de recepción/devolución de vehículos (`VehicleMovementNotifier`, best effort: si el correo falla se registra en log y la operación no falla) |
 
 ## Configuración específica de este proyecto
 

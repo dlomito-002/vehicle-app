@@ -9,6 +9,7 @@ use App\Http\Requests\StoreVehicleDeliveryRequest;
 use App\Models\Vehicle;
 use App\Models\VehicleDelivery;
 use App\Models\VehicleReception;
+use App\Support\VehicleMovementNotifier;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -180,6 +181,8 @@ class VehicleDeliveryController extends Controller
             // pair can never end up inconsistent.
             return $delivery;
         });
+
+        VehicleMovementNotifier::notify($delivery);
 
         return redirect()
             ->route('comparisons.show', $reception)
