@@ -18,9 +18,9 @@
         table.data th { text-align: left; font-size: 8px; text-transform: uppercase; color: #64748b; border-bottom: 1px solid #cbd5e1; padding: 4px 6px; }
         table.data td { padding: 4px 6px; border-bottom: 1px solid #f1f5f9; vertical-align: top; }
         .badge { display: inline-block; padding: 1px 6px; border-radius: 8px; font-size: 8.5px; font-weight: bold; }
-        .badge-ok { background: #f0f5d0; color: #55620c; }
-        .badge-bad { background: #fde3c8; color: #a34a04; }
-        .flag { color: #a34a04; font-size: 8px; margin-left: 3px; }
+        .badge-ok { background: #ecfdf3; color: #067647; }
+        .badge-bad { background: #fffaeb; color: #9a6700; }
+        .flag { color: #9a6700; font-size: 8px; margin-left: 3px; }
         .thumb { width: 40px; height: 40px; object-fit: cover; border: 1px solid #cbd5e1; margin-top: 2px; }
         .photo-grid { width: 100%; border-collapse: collapse; }
         .photo-grid td { width: 16.6%; text-align: center; padding: 4px; vertical-align: top; }
@@ -28,7 +28,7 @@
         .photo-caption { font-size: 7.5px; color: #64748b; margin-top: 2px; }
         .no-photo { width: 100%; height: 70px; border: 1px dashed #cbd5e1; }
         .section-note { font-size: 8px; color: #64748b; margin-bottom: 4px; }
-        .anomaly-box { background: #fde3c8; border: 1px solid #f2b705; padding: 6px 8px; margin-bottom: 6px; font-size: 9.5px; }
+        .anomaly-box { background: #fffaeb; border: 1px solid #9a6700; padding: 6px 8px; margin-bottom: 6px; font-size: 9.5px; }
     </style>
 </head>
 <body>
@@ -195,6 +195,9 @@
                         @php $img = PdfImageEncoder::fromModel($photo); @endphp
                         @if ($img)<img src="{{ $img }}">@else<div class="no-photo"></div>@endif
                         <p class="photo-caption">Recepción</p>
+                        @if ($group['position'] === 'signature' && $reception->received_by_name)
+                            <p class="photo-caption"><strong>Firmado por:</strong> {{ $reception->received_by_name }}</p>
+                        @endif
                     </td>
                 @empty
                     <td><div class="no-photo"></div><p class="photo-caption">Recepción — sin foto</p></td>
@@ -204,6 +207,9 @@
                         @php $img = PdfImageEncoder::fromModel($photo); @endphp
                         @if ($img)<img src="{{ $img }}">@else<div class="no-photo"></div>@endif
                         <p class="photo-caption">Devolución</p>
+                        @if ($group['position'] === 'signature' && $delivery->returned_by_name)
+                            <p class="photo-caption"><strong>Firmado por:</strong> {{ $delivery->returned_by_name }}</p>
+                        @endif
                     </td>
                 @empty
                     <td><div class="no-photo"></div><p class="photo-caption">Devolución — sin foto</p></td>

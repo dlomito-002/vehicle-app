@@ -3,45 +3,47 @@
 @section('title', 'Recepciones')
 
 @section('content')
-    <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
-        <h1 class="text-xl font-semibold text-slate-900">Recepciones de vehículos</h1>
-        <a href="{{ route('receptions.create') }}"
-           class="inline-flex items-center px-3 py-1.5 rounded-md text-sm font-medium text-white bg-brand-magenta hover:bg-brand-magenta/90">
-            Nueva recepción
-        </a>
+    <div class="page-heading">
+        <div>
+            <h1 class="page-title">Recepciones de vehículos</h1>
+            <p class="page-subtitle">Historial de recepciones registradas, abiertas y cerradas.</p>
+        </div>
+        <a href="{{ route('receptions.create') }}" class="btn btn-primary">Nueva recepción</a>
     </div>
 
-    <div class="bg-white border border-slate-200 rounded-lg overflow-hidden">
-        <table class="responsive-table w-full text-sm">
-            <thead class="bg-slate-50 text-slate-500 text-left">
-                <tr>
-                    <th class="px-4 py-2 font-medium">Vehículo</th>
-                    <th class="px-4 py-2 font-medium">Fecha</th>
-                    <th class="px-4 py-2 font-medium">Recibido por</th>
-                    <th class="px-4 py-2 font-medium">Estado</th>
-                    <th class="px-4 py-2"></th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-100">
-                @forelse ($receptions as $reception)
+    <div class="card data-table-shell">
+        <div class="data-table-wrap">
+            <table class="data-table">
+                <thead>
                     <tr>
-                        <td data-label="Vehículo" class="px-4 py-3">{{ $reception->vehicle->displayName() }}</td>
-                        <td data-label="Fecha" class="px-4 py-3">{{ $reception->reception_date->format('d/m/Y') }} · {{ $reception->reception_time }}</td>
-                        <td data-label="Recibido por" class="px-4 py-3">{{ $reception->received_by_name }}</td>
-                        <td data-label="Estado" class="px-4 py-3">
-                            <x-status-badge :status="$reception->status->value === 'open' ? 'pending' : 'ok'">
-                                {{ $reception->status->label() }}
-                            </x-status-badge>
-                        </td>
-                        <td data-label="" class="px-4 py-3 text-right">
-                            <a href="{{ route('receptions.show', $reception) }}" class="text-brand-cyan hover:underline">Ver</a>
-                        </td>
+                        <th>Vehículo</th>
+                        <th>Fecha</th>
+                        <th>Recibido por</th>
+                        <th>Estado</th>
+                        <th></th>
                     </tr>
-                @empty
-                    <tr><td colspan="5" class="px-4 py-6 text-center text-slate-500">Todavía no hay recepciones registradas.</td></tr>
-                @endforelse
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @forelse ($receptions as $reception)
+                        <tr>
+                            <td data-label="Vehículo">{{ $reception->vehicle->displayName() }}</td>
+                            <td data-label="Fecha">{{ $reception->reception_date->format('d/m/Y') }} · {{ $reception->reception_time }}</td>
+                            <td data-label="Recibido por">{{ $reception->received_by_name }}</td>
+                            <td data-label="Estado">
+                                <x-status-badge :status="$reception->status->value === 'open' ? 'pending' : 'ok'">
+                                    {{ $reception->status->label() }}
+                                </x-status-badge>
+                            </td>
+                            <td data-label="" class="data-table-actions">
+                                <a href="{{ route('receptions.show', $reception) }}">Ver</a>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr><td colspan="5" class="data-table-empty">Todavía no hay recepciones registradas.</td></tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <div class="mt-4">{{ $receptions->links() }}</div>

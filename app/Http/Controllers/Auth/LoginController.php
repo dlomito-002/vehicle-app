@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\ValidationException;
@@ -60,28 +61,37 @@ class LoginController extends Controller
             ]);
         }
 
-        // Only known users can log in — the previous password flow behaved
-        // the same way (a generic "incorrect" message either way), so this
-        // doesn't add a new user-enumeration surface beyond what already
-        // existed.
-        if (! User::where('email', $email)->exists()) {
-            RateLimiter::hit($throttleKey, self::CODE_REQUEST_DECAY_SECONDS);
+        // Per-email cooldown between codes, across every IP/session/tab. It
+        // applies to unknown emails too, so it can't be used to enumerate
+        // accounts. A blocked request (e.g. a double click) doesn't count
+        // toward the request limit above and leaves the code already sent
+        // untouched: the user is sent on to the verification screen.
+        $cooldownRemaining = $this->claimCodeCooldown($email);
 
-            throw ValidationException::withMessages([
-                'email' => 'No existe una cuenta con ese correo electrónico.',
+        if ($cooldownRemaining > 0) {
+            $request->session()->put('login.pending_email', $email);
+            $request->session()->put('login.remember', $request->boolean('remember'));
+
+            return redirect()->route('login.verify')->withErrors([
+                'email' => sprintf('Espera %d segundo(s) antes de solicitar otro código. Revisa el correo que ya te enviamos.', $cooldownRemaining),
             ]);
         }
 
         RateLimiter::hit($throttleKey, self::CODE_REQUEST_DECAY_SECONDS);
 
-        [, $plainCode] = LoginVerificationCode::generateFor($email);
+        // The response is identical whether or not the account exists, so
+        // this form can't be used to discover which emails have access here.
+        // Only known users actually get a code generated and emailed.
+        if (User::where('email', $email)->exists()) {
+            [, $plainCode] = LoginVerificationCode::generateFor($email);
 
-        Mail::to($email)->send(new LoginVerificationCodeMail($plainCode));
+            Mail::to($email)->send(new LoginVerificationCodeMail($plainCode));
+        }
 
         $request->session()->put('login.pending_email', $email);
         $request->session()->put('login.remember', $request->boolean('remember'));
 
-        return redirect()->route('login.verify')->with('status', 'Te enviamos un código de verificación por correo.');
+        return redirect()->route('login.verify')->with('status', 'Si el correo tiene una cuenta, te enviamos un código de verificación.');
     }
 
     /** Step 2: enter the code. */
@@ -168,6 +178,27 @@ class LoginController extends Controller
         $request->session()->regenerateToken();
 
         return redirect()->route('login');
+    }
+
+    /**
+     * Atomically claim the per-email cooldown (Cache::add only succeeds for
+     * the first caller). Returns 0 when claimed, otherwise the seconds left.
+     */
+    private function claimCodeCooldown(string $email): int
+    {
+        $seconds = (int) config('vehicle.login_code_cooldown_seconds', 60);
+
+        if ($seconds <= 0) {
+            return 0;
+        }
+
+        $key = 'login-code-cooldown:'.sha1($email);
+
+        if (Cache::add($key, now()->addSeconds($seconds)->timestamp, $seconds)) {
+            return 0;
+        }
+
+        return max(1, (int) Cache::get($key, 0) - now()->timestamp);
     }
 
     private function codeRequestThrottleKey(Request $request, string $email): string

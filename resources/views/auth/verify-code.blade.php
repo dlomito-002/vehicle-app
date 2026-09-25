@@ -3,49 +3,43 @@
 @section('title', 'Verificar código')
 
 @section('content')
-    <div class="bg-white border border-slate-200 rounded-lg p-6">
-        @if ($errors->any())
-            <div class="mb-4 rounded-md border-l-4 border-brand-orange bg-brand-orange/10 px-4 py-3 text-sm text-slate-800">
-                {{ $errors->first() }}
-            </div>
-        @endif
+    <span class="auth-eyebrow">Acceso seguro</span>
+    <h2>Verifica tu código</h2>
+    <p class="auth-lead">Ingresa el código de 6 dígitos que enviamos a <strong>{{ $email }}</strong>.</p>
 
-        @if (session('status'))
-            <div class="mb-4 rounded-md border-l-4 border-brand-olive bg-brand-olive/10 px-4 py-3 text-sm text-slate-800">
-                {{ session('status') }}
-            </div>
-        @endif
+    @if ($errors->any())
+        <div class="alert alert-danger">{{ $errors->first() }}</div>
+    @endif
 
-        <p class="text-sm text-slate-500 mb-4">
-            Ingresa el código de 6 dígitos que enviamos a <strong>{{ $email }}</strong>.
-        </p>
+    @if (session('status'))
+        <div class="alert alert-success">{{ session('status') }}</div>
+    @endif
 
-        <form method="POST" action="{{ route('login.verify') }}" class="space-y-4">
-            @csrf
+    <form method="POST" action="{{ route('login.verify') }}" class="space-y-4">
+        @csrf
 
-            <div>
-                <label for="code" class="block text-sm font-medium text-slate-700 mb-1">Código de verificación</label>
-                <input id="code" type="text" name="code" inputmode="numeric" autocomplete="one-time-code"
-                       maxlength="6" pattern="\d{6}" required autofocus
-                       class="w-full rounded-md border-slate-300 focus:border-brand-cyan focus:ring-brand-cyan text-sm font-data tracking-widest text-center text-lg">
-            </div>
+        <div>
+            <label for="code" class="block text-sm font-medium mb-1" style="color:var(--ink)">Código de verificación</label>
+            <input id="code" type="text" name="code" inputmode="numeric" autocomplete="one-time-code"
+                   maxlength="6" pattern="\d{6}" required autofocus
+                   class="w-full rounded-md text-sm font-data text-center"
+                   style="min-height:48px;font-size:24px;font-weight:800;letter-spacing:.33em;padding:11px 13px 11px calc(13px + .33em);">
+        </div>
 
-            <button type="submit"
-                    class="w-full inline-flex justify-center px-4 py-2 rounded-md text-sm font-medium text-white bg-brand-magenta hover:bg-brand-magenta/90 transition-colors">
-                Verificar e iniciar sesión
-            </button>
-        </form>
+        <button type="submit" class="btn btn-primary w-full">Verificar e iniciar sesión</button>
+    </form>
 
-        <form method="POST" action="{{ route('login') }}" class="mt-4">
+    <div class="auth-actions" style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-top:18px">
+        <form method="POST" action="{{ route('login') }}" onsubmit="this.querySelector('[type=submit]').disabled = true">
             @csrf
             <input type="hidden" name="email" value="{{ $email }}">
-            <button type="submit" class="text-sm text-slate-500 hover:text-slate-900 hover:underline">
-                Reenviar código
-            </button>
+            <button type="submit" class="btn btn-outline-secondary btn-sm">Reenviar código</button>
         </form>
 
-        <a href="{{ route('login') }}" class="block mt-2 text-sm text-slate-500 hover:text-slate-900 hover:underline">
-            Usar otro correo
-        </a>
+        <a href="{{ route('login') }}" class="btn btn-outline-secondary btn-sm">Usar otro correo</a>
+
+        <button class="theme-toggle" type="button" data-theme-toggle title="Cambiar apariencia" aria-label="Cambiar apariencia">◐</button>
     </div>
+
+    <p class="auth-security">El código vence en 10 minutos y solo puede usarse una vez.</p>
 @endsection

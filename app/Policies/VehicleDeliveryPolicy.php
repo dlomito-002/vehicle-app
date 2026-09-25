@@ -14,7 +14,8 @@ class VehicleDeliveryPolicy
 
     public function view(User $user, VehicleDelivery $delivery): bool
     {
-        return $user->isAdmin() || $delivery->created_by === $user->id;
+        // Every authenticated user can see every delivery; only admins may amend or delete.
+        return true;
     }
 
     public function create(User $user): bool

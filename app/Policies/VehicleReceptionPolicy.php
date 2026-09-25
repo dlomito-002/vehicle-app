@@ -14,7 +14,8 @@ class VehicleReceptionPolicy
 
     public function view(User $user, VehicleReception $reception): bool
     {
-        return $user->isAdmin() || $reception->created_by === $user->id;
+        // Every authenticated user can see every reception; only admins may amend or delete.
+        return true;
     }
 
     public function create(User $user): bool

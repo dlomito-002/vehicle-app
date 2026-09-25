@@ -5,40 +5,45 @@
 @section('content')
     @php use App\Enums\UserRole; @endphp
 
-    <h1 class="text-xl font-semibold text-slate-900 mb-6">Agregar usuario</h1>
-
-    <form method="POST" action="{{ route('users.store') }}" class="bg-white border border-slate-200 rounded-lg p-6 max-w-lg space-y-4">
-        @csrf
-
+    <div class="page-heading">
         <div>
-            <label for="name" class="block text-sm font-medium text-slate-700 mb-1">Nombre completo</label>
-            <input id="name" name="name" value="{{ old('name') }}" required
-                   class="w-full rounded-md border-slate-300 focus:border-brand-cyan focus:ring-brand-cyan text-sm">
-            @error('name')<p class="mt-1 text-sm text-brand-orange">{{ $message }}</p>@enderror
+            <h1 class="page-title">Agregar usuario</h1>
+            <p class="page-subtitle">Da acceso al sistema con el rol correspondiente.</p>
         </div>
+    </div>
 
-        <div>
-            <label for="email" class="block text-sm font-medium text-slate-700 mb-1">Correo electrónico</label>
-            <input type="email" id="email" name="email" value="{{ old('email') }}" required
-                   class="w-full rounded-md border-slate-300 focus:border-brand-cyan focus:ring-brand-cyan text-sm">
-            @error('email')<p class="mt-1 text-sm text-brand-orange">{{ $message }}</p>@enderror
+    <div class="card" style="max-width:32rem">
+        <div class="card-body">
+            <form method="POST" action="{{ route('users.store') }}">
+                @csrf
+
+                <label for="name" class="form-label">Nombre completo</label>
+                <input id="name" name="name" value="{{ old('name') }}" required style="width:100%">
+                @error('name')<p class="field-error">{{ $message }}</p>@enderror
+
+                <label for="email" class="form-label">Correo electrónico</label>
+                <input type="email" id="email" name="email" value="{{ old('email') }}" required style="width:100%">
+                @error('email')<p class="field-error">{{ $message }}</p>@enderror
+
+                <label for="role" class="form-label">Rol</label>
+                <select id="role" name="role" required style="width:100%">
+                    <option value="">Selecciona un rol</option>
+                    @foreach (UserRole::cases() as $role)
+                        <option value="{{ $role->value }}" @selected(old('role') === $role->value)>{{ $role->label() }}</option>
+                    @endforeach
+                </select>
+                @error('role')<p class="field-error">{{ $message }}</p>@enderror
+
+                <label class="form-label" style="display:flex;align-items:center;gap:8px;margin-top:16px;cursor:pointer">
+                    <input type="hidden" name="receives_notification_emails" value="0">
+                    <input type="checkbox" id="receives_notification_emails" name="receives_notification_emails" value="1" @checked(old('receives_notification_emails', false))>
+                    Recibir correos de Fleet Desk
+                </label>
+                <p class="field-help">Recibirá los reportes de Ayuda y las alertas de mantenimiento.</p>
+                @error('receives_notification_emails')<p class="field-error">{{ $message }}</p>@enderror
+
+                <button type="submit" class="btn btn-primary" style="margin-top:20px">Guardar usuario</button>
+            </form>
         </div>
-
-        <div>
-            <label for="role" class="block text-sm font-medium text-slate-700 mb-1">Rol</label>
-            <select id="role" name="role" required
-                    class="w-full rounded-md border-slate-300 focus:border-brand-cyan focus:ring-brand-cyan text-sm">
-                <option value="">Selecciona un rol</option>
-                @foreach (UserRole::cases() as $role)
-                    <option value="{{ $role->value }}" @selected(old('role') === $role->value)>{{ $role->label() }}</option>
-                @endforeach
-            </select>
-            @error('role')<p class="mt-1 text-sm text-brand-orange">{{ $message }}</p>@enderror
-        </div>
-
-        <button type="submit"
-                class="inline-flex items-center px-4 py-2 rounded-md text-sm font-medium text-white bg-brand-magenta hover:bg-brand-magenta/90">
-            Guardar usuario
-        </button>
-    </form>
+    </div>
 @endsection

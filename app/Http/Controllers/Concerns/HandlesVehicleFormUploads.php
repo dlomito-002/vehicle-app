@@ -8,6 +8,7 @@ use App\Enums\PhotoPosition;
 use App\Models\VehicleDocumentation;
 use App\Models\VehiclePhoto;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\File;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -87,7 +88,17 @@ trait HandlesVehicleFormUploads
         $filename = 'firma-'.Str::random(10).'.'.$extension;
         $path = "vehicle-photos/{$ownerType}/{$owner->getKey()}/{$filename}";
 
-        Storage::disk($disk)->put($path, $contents);
+        // Go through a real file + putFileAs() rather than put($path, $bytes):
+        // the Cloudinary adapter hands raw strings to upload() as if they were
+        // file paths/URLs, so binary contents can't be written that way.
+        $tmp = tempnam(sys_get_temp_dir(), 'firma');
+
+        try {
+            file_put_contents($tmp, $contents);
+            Storage::disk($disk)->putFileAs(dirname($path), new File($tmp), $filename);
+        } finally {
+            @unlink($tmp);
+        }
 
         $owner->photos()->create([
             'position' => PhotoPosition::Signature,

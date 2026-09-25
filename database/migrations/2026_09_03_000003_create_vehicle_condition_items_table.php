@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
 
             // Polymorphic owner: VehicleReception or VehicleDelivery.
-            $table->morphs('conditionable');
+            $table->morphs('conditionable', 'vehicle_condition_items_conditionable_idx');
 
             $table->string('item'); // ConditionComponent enum
             $table->string('status'); // ConditionStatus enum (ok/issue)

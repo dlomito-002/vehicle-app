@@ -14,51 +14,48 @@
         $anomalyPhotos = $reception->photos->where('position', 'anomaly');
     @endphp
 
-    <div class="flex items-start justify-between gap-4 mb-6">
+    <div class="page-heading">
         <div>
-            <h1 class="text-xl font-semibold text-slate-900">Informe de daños antes de la entrega</h1>
-            <p class="text-sm text-slate-500">
+            <h1 class="page-title">Informe de daños antes de la entrega</h1>
+            <p class="page-subtitle">
                 {{ $reception->vehicle->displayName() }} — recibido el {{ $reception->reception_date->format('d/m/Y') }}
                 por {{ $reception->received_by_name }}
             </p>
         </div>
-        <a href="{{ route('deliveries.damage-report.pdf', $reception) }}"
-           class="inline-flex items-center gap-1.5 px-4 py-2 rounded-md text-sm font-medium text-white bg-brand-cyan hover:bg-brand-cyan/90 shrink-0">
+        <a href="{{ route('deliveries.damage-report.pdf', $reception) }}" class="btn btn-outline-secondary">
             Descargar PDF
         </a>
     </div>
 
-    <p class="text-sm text-slate-600 mb-6">
+    <p style="margin:0 0 20px;font-size:13.5px;color:var(--muted);line-height:1.55">
         Revisa los daños y faltantes registrados en la recepción antes de continuar con la devolución.
         Esto ayuda a distinguir lo que ya existía de lo que ocurra durante el uso del vehículo.
     </p>
 
     @if (! $reception->has_anomaly && $conditionIssues->isEmpty() && $equipmentMissing->isEmpty() && $conditionComponentIssues->isEmpty())
-        <div class="mb-6 rounded-md border-l-4 border-brand-olive bg-brand-olive/10 px-4 py-3 text-sm text-slate-800">
-            El vehículo se recibió sin daños ni faltantes registrados.
-        </div>
+        <div class="alert alert-success">El vehículo se recibió sin daños ni faltantes registrados.</div>
     @endif
 
     @if ($reception->has_anomaly)
-        <div class="bg-white border border-slate-200 rounded-lg p-5 mb-6 border-l-4 border-l-brand-orange">
-            <h2 class="text-sm font-semibold text-slate-900 mb-2">Anomalía reportada en la recepción</h2>
-            <p class="text-sm text-slate-700 mb-3">{{ $reception->anomaly_description }}</p>
-            @if ($anomalyPhotos->isNotEmpty())
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    @foreach ($anomalyPhotos as $photo)
-                        <a href="{{ $photo->url() }}" target="_blank">
-                            <img src="{{ $photo->url() }}" class="w-full h-24 object-cover rounded-md border border-slate-200">
-                        </a>
-                    @endforeach
-                </div>
-            @endif
+        <div class="card" style="margin-bottom:16px;border-left:4px solid var(--danger)">
+            <div class="card-header">Anomalía reportada en la recepción</div>
+            <div class="card-body">
+                <p style="margin:0 0 12px;font-size:13.5px;color:var(--ink)">{{ $reception->anomaly_description }}</p>
+                @if ($anomalyPhotos->isNotEmpty())
+                    <div class="photo-grid">
+                        @foreach ($anomalyPhotos as $photo)
+                            <a href="{{ $photo->url() }}" target="_blank"><img src="{{ $photo->url() }}"></a>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
         </div>
     @endif
 
     @if ($conditionIssues->isNotEmpty())
-        <div class="bg-white border border-slate-200 rounded-lg p-5 mb-6">
-            <h2 class="text-sm font-semibold text-slate-900 mb-3">Inspección general con incidencias</h2>
-            <div class="flex flex-wrap gap-2">
+        <div class="card" style="margin-bottom:16px">
+            <div class="card-header">Inspección general con incidencias</div>
+            <div class="card-body" style="display:flex;flex-wrap:wrap;gap:8px">
                 @foreach ($conditionIssues as $field => $label)
                     <x-status-badge status="anomaly">{{ $label }}: {{ $reception->{$field}->label($field) }}</x-status-badge>
                 @endforeach
@@ -67,16 +64,16 @@
     @endif
 
     @if ($conditionComponentIssues->isNotEmpty())
-        <div class="bg-white border border-slate-200 rounded-lg p-5 mb-6">
-            <h2 class="text-sm font-semibold text-slate-900 mb-3">Componentes con incidencia</h2>
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+        <div class="card" style="margin-bottom:16px">
+            <div class="card-header">Componentes con incidencia</div>
+            <div class="card-body" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px">
                 @foreach ($conditionComponentIssues as $item)
-                    <div class="flex items-center justify-between gap-2 px-3 py-2 rounded-md border border-slate-200 text-sm">
-                        <span class="text-slate-700 flex-1 min-w-0">{{ $item->item->label() }}</span>
-                        <div class="flex items-center gap-2 shrink-0">
+                    <div class="item-row">
+                        <span style="flex:1;min-width:0">{{ $item->item->label() }}</span>
+                        <div style="display:flex;align-items:center;gap:8px;flex:0 0 auto">
                             <x-status-badge status="anomaly">{{ $item->status->label($item->item->value) }}</x-status-badge>
                             @if ($item->hasPhoto())
-                                <a href="{{ $item->photoUrl() }}" target="_blank" class="text-brand-cyan hover:underline text-xs">Foto</a>
+                                <a href="{{ $item->photoUrl() }}" target="_blank" style="color:var(--brand);font-weight:700;font-size:12px">Foto</a>
                             @endif
                         </div>
                     </div>
@@ -86,16 +83,16 @@
     @endif
 
     @if ($equipmentMissing->isNotEmpty())
-        <div class="bg-white border border-slate-200 rounded-lg p-5 mb-6">
-            <h2 class="text-sm font-semibold text-slate-900 mb-3">Equipo faltante</h2>
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+        <div class="card" style="margin-bottom:16px">
+            <div class="card-header">Equipo faltante</div>
+            <div class="card-body" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px">
                 @foreach ($equipmentMissing as $check)
-                    <div class="flex items-center justify-between gap-2 px-3 py-2 rounded-md border border-slate-200 text-sm">
-                        <span class="text-slate-700 flex-1 min-w-0">{{ $check->item->label() }}</span>
-                        <div class="flex items-center gap-2 shrink-0">
+                    <div class="item-row">
+                        <span style="flex:1;min-width:0">{{ $check->item->label() }}</span>
+                        <div style="display:flex;align-items:center;gap:8px;flex:0 0 auto">
                             <x-status-badge status="anomaly">Faltante</x-status-badge>
                             @if ($check->hasPhoto())
-                                <a href="{{ $check->photoUrl() }}" target="_blank" class="text-brand-cyan hover:underline text-xs">Foto</a>
+                                <a href="{{ $check->photoUrl() }}" target="_blank" style="color:var(--brand);font-weight:700;font-size:12px">Foto</a>
                             @endif
                         </div>
                     </div>
@@ -104,9 +101,8 @@
         </div>
     @endif
 
-    <div class="flex justify-end">
-        <a href="{{ route('deliveries.create', $reception) }}"
-           class="inline-flex items-center px-5 py-2.5 rounded-md text-sm font-medium text-white bg-brand-magenta hover:bg-brand-magenta/90">
+    <div style="display:flex;justify-content:flex-end">
+        <a href="{{ route('deliveries.create', $reception) }}" class="btn btn-primary">
             Continuar con la devolución
         </a>
     </div>

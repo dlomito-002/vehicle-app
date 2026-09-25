@@ -4,12 +4,12 @@ Contexto para agentes de IA (Claude Code u otros) que trabajen en este repositor
 
 ## Qué es esto
 
-**Fleet Desk** — app Laravel 11 en español para control de flota vehicular: recepción y devolución de vehículos con inspecciones fotográficas, firma, reporte de comparación (recepción vs. entrega) en PDF, mantenimiento y gestión de usuarios/roles.
+**Control de Vehiculos Carrousel** — app Laravel 12.69.x en español para control de flota vehicular: recepción y devolución de vehículos con inspecciones fotográficas, firma, reporte de comparación (recepción vs. entrega) en PDF, mantenimiento y gestión de usuarios/roles.
 
-- PHP 8.2, Laravel 11.56
+- PHP 8.2, Laravel 12.69.x
 - Base de datos: SQLite (desarrollo)
 - Frontend: Blade + Tailwind + Alpine.js (sin framework JS pesado, sin build de SPA)
-- Sin cola/scheduler configurado — no asumas que existe un worker corriendo
+- Scheduler: revisar el estado compartido al final; no asumir worker de colas.
 
 ## Cómo correr el proyecto
 
@@ -43,12 +43,12 @@ Revisa **`LEEME.txt`** en la raíz — tiene los pasos manuales pendientes espec
 | Mantenimiento (registro manual) | `VehicleService`, `App\Enums\ServiceType` | Bitácora libre de servicios (cambio de aceite, frenos, etc.) con `next_service_mileage`/`next_service_date` capturados a mano |
 | Mantenimiento (intervalos fijos) | `VehicleMaintenanceSchedule`, `VehicleMaintenanceCompletion`, `App\Enums\MaintenanceCategory` | Sistema separado y en paralelo al anterior: Básico (1,000 km) y Mayor (4,000 km). Calcula desde el último servicio completado de esa categoría, no desde el kilometraje actual. Alerta a 200 km o menos, una sola vez por ventana, se resetea al completar el servicio |
 | Autenticación | `LoginController`, `LoginVerificationCode` | Login por código de un solo uso enviado por correo (NO es OAuth/"Sign in with Google" — el código lo genera la app, el correo solo es el transporte). Expira, un solo uso, con rate limiting y límite de intentos fallidos |
-| Ayuda/soporte | `HelpController` | Formulario simple → correo a `VEHICLE_MANAGER_EMAIL`. No persiste en base de datos |
-| Usuarios/roles | `User`, `App\Enums\UserRole` | Solo `Admin`/`Agent`. Gestión de usuarios es admin-only |
+| Ayuda/soporte | `HelpController` | Formulario simple → correo a los destinatarios de `App\Support\NotificationRecipients`. No persiste en base de datos |
+| Usuarios/roles | `User`, `App\Enums\UserRole` | Solo `Admin`/`Agent`. Gestión de usuarios es admin-only. `receives_notification_emails` ("Recibir correos de Fleet Desk") define quién recibe Ayuda, alertas de mantenimiento y avisos de recepción/devolución de vehículos (`VehicleMovementNotifier`, best effort: si el correo falla se registra en log y la operación no falla) |
 
 ## Configuración específica de este proyecto
 
-- `config/vehicle.php` — `manager_email` (destinatario de Ayuda y alertas de mantenimiento) y `photos_disk` (disco de Storage para fotos/firmas, default `'public'`, cámbialo a `'cloudinary'` solo cuando el paquete `cloudinary-labs/cloudinary-laravel` esté instalado y las credenciales configuradas).
+- `config/vehicle.php` — `manager_email` (respaldo opcional: solo se usa para Ayuda y alertas de mantenimiento cuando ningún usuario tiene activado "Recibir correos de Fleet Desk"; ver `App\Support\NotificationRecipients`) y `photos_disk` (disco de Storage para fotos/firmas, default `'public'`, cámbialo a `'cloudinary'` solo cuando el paquete `cloudinary-labs/cloudinary-laravel` esté instalado y las credenciales configuradas).
 - `config/cloudinary.php` — credenciales de Cloudinary armadas a partir de tres variables separadas en `.env` (`CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`) en vez del formato combinado `CLOUDINARY_URL` que usa el paquete por defecto.
 - Variables de `.env` propias del proyecto (no son de Laravel por defecto): `VEHICLE_MANAGER_EMAIL`, `VEHICLE_PHOTOS_DISK`, `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`.
 
@@ -62,3 +62,81 @@ Revisa **`LEEME.txt`** en la raíz — tiene los pasos manuales pendientes espec
 1. Busca si ya existe un patrón similar en el código (un enum, un trait, una policy) antes de crear uno nuevo — este proyecto reutiliza agresivamente.
 2. Si el cambio toca una migración, revisa si la tabla ya puede tener filas (ver nota de SQLite arriba).
 3. Si el cambio implica una regla de negocio no explícita en el código o en este archivo (un intervalo, un rol, un monto, una condición), pregunta en vez de asumir — así se ha trabajado en este proyecto hasta ahora.
+## Estado compartido de colaboración — 2026-09-22
+
+Nombre actual del sistema: **Control de Vehículos Carrousel**.
+
+Estado técnico de `luis/setup-local`:
+
+- Laravel `^12.69.0` (actualmente 12.69.x).
+- PHP objetivo `8.2` con plataforma Composer `8.2.12`.
+- Blade + Tailwind + Alpine + Vite.
+- Login por OTP enviado por correo; no hay login por contraseña.
+- Rediseño visual alineado con `FernandoZL/helpdesk-carrousel`.
+- Modo oscuro completo, incluido acceso/login.
+- Smart Select global propio en `resources/js/app.js` + `resources/css/app.css`.
+- Base de referencia de calidad de esta rama: 60 tests / 194 assertions.
+
+### Compatibilidad Windows / Ubuntu
+
+El código de aplicación debe ser multiplataforma.
+
+- Luis: Windows + XAMPP.
+- Claudio: Ubuntu.
+- No hardcodear rutas `C:\...` ni rutas Linux dentro de controladores, modelos, vistas, configuración compartida o tests.
+- `MAIN.bat` es solo una ayuda local para Windows y no debe ser una dependencia funcional.
+- Usar APIs de Laravel (`storage_path`, `public_path`, `base_path`) y variables de entorno.
+
+Comandos comunes:
+
+```bash
+composer install
+npm ci
+npm run build
+php artisan optimize:clear
+php artisan test
+composer validate --strict
+```
+
+### Ramas y reconciliación
+
+`luis/setup-local` y `Claudio` están divergidas. No hacer merge a ciegas.
+
+Cambios de Claudio que deben revisarse/conservarse al integrar:
+
+- mejoras en `HandlesVehicleFormUploads`;
+- configuración Cloudinary/filesystems;
+- cierre concurrente seguro de devoluciones;
+- `FullFlowTest` y ampliaciones de `VehicleDeliveryTest`;
+- `VEHICLE_PHOTOS_DISK=public` en PHPUnit;
+- cambios de seeder que sean intencionales.
+
+Cambios de `luis/setup-local` que deben revisarse/conservarse:
+
+- Laravel 12 y lock compatible con PHP 8.2;
+- `APP_URL=http://localhost` y SQLite `:memory:` en tests;
+- correcciones de migraciones MySQL/MariaDB;
+- seguridad/autorización del flujo de entregas;
+- sistema visual Helpdesk, dark mode, formularios y Smart Select;
+- OTP/correos y documentación de compatibilidad.
+
+Archivos con mayor probabilidad de conflicto:
+
+- `phpunit.xml`
+- `resources/js/app.js`
+- `resources/views/receptions/create.blade.php`
+- `resources/views/deliveries/create.blade.php`
+- `app/Http/Controllers/VehicleDeliveryController.php`
+
+### Seguridad
+
+La llave SSH privada `2402` fue retirada de `luis/setup-local`, pero existió en el historial y también en `main`. Debe rotarse/revocarse donde haya sido autorizada. Cualquier limpieza del historial con `git filter-repo` debe coordinarse con todos los colaboradores porque reescribe SHAs.
+
+### Próximos pasos de `luis/setup-local`
+
+1. Limpiar `MAIN.bat` y retirar `tools/APLICAR_RONDA_4A_HELPDESK.ps1`.
+2. Actualizar `index.html`.
+3. Implementar búsqueda global visible + `Ctrl+K` + `/buscar?q=`.
+4. Agregar búsquedas server-side `?q=` a listados paginados.
+5. Reconciliar cambios con `Claudio`.
+6. Ejecutar build/tests completos antes de cualquier PR hacia `main`.

@@ -8,6 +8,8 @@ use App\Http\Controllers\Concerns\HandlesVehicleFormUploads;
 use App\Http\Requests\StoreVehicleReceptionRequest;
 use App\Models\Vehicle;
 use App\Models\VehicleReception;
+use App\Models\VehicleMaintenanceSchedule;
+use App\Support\VehicleMovementNotifier;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -23,10 +25,6 @@ class VehicleReceptionController extends Controller
 
         $query = VehicleReception::query()->with(['vehicle', 'creator', 'delivery']);
 
-        if (! $request->user()->isAdmin()) {
-            $query->where('created_by', $request->user()->id);
-        }
-
         $receptions = $query->latest('reception_date')->paginate(20);
 
         return view('receptions.index', compact('receptions'));
@@ -40,7 +38,10 @@ class VehicleReceptionController extends Controller
         // again until it's returned.
         $vehicles = Vehicle::available()->orderBy('make')->get();
 
-        return view('receptions.create', compact('vehicles'));
+        // Suggested initial mileage per vehicle (same source as service alerts).
+        $suggestedMileage = $vehicles->mapWithKeys(fn (Vehicle $v) => [$v->id => $v->currentMileage()])->all();
+
+        return view('receptions.create', compact('vehicles', 'suggestedMileage'));
     }
 
     public function store(StoreVehicleReceptionRequest $request): RedirectResponse
@@ -66,7 +67,6 @@ class VehicleReceptionController extends Controller
                 'windows_mirrors_lights' => $data['windows_mirrors_lights'],
                 'tires_condition' => $data['tires_condition'],
                 'dashboard_indicators' => $data['dashboard_indicators'],
-                'cleanliness' => $data['cleanliness'],
                 'has_anomaly' => $data['has_anomaly'],
                 'anomaly_description' => $data['anomaly_description'] ?? null,
                 'status' => ReceptionStatus::Open,
@@ -80,6 +80,9 @@ class VehicleReceptionController extends Controller
 
             return $reception;
         });
+
+        VehicleMovementNotifier::notify($reception);
+        VehicleMaintenanceSchedule::checkAllFor($reception->vehicle);
 
         return redirect()->route('receptions.show', $reception)->with('status', 'Recepción registrada.');
     }

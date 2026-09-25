@@ -11,7 +11,10 @@ return new class extends Migration
         Schema::create('vehicle_maintenance_completions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('vehicle_maintenance_schedule_id')
-                ->constrained('vehicle_maintenance_schedules')
+                ->constrained(
+                    table: 'vehicle_maintenance_schedules',
+                    indexName: 'vehicle_maint_completions_schedule_id_fk'
+                )
                 ->cascadeOnDelete();
 
             // The odometer reading at which this category's service was
@@ -25,7 +28,7 @@ return new class extends Migration
 
             $table->timestamps();
 
-            $table->index('vehicle_maintenance_schedule_id');
+            $table->index('vehicle_maintenance_schedule_id', 'vehicle_maint_completions_schedule_id_idx');
         });
     }
 

@@ -3,37 +3,57 @@
 @section('title', 'Vehículos')
 
 @section('content')
-    <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
-        <h1 class="text-xl font-semibold text-slate-900">Vehículos</h1>
-        <a href="{{ route('vehicles.create') }}"
-           class="inline-flex items-center px-3 py-1.5 rounded-md text-sm font-medium text-white bg-brand-magenta hover:bg-brand-magenta/90">
-            Agregar vehículo
-        </a>
+    <div class="page-heading">
+        <div>
+            <h1 class="page-title">Vehículos</h1>
+            <p class="page-subtitle">Flota registrada y su historial de recepciones/devoluciones.</p>
+        </div>
+        <a href="{{ route('vehicles.create') }}" class="btn btn-primary">Agregar vehículo</a>
     </div>
 
-    <div class="bg-white border border-slate-200 rounded-lg overflow-hidden">
-        <table class="responsive-table w-full text-sm">
-            <thead class="bg-slate-50 text-slate-500 text-left">
-                <tr>
-                    <th class="px-4 py-2 font-medium">Marca / modelo</th>
-                    <th class="px-4 py-2 font-medium">Placa</th>
-                    <th class="px-4 py-2 font-medium">Recepciones</th>
-                    <th class="px-4 py-2 font-medium">Devoluciones</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-100">
-                @forelse ($vehicles as $vehicle)
+    <div class="card data-table-shell">
+        <div class="data-table-wrap">
+            <table class="data-table">
+                <thead>
                     <tr>
-                        <td data-label="Marca / modelo" class="px-4 py-3">{{ $vehicle->make }} {{ $vehicle->model }}</td>
-                        <td data-label="Placa" class="px-4 py-3 font-data">{{ $vehicle->license_plate }}</td>
-                        <td data-label="Recepciones" class="px-4 py-3">{{ $vehicle->receptions_count }}</td>
-                        <td data-label="Devoluciones" class="px-4 py-3">{{ $vehicle->deliveries_count }}</td>
+                        <th>Marca / modelo</th>
+                        <th>Placa</th>
+                        <th>Recepciones</th>
+                        <th>Devoluciones</th>
+                        @if (auth()->user()->isAdmin())
+                            <th></th>
+                        @endif
                     </tr>
-                @empty
-                    <tr><td colspan="4" class="px-4 py-6 text-center text-slate-500">Todavía no hay vehículos.</td></tr>
-                @endforelse
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @forelse ($vehicles as $vehicle)
+                        <tr>
+                            <td data-label="Marca / modelo">{{ $vehicle->make }} {{ $vehicle->model }}</td>
+                            <td data-label="Placa" class="font-data">{{ $vehicle->license_plate }}</td>
+                            <td data-label="Recepciones">{{ $vehicle->receptions_count }}</td>
+                            <td data-label="Devoluciones">{{ $vehicle->deliveries_count }}</td>
+                            @canany(['update', 'delete'], $vehicle)
+                                <td data-label="" class="data-table-actions">
+                                    @can('update', $vehicle)
+                                        <a href="{{ route('vehicles.edit', $vehicle) }}">Editar</a>
+                                    @endcan
+                                    @can('delete', $vehicle)
+                                        <form method="POST" action="{{ route('vehicles.destroy', $vehicle) }}" style="display:inline"
+                                              onsubmit="return confirm('¿Eliminar el vehículo {{ $vehicle->license_plate }}?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" style="color:var(--danger);font-weight:800;background:none;border:0;cursor:pointer;padding:0;font:inherit">Eliminar</button>
+                                        </form>
+                                    @endcan
+                                </td>
+                            @endcanany
+                        </tr>
+                    @empty
+                        <tr><td colspan="5" class="data-table-empty">Todavía no hay vehículos.</td></tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <div class="mt-4">{{ $vehicles->links() }}</div>

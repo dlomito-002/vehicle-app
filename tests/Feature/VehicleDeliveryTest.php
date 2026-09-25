@@ -7,6 +7,7 @@ use App\Enums\EquipmentItem;
 use App\Enums\ReceptionStatus;
 use App\Models\User;
 use App\Models\Vehicle;
+use App\Models\VehicleDelivery;
 use App\Models\VehicleReception;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
@@ -36,7 +37,6 @@ class VehicleDeliveryTest extends TestCase
             'windows_mirrors_lights' => 'ok',
             'tires_condition' => 'ok',
             'dashboard_indicators' => 'ok',
-            'cleanliness' => 'ok',
             'has_anomaly' => false,
             'status' => ReceptionStatus::Open,
         ], $overrides));
@@ -58,7 +58,6 @@ class VehicleDeliveryTest extends TestCase
             'windows_mirrors_lights' => 'ok',
             'tires_condition' => 'ok',
             'dashboard_indicators' => 'ok',
-            'cleanliness' => 'ok',
             'has_anomaly' => '0',
             'signature_data' => self::TINY_SIGNATURE_PNG,
             'documentation' => [
@@ -127,6 +126,24 @@ class VehicleDeliveryTest extends TestCase
         $this->assertSame(ReceptionStatus::Open, $receptionA->fresh()->status);
     }
 
+    public function test_submitting_the_same_delivery_twice_creates_only_one_delivery(): void
+    {
+        Storage::fake('public');
+
+        $user = User::factory()->create();
+        $reception = $this->createOpenReception(Vehicle::factory()->create(), $user);
+
+        $this->actingAs($user)
+            ->post(route('deliveries.store', $reception), $this->deliveryPayload())
+            ->assertRedirect(route('comparisons.show', $reception));
+
+        $this->actingAs($user)
+            ->post(route('deliveries.store', $reception), $this->deliveryPayload())
+            ->assertSessionHasErrors('reception');
+
+        $this->assertSame(1, VehicleDelivery::where('vehicle_reception_id', $reception->id)->count());
+    }
+
     public function test_delivery_cannot_reuse_an_already_closed_reception(): void
     {
         Storage::fake('public');
@@ -181,6 +198,17 @@ class VehicleDeliveryTest extends TestCase
             ->assertSee('Gasolina Regular')
             ->assertSee('Diésel')
             ->assertDontSee('Póliza de seguro vigente');
+    }
+
+    public function test_delivery_signature_identifies_the_person_receiving_the_vehicle(): void
+    {
+        $user = User::factory()->create();
+        $reception = $this->createOpenReception(Vehicle::factory()->create(), $user);
+
+        $this->actingAs($user)->get(route('deliveries.create', $reception))
+            ->assertOk()
+            ->assertSee('Firma de quien recibe el vehículo')
+            ->assertSee('data-signer-field="keys_received_by_name"', false);
     }
 
     public function test_delivery_stores_equipment_and_condition_checklists(): void

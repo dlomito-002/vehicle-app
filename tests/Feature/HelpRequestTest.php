@@ -28,7 +28,31 @@ class HelpRequestTest extends TestCase
         $response->assertSessionHasErrors('message');
     }
 
-    public function test_submitting_help_sends_mail_to_the_configured_manager_address(): void
+    public function test_submitting_help_sends_mail_to_every_selected_user(): void
+    {
+        Mail::fake();
+        config(['vehicle.manager_email' => 'gerente@example.com']);
+
+        User::factory()->create(['email' => 'uno@example.com', 'receives_notification_emails' => true]);
+        User::factory()->create(['email' => 'dos@example.com', 'receives_notification_emails' => true]);
+        User::factory()->create(['email' => 'no@example.com']);
+        $user = User::factory()->create();
+
+        $this->actingAs($user)->post(route('help.store'), ['message' => 'El vehículo no enciende.'])
+            ->assertRedirect(route('help.create'));
+
+        Mail::assertSentCount(1);
+        Mail::assertSent(HelpRequestMail::class, function (HelpRequestMail $mail) {
+            // Selected users replace the .env fallback instead of adding to it.
+            return count($mail->to) === 2
+                && $mail->hasTo('uno@example.com')
+                && $mail->hasTo('dos@example.com')
+                && ! $mail->hasTo('no@example.com')
+                && ! $mail->hasTo('gerente@example.com');
+        });
+    }
+
+    public function test_submitting_help_falls_back_to_the_configured_manager_address_when_no_user_is_selected(): void
     {
         Mail::fake();
         config(['vehicle.manager_email' => 'gerente@example.com']);
@@ -49,7 +73,7 @@ class HelpRequestTest extends TestCase
         });
     }
 
-    public function test_missing_manager_email_shows_a_configuration_error_and_does_not_send(): void
+    public function test_no_recipients_shows_a_configuration_error_and_does_not_send(): void
     {
         Mail::fake();
         config(['vehicle.manager_email' => null]);

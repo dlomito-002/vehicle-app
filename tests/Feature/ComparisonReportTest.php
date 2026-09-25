@@ -35,7 +35,6 @@ class ComparisonReportTest extends TestCase
             'windows_mirrors_lights' => 'ok',
             'tires_condition' => 'ok',
             'dashboard_indicators' => 'ok',
-            'cleanliness' => 'ok',
             'has_anomaly' => false,
             'status' => ReceptionStatus::Open,
         ]);
@@ -64,7 +63,6 @@ class ComparisonReportTest extends TestCase
             'windows_mirrors_lights' => 'ok',
             'tires_condition' => 'ok',
             'dashboard_indicators' => 'ok',
-            'cleanliness' => 'ok',
             'has_anomaly' => false,
             'status' => ReceptionStatus::Closed,
         ]);
@@ -85,7 +83,6 @@ class ComparisonReportTest extends TestCase
             'windows_mirrors_lights' => 'ok',
             'tires_condition' => 'ok',
             'dashboard_indicators' => 'ok',
-            'cleanliness' => 'ok',
             'has_anomaly' => true,
             'anomaly_description' => 'New scratch on door',
         ]);
@@ -120,7 +117,6 @@ class ComparisonReportTest extends TestCase
             'windows_mirrors_lights' => 'ok',
             'tires_condition' => 'ok',
             'dashboard_indicators' => 'ok',
-            'cleanliness' => 'ok',
             'has_anomaly' => false,
             'status' => ReceptionStatus::Closed,
         ]);
@@ -144,7 +140,6 @@ class ComparisonReportTest extends TestCase
             'windows_mirrors_lights' => 'ok',
             'tires_condition' => 'ok',
             'dashboard_indicators' => 'ok',
-            'cleanliness' => 'ok',
             'has_anomaly' => false,
         ]);
 

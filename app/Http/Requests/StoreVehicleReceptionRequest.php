@@ -61,7 +61,7 @@ class StoreVehicleReceptionRequest extends FormRequest
         ];
 
         // One binary status field per shared condition (general condition,
-        // windows/mirrors/lights, tires, dashboard, cleanliness).
+        // windows/mirrors/lights, tires, dashboard).
         foreach (ConditionStatus::fieldLabels() as $field => $label) {
             $rules[$field] = ['required', Rule::enum(ConditionStatus::class)];
         }

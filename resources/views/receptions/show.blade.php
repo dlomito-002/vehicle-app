@@ -11,73 +11,77 @@
         $conditionIssues = $reception->conditionItems->filter(fn ($item) => $item->status->value !== 'ok')->count();
     @endphp
 
-    <div class="flex items-start justify-between mb-6">
+    <div class="page-heading">
         <div>
-            <h1 class="text-xl font-semibold text-slate-900">{{ $reception->vehicle->displayName() }}</h1>
-            <p class="text-sm text-slate-500">
+            <h1 class="page-title">{{ $reception->vehicle->displayName() }}</h1>
+            <p class="page-subtitle">
                 Recibido el {{ $reception->reception_date->format('d/m/Y') }} a las {{ $reception->reception_time }}
                 por {{ $reception->received_by_name }}
             </p>
         </div>
-        <div class="flex items-center gap-3">
+        <div style="display:flex;align-items:center;gap:10px">
             <x-status-badge :status="$reception->status->value === 'open' ? 'pending' : 'ok'">
                 {{ $reception->status->label() }}
             </x-status-badge>
             @if ($reception->delivery)
-                <a href="{{ route('comparisons.show', $reception) }}"
-                   class="inline-flex items-center px-3 py-1.5 rounded-md text-sm font-medium text-white bg-brand-cyan hover:bg-brand-cyan/90">
+                <a href="{{ route('comparisons.show', $reception) }}" class="btn btn-outline-secondary btn-sm">
                     Ver comparación
                 </a>
             @elseif ($reception->isOpen())
-                <a href="{{ route('deliveries.damage-report', $reception) }}"
-                   class="inline-flex items-center px-3 py-1.5 rounded-md text-sm font-medium text-white bg-brand-magenta hover:bg-brand-magenta/90">
+                <a href="{{ route('deliveries.damage-report', $reception) }}" class="btn btn-primary btn-sm">
                     Registrar devolución
                 </a>
             @endif
         </div>
     </div>
 
-    <div class="grid sm:grid-cols-2 gap-4 mb-6">
-        <div class="bg-white border border-slate-200 rounded-lg p-5">
-            <h2 class="text-sm font-semibold text-slate-900 mb-3">Viaje y kilometraje</h2>
-            <dl class="text-sm space-y-1.5">
-                <div class="flex justify-between gap-3"><dt class="text-slate-500 shrink-0">Motivo</dt><dd class="min-w-0 text-right break-words">{{ $reception->trip_reason }}</dd></div>
-                <div class="flex justify-between gap-3"><dt class="text-slate-500 shrink-0">Ubicación de recepción</dt><dd class="min-w-0 text-right break-words">{{ $reception->location }}</dd></div>
-                <div class="flex justify-between gap-3"><dt class="text-slate-500 shrink-0">Kilometraje inicial</dt><dd class="font-data min-w-0 text-right break-words">{{ number_format($reception->initial_mileage) }}</dd></div>
-                <div class="flex justify-between gap-3"><dt class="text-slate-500 shrink-0">Nivel de combustible</dt><dd class="min-w-0 text-right break-words">{{ $reception->fuel_level->label() }}</dd></div>
-                <div class="flex justify-between gap-3"><dt class="text-slate-500 shrink-0">Tipo de combustible</dt><dd class="min-w-0 text-right break-words">{{ $reception->fuel_type?->label() ?? '—' }}</dd></div>
-                <div class="flex justify-between gap-3"><dt class="text-slate-500 shrink-0">Lavado</dt><dd class="min-w-0 text-right break-words">{{ $reception->washed ? 'Sí' : 'No' }}</dd></div>
-                <div class="flex justify-between gap-3"><dt class="text-slate-500 shrink-0">Registrado por</dt><dd class="min-w-0 text-right break-words">{{ $reception->creator->name }}</dd></div>
-            </dl>
+    <div class="grid grid-2">
+        <div class="card">
+            <div class="card-header">Viaje y kilometraje</div>
+            <div class="card-body">
+                <dl class="kv-list">
+                    <div class="kv-row"><dt>Motivo</dt><dd>{{ $reception->trip_reason }}</dd></div>
+                    <div class="kv-row"><dt>Ubicación de recepción</dt><dd>{{ $reception->location }}</dd></div>
+                    <div class="kv-row"><dt>Kilometraje inicial</dt><dd class="font-data">{{ number_format($reception->initial_mileage) }}</dd></div>
+                    <div class="kv-row"><dt>Nivel de combustible</dt><dd>{{ $reception->fuel_level->label() }}</dd></div>
+                    <div class="kv-row"><dt>Tipo de combustible</dt><dd>{{ $reception->fuel_type?->label() ?? '—' }}</dd></div>
+                    <div class="kv-row"><dt>Lavado</dt><dd>{{ $reception->washed ? 'Sí' : 'No' }}</dd></div>
+                    <div class="kv-row"><dt>Registrado por</dt><dd>{{ $reception->creator->name }}</dd></div>
+                </dl>
+            </div>
         </div>
 
-        <div class="bg-white border border-slate-200 rounded-lg p-5">
-            <h2 class="text-sm font-semibold text-slate-900 mb-3">Inspección</h2>
-            <dl class="text-sm space-y-1.5">
-                @foreach (ConditionStatus::fieldLabels() as $field => $label)
-                    <div class="flex justify-between items-center gap-3">
-                        <dt class="text-slate-500 shrink-0">{{ $label }}</dt>
-                        <dd class="min-w-0 text-right">
-                            <x-status-badge :status="$reception->{$field}->value === 'ok' ? 'ok' : 'anomaly'">
-                                {{ $reception->{$field}->label($field) }}
-                            </x-status-badge>
-                        </dd>
-                    </div>
-                @endforeach
-            </dl>
+        <div class="card">
+            <div class="card-header">Inspección</div>
+            <div class="card-body">
+                <dl class="kv-list">
+                    @foreach (ConditionStatus::fieldLabels() as $field => $label)
+                        <div class="kv-row">
+                            <dt>{{ $label }}</dt>
+                            <dd>
+                                <x-status-badge :status="$reception->{$field}->value === 'ok' ? 'ok' : 'anomaly'">
+                                    {{ $reception->{$field}->label($field) }}
+                                </x-status-badge>
+                            </dd>
+                        </div>
+                    @endforeach
+                </dl>
+            </div>
         </div>
     </div>
 
     @if ($reception->has_anomaly)
-        <div class="bg-white border border-slate-200 rounded-lg p-5 mb-6 border-l-4 border-l-brand-orange">
-            <h2 class="text-sm font-semibold text-slate-900 mb-2">Anomalía reportada</h2>
-            <p class="text-sm text-slate-700">{{ $reception->anomaly_description }}</p>
+        <div class="card" style="margin-top:16px;border-left:4px solid var(--danger)">
+            <div class="card-header">Anomalía reportada</div>
+            <div class="card-body">
+                <p style="margin:0;font-size:13.5px;color:var(--ink)">{{ $reception->anomaly_description }}</p>
+            </div>
         </div>
     @endif
 
-    <div class="bg-white border border-slate-200 rounded-lg p-5 mb-6">
-        <h2 class="text-sm font-semibold text-slate-900 mb-3">Documentación</h2>
-        <div class="flex flex-wrap gap-2">
+    <div class="card" style="margin-top:16px">
+        <div class="card-header">Documentación</div>
+        <div class="card-body" style="display:flex;flex-wrap:wrap;gap:8px">
             @foreach ($reception->documentation as $doc)
                 <x-status-badge :status="$doc->is_valid ? 'ok' : 'anomaly'">
                     {{ $doc->document_type->label() }}: {{ $doc->is_valid ? 'Sí' : 'No' }}
@@ -87,21 +91,21 @@
     </div>
 
     @if ($equipmentTotal > 0)
-        <div class="bg-white border border-slate-200 rounded-lg p-5 mb-6">
-            <div class="flex items-center justify-between mb-3">
-                <h2 class="text-sm font-semibold text-slate-900">Chequeo general de equipo</h2>
-                <span class="text-xs text-slate-500">{{ $equipmentPresent }} / {{ $equipmentTotal }} presentes</span>
+        <div class="card" style="margin-top:16px">
+            <div class="card-header" style="display:flex;align-items:center;justify-content:space-between">
+                Chequeo general de equipo
+                <span style="font-weight:400;font-size:12px;color:var(--muted)">{{ $equipmentPresent }} / {{ $equipmentTotal }} presentes</span>
             </div>
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            <div class="card-body" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px">
                 @foreach ($reception->equipmentChecks as $check)
-                    <div class="flex items-center justify-between gap-2 px-3 py-2 rounded-md border border-slate-200 text-sm">
-                        <span class="text-slate-700 flex-1 min-w-0">{{ $check->item->label() }}</span>
-                        <div class="flex items-center gap-2 shrink-0">
+                    <div class="item-row">
+                        <span style="flex:1;min-width:0">{{ $check->item->label() }}</span>
+                        <div style="display:flex;align-items:center;gap:8px;flex:0 0 auto">
                             <x-status-badge :status="$check->is_present ? 'ok' : 'anomaly'">
                                 {{ $check->is_present ? 'Sí' : 'No' }}
                             </x-status-badge>
                             @if ($check->hasPhoto())
-                                <a href="{{ $check->photoUrl() }}" target="_blank" class="text-brand-cyan hover:underline text-xs">Foto</a>
+                                <a href="{{ $check->photoUrl() }}" target="_blank" style="color:var(--brand);font-weight:700;font-size:12px">Foto</a>
                             @endif
                         </div>
                     </div>
@@ -111,25 +115,25 @@
     @endif
 
     @if ($reception->conditionItems->isNotEmpty())
-        <div class="bg-white border border-slate-200 rounded-lg p-5 mb-6">
-            <div class="flex items-center justify-between mb-3">
-                <h2 class="text-sm font-semibold text-slate-900">Estado general del vehículo (detalle)</h2>
+        <div class="card" style="margin-top:16px">
+            <div class="card-header" style="display:flex;align-items:center;justify-content:space-between">
+                Estado general del vehículo (detalle)
                 @if ($conditionIssues > 0)
                     <x-status-badge status="anomaly">{{ $conditionIssues }} con incidencia</x-status-badge>
                 @else
                     <x-status-badge status="ok">Sin incidencias</x-status-badge>
                 @endif
             </div>
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            <div class="card-body" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px">
                 @foreach ($reception->conditionItems as $item)
-                    <div class="flex items-center justify-between gap-2 px-3 py-2 rounded-md border border-slate-200 text-sm">
-                        <span class="text-slate-700 flex-1 min-w-0">{{ $item->item->label() }}</span>
-                        <div class="flex items-center gap-2 shrink-0">
+                    <div class="item-row">
+                        <span style="flex:1;min-width:0">{{ $item->item->label() }}</span>
+                        <div style="display:flex;align-items:center;gap:8px;flex:0 0 auto">
                             <x-status-badge :status="$item->status->value === 'ok' ? 'ok' : 'anomaly'">
                                 {{ $item->status->label($item->item->value) }}
                             </x-status-badge>
                             @if ($item->hasPhoto())
-                                <a href="{{ $item->photoUrl() }}" target="_blank" class="text-brand-cyan hover:underline text-xs">Foto</a>
+                                <a href="{{ $item->photoUrl() }}" target="_blank" style="color:var(--brand);font-weight:700;font-size:12px">Foto</a>
                             @endif
                         </div>
                     </div>
@@ -138,31 +142,35 @@
         </div>
     @endif
 
-    <div class="bg-white border border-slate-200 rounded-lg p-5 mb-6">
-        <h2 class="text-sm font-semibold text-slate-900 mb-3">Firma</h2>
-        @if ($reception->signaturePhoto())
-            <img src="{{ $reception->signaturePhoto()->url() }}" alt="Firma de {{ $reception->received_by_name }}"
-                 class="h-28 rounded-md border border-slate-200 bg-white">
-        @else
-            <p class="text-sm text-slate-500">No se capturó firma.</p>
-        @endif
+    <div class="card" style="margin-top:16px">
+        <div class="card-header">Firma de quien recibió el vehículo</div>
+        <div class="card-body">
+            <p style="margin:0 0 10px;font-size:13.5px"><span style="color:var(--muted)">Firmado por:</span> <strong>{{ $reception->received_by_name }}</strong></p>
+            @if ($reception->signaturePhoto())
+                <img src="{{ $reception->signaturePhoto()->url() }}" alt="Firma de {{ $reception->received_by_name }}"
+                     style="height:110px;border-radius:10px;border:1px solid var(--border);background:#fff">
+            @else
+                <p style="margin:0;font-size:13.5px;color:var(--muted)">No se capturó firma.</p>
+            @endif
+        </div>
     </div>
 
-    <div class="bg-white border border-slate-200 rounded-lg p-5">
-        <h2 class="text-sm font-semibold text-slate-900 mb-3">Fotografías</h2>
-        @php $galleryPhotos = $reception->photos->where('position', '!==', \App\Enums\PhotoPosition::Signature); @endphp
-        @if ($galleryPhotos->isEmpty())
-            <p class="text-sm text-slate-500">No se cargaron fotografías.</p>
-        @else
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                @foreach ($galleryPhotos as $photo)
-                    <a href="{{ $photo->url() }}" target="_blank" class="block group">
-                        <img src="{{ $photo->url() }}" alt="{{ $photo->position->label() }}"
-                             class="w-full h-28 object-cover rounded-md border border-slate-200 group-hover:opacity-90">
-                        <p class="text-xs text-slate-500 mt-1">{{ $photo->position->label() }}</p>
-                    </a>
-                @endforeach
-            </div>
-        @endif
+    <div class="card" style="margin-top:16px">
+        <div class="card-header">Fotografías</div>
+        <div class="card-body">
+            @php $galleryPhotos = $reception->photos->where('position', '!==', \App\Enums\PhotoPosition::Signature); @endphp
+            @if ($galleryPhotos->isEmpty())
+                <p style="margin:0;font-size:13.5px;color:var(--muted)">No se cargaron fotografías.</p>
+            @else
+                <div class="photo-grid">
+                    @foreach ($galleryPhotos as $photo)
+                        <a href="{{ $photo->url() }}" target="_blank">
+                            <img src="{{ $photo->url() }}" alt="{{ $photo->position->label() }}">
+                            <p>{{ $photo->position->label() }}</p>
+                        </a>
+                    @endforeach
+                </div>
+            @endif
+        </div>
     </div>
 @endsection
