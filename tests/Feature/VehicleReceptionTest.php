@@ -102,6 +102,16 @@ class VehicleReceptionTest extends TestCase
         }
     }
 
+    public function test_reception_signature_identifies_the_person_who_received_the_vehicle(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)->get(route('receptions.create'))
+            ->assertOk()
+            ->assertSee('Firma de quien recibió el vehículo')
+            ->assertSee('data-signer-field="received_by_name"', false);
+    }
+
     public function test_insurance_policy_question_is_gone_from_the_reception_form(): void
     {
         $user = User::factory()->create();

@@ -195,7 +195,7 @@
 
             <div class="card">
                 <div class="card-body">
-                    <x-signature-pad />
+                    <x-signature-pad title="Firma de quien recibió el vehículo" signer-field="received_by_name" signer-field-label="Persona que recibe el vehículo" />
                 </div>
             </div>
 

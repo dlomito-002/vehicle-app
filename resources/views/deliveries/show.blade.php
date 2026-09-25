@@ -132,10 +132,11 @@
     @endif
 
     <div class="card" style="margin-top:16px">
-        <div class="card-header">Firma</div>
+        <div class="card-header">Firma de quien recibe el vehículo</div>
         <div class="card-body">
+            <p style="margin:0 0 10px;font-size:13.5px"><span style="color:var(--muted)">Firmado por:</span> <strong>{{ $delivery->keys_received_by_name }}</strong></p>
             @if ($delivery->signaturePhoto())
-                <img src="{{ $delivery->signaturePhoto()->url() }}" alt="Firma de {{ $delivery->returned_by_name }}"
+                <img src="{{ $delivery->signaturePhoto()->url() }}" alt="Firma de {{ $delivery->keys_received_by_name }}"
                      style="height:110px;border-radius:10px;border:1px solid var(--border);background:#fff">
             @else
                 <p style="margin:0;font-size:13.5px;color:var(--muted)">No se capturó firma.</p>

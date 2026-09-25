@@ -143,8 +143,9 @@
     @endif
 
     <div class="card" style="margin-top:16px">
-        <div class="card-header">Firma</div>
+        <div class="card-header">Firma de quien recibió el vehículo</div>
         <div class="card-body">
+            <p style="margin:0 0 10px;font-size:13.5px"><span style="color:var(--muted)">Firmado por:</span> <strong>{{ $reception->received_by_name }}</strong></p>
             @if ($reception->signaturePhoto())
                 <img src="{{ $reception->signaturePhoto()->url() }}" alt="Firma de {{ $reception->received_by_name }}"
                      style="height:110px;border-radius:10px;border:1px solid var(--border);background:#fff">

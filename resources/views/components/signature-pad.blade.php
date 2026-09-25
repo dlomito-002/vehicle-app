@@ -1,6 +1,15 @@
-@props(['fieldName' => 'signature_data', 'fileFieldName' => 'signature_file'])
+@props([
+    'fieldName' => 'signature_data',
+    'fileFieldName' => 'signature_file',
+    'title' => 'Firma',
+    // id of the form input that holds the signer's name; the pad mirrors
+    // its value live so it's obvious whose signature is being captured.
+    'signerField' => null,
+    'signerFieldLabel' => null,
+])
 
 <div
+    data-signer-field="{{ $signerField }}"
     x-data="{
         mode: 'draw',
         drawing: false,
@@ -9,7 +18,18 @@
         ctx: null,
         resizeObserver: null,
         pendingExisting: null,
+        signerName: '',
         init() {
+            const signerInput = this.$el.dataset.signerField
+                ? document.getElementById(this.$el.dataset.signerField)
+                : null;
+            if (signerInput) {
+                const syncSigner = () => this.signerName = signerInput.value.trim();
+                syncSigner();
+                signerInput.addEventListener('input', syncSigner);
+                signerInput.addEventListener('change', syncSigner);
+            }
+
             const canvas = this.$refs.canvas;
             this.ctx = canvas.getContext('2d');
             this.pendingExisting = this.$refs.input.value || null;
@@ -107,7 +127,17 @@
         },
     }"
 >
-    <p class="section-label">Firma</p>
+    <p class="section-label">{{ $title }}</p>
+
+    @if ($signerField)
+        <div style="display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 8px;margin-bottom:12px;padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:var(--info-bg)">
+            <span style="font-size:12.5px;font-weight:700;color:var(--muted)">Nombre:</span>
+            <strong x-show="signerName" x-text="signerName" style="font-size:15px;color:var(--ink);word-break:break-word">{{ old($signerField) }}</strong>
+            <span x-show="!signerName" x-cloak style="font-size:13px;color:var(--warning)">
+                Aún no se ha ingresado{{ $signerFieldLabel ? ' en «'.$signerFieldLabel.'»' : '' }} (paso 1).
+            </span>
+        </div>
+    @endif
 
     <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px">
         <button type="button" @click="useDrawMode()" class="btn btn-sm"

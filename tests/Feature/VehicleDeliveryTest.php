@@ -202,6 +202,17 @@ class VehicleDeliveryTest extends TestCase
             ->assertDontSee('Póliza de seguro vigente');
     }
 
+    public function test_delivery_signature_identifies_the_person_receiving_the_vehicle(): void
+    {
+        $user = User::factory()->create();
+        $reception = $this->createOpenReception(Vehicle::factory()->create(), $user);
+
+        $this->actingAs($user)->get(route('deliveries.create', $reception))
+            ->assertOk()
+            ->assertSee('Firma de quien recibe el vehículo')
+            ->assertSee('data-signer-field="keys_received_by_name"', false);
+    }
+
     public function test_delivery_stores_equipment_and_condition_checklists(): void
     {
         Storage::fake('public');
