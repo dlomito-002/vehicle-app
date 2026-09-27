@@ -8,7 +8,7 @@ return [
     |--------------------------------------------------------------------------
     |
     | Help/support submissions and maintenance alert emails go to the users
-    | marked "Recibir correos de Fleet Desk" in User Management. This address
+    | marked "Recibir notificaciones por correo" in User Management. This address
     | is only used when no user is selected (see
     | App\Support\NotificationRecipients), so existing deployments keep
     | receiving emails until an admin picks recipients. Optional.

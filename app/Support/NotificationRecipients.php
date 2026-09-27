@@ -5,11 +5,10 @@ namespace App\Support;
 use App\Models\User;
 
 /**
- * Resolves who receives Fleet Desk notification emails (Help requests and
+ * Resolves who receives notification emails (Help requests and
  * maintenance alerts).
  *
- * Recipients are the users an admin marked with "Recibir correos de Fleet
- * Desk" in User Management. VEHICLE_MANAGER_EMAIL (config
+ * Recipients are the users an admin marked with "Recibir notificaciones por correo" in User Management. VEHICLE_MANAGER_EMAIL (config
  * 'vehicle.manager_email') is only a deployment fallback: it is used when
  * no user is selected, so existing installs keep receiving emails until an
  * admin configures recipients. It is never merged with the selected users.

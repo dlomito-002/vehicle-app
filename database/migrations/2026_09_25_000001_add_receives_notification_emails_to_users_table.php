@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            // Whether this user receives Fleet Desk notification emails
+            // Whether this user receives notification emails
             // (Help requests and maintenance alerts). Defaults to false so
             // existing users are not subscribed without an admin opting
             // them in from User Management.

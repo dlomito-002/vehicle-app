@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Mail;
 use Throwable;
 
 /**
- * Emails the Fleet Desk recipients (see NotificationRecipients) about a
+ * Emails the notification recipients (see NotificationRecipients) about a
  * persisted reception or delivery. Best effort: the movement is already
  * saved, so a mail failure is logged and never surfaces to the user.
  */

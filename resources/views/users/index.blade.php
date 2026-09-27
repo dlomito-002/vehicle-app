@@ -19,7 +19,7 @@
                         <th>Nombre</th>
                         <th>Correo</th>
                         <th>Rol</th>
-                        <th>Correos Fleet Desk</th>
+                        <th>Notificaciones por correo</th>
                         <th></th>
                     </tr>
                 </thead>
@@ -31,7 +31,7 @@
                             <td data-label="Rol">
                                 <x-status-badge :status="$user->isAdmin() ? 'pending' : 'ok'">{{ $user->role->label() }}</x-status-badge>
                             </td>
-                            <td data-label="Correos Fleet Desk">
+                            <td data-label="Notificaciones por correo">
                                 @if ($user->receives_notification_emails)
                                     <x-status-badge status="ok">Recibe correos</x-status-badge>
                                 @else

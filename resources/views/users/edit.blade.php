@@ -40,7 +40,7 @@
                 <label class="form-label" style="display:flex;align-items:center;gap:8px;margin-top:16px;cursor:pointer">
                     <input type="hidden" name="receives_notification_emails" value="0">
                     <input type="checkbox" id="receives_notification_emails" name="receives_notification_emails" value="1" @checked(old('receives_notification_emails', $user->receives_notification_emails))>
-                    Recibir correos de Fleet Desk
+                    Recibir notificaciones por correo
                 </label>
                 <p class="field-help">Recibirá los reportes de Ayuda y las alertas de mantenimiento.</p>
                 @error('receives_notification_emails')<p class="field-error">{{ $message }}</p>@enderror

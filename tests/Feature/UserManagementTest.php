@@ -303,7 +303,7 @@ class UserManagementTest extends TestCase
         $this->assertSame(UserRole::Agent, $target->fresh()->role);
     }
 
-    public function test_admin_can_create_a_user_with_or_without_fleet_desk_emails(): void
+    public function test_admin_can_create_a_user_with_or_without_notification_emails(): void
     {
         $admin = User::factory()->admin()->create();
 
@@ -325,7 +325,7 @@ class UserManagementTest extends TestCase
         $this->assertFalse(User::where('email', 'sin@example.com')->first()->receives_notification_emails);
     }
 
-    public function test_new_users_do_not_receive_fleet_desk_emails_by_default(): void
+    public function test_new_users_do_not_receive_notification_emails_by_default(): void
     {
         $admin = User::factory()->admin()->create();
 
@@ -340,7 +340,7 @@ class UserManagementTest extends TestCase
         $this->assertFalse($admin->fresh()->receives_notification_emails);
     }
 
-    public function test_admin_can_toggle_a_users_fleet_desk_emails(): void
+    public function test_admin_can_toggle_a_users_notification_emails(): void
     {
         $admin = User::factory()->admin()->create();
         $agent = User::factory()->create();
@@ -356,26 +356,26 @@ class UserManagementTest extends TestCase
         $this->assertFalse($agent->fresh()->receives_notification_emails);
     }
 
-    public function test_forms_and_list_show_the_fleet_desk_email_setting(): void
+    public function test_forms_and_list_show_the_notification_email_setting(): void
     {
         $admin = User::factory()->admin()->create();
         $subscribed = User::factory()->create(['receives_notification_emails' => true]);
 
         $this->actingAs($admin)->get(route('users.create'))
-            ->assertOk()->assertSee('Recibir correos de Fleet Desk')
+            ->assertOk()->assertSee('Recibir notificaciones por correo')
             ->assertSee('name="receives_notification_emails"', false);
 
         $this->actingAs($admin)->get(route('users.edit', $subscribed))
-            ->assertOk()->assertSee('Recibir correos de Fleet Desk')
+            ->assertOk()->assertSee('Recibir notificaciones por correo')
             ->assertSee('value="1" checked', false);
 
         $this->actingAs($admin)->get(route('users.index'))
-            ->assertOk()->assertSee('Correos Fleet Desk')
+            ->assertOk()->assertSee('Notificaciones por correo')
             ->assertSee('Recibe correos')
             ->assertSee('No recibe');
     }
 
-    public function test_agent_cannot_change_fleet_desk_emails_through_a_direct_request(): void
+    public function test_agent_cannot_change_notification_emails_through_a_direct_request(): void
     {
         $agent = User::factory()->create();
         $target = User::factory()->create();
