@@ -10,6 +10,9 @@ return [
     'date' => 'El campo :attribute debe ser una fecha válida.',
     'date_format' => 'El campo :attribute no coincide con el formato :format.',
     'image' => 'El campo :attribute debe ser una imagen.',
+    'uploaded' => 'El archivo :attribute no se pudo subir. Intenta con una fotografía más pequeña o revisa tu conexión.',
+    'file' => 'El campo :attribute debe ser un archivo.',
+    'mimetypes' => 'El campo :attribute debe ser un archivo de tipo: :values.',
     'max' => [
         'string' => 'El campo :attribute no puede tener más de :max caracteres.',
         'file' => 'El archivo :attribute no puede pesar más de :max kilobytes.',

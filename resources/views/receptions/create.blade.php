@@ -53,7 +53,7 @@
     </script>
 
     <form method="POST" action="{{ route('receptions.store') }}" enctype="multipart/form-data"
-          x-data="{ step: {{ $initialStep }} }" novalidate
+          data-compress-images x-data="{ step: {{ $initialStep }} }" novalidate
           @submit.prevent="submitFormOnce($event.currentTarget)">
         @csrf
 
