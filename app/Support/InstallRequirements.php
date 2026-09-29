@@ -35,7 +35,7 @@ class InstallRequirements
 
         foreach ([storage_path(), storage_path('app'), storage_path('framework'), storage_path('logs'), base_path('bootstrap/cache')] as $dir) {
             $relative = ltrim(str_replace(base_path(), '', $dir), '/\\');
-            $checks[] = ["Escritura en {$relative}", is_dir($dir) && is_writable($dir), true, "Da permisos de escritura al usuario del servidor web sobre {$relative}."];
+            $checks[] = ["Escritura en {$relative}", is_dir($dir) && @file_put_contents($dir.DIRECTORY_SEPARATOR.'.install-write-test.tmp', 'ok') !== false && @unlink($dir.DIRECTORY_SEPARATOR.'.install-write-test.tmp'), true, "Da permisos de escritura al usuario del servidor web sobre {$relative}."];
         }
 
         $checks[] = [

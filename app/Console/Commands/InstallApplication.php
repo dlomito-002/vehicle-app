@@ -254,7 +254,8 @@ class InstallApplication extends Command
         $this->newLine();
         $this->components->info($alreadyInstalled ? 'Instalación existente actualizada.' : 'Instalación completada.');
 
-        $tables = collect(Schema::getTableListing(schemaQualified: false))->reject(fn ($t) => in_array($t, self::SYSTEM_TABLES, true));
+        $database = DB::connection()->getDatabaseName();
+        $tables = collect(Schema::getTableListing($database, schemaQualified: false))->reject(fn ($t) => in_array($t, self::SYSTEM_TABLES, true));
         $nonEmpty = $tables->filter(fn ($t) => DB::table($t)->exists());
 
         $this->components->twoColumnDetail('Base de datos', config('database.default'));
