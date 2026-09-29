@@ -207,8 +207,8 @@
                         @php $img = PdfImageEncoder::fromModel($photo); @endphp
                         @if ($img)<img src="{{ $img }}">@else<div class="no-photo"></div>@endif
                         <p class="photo-caption">Devolución</p>
-                        @if ($group['position'] === 'signature' && $delivery->returned_by_name)
-                            <p class="photo-caption"><strong>Firmado por:</strong> {{ $delivery->returned_by_name }}</p>
+                        @if ($group['position'] === 'signature' && $delivery->keys_received_by_name)
+                            <p class="photo-caption"><strong>Firmado por:</strong> {{ $delivery->keys_received_by_name }}</p>
                         @endif
                     </td>
                 @empty

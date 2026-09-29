@@ -224,7 +224,7 @@ class VehicleMovementMailTest extends TestCase
         $this->actingAs($user)->post(route('deliveries.store', $reception), $this->deliveryPayload())->assertRedirect();
 
         $this->actingAs($user)->get(route('comparisons.show', $reception))
-            ->assertOk()->assertSee('Jane')->assertSee('John Smith');
+            ->assertOk()->assertSee('Jane')->assertSee('Front Desk');
     }
 
     public function test_comparison_and_pdf_show_signer_name_under_each_signature(): void
@@ -236,7 +236,7 @@ class VehicleMovementMailTest extends TestCase
         $reception->photos()->create(['position' => 'signature', 'path' => 'x/firma.png', 'disk' => 'public', 'original_filename' => 'firma.png', 'size' => 1, 'mime_type' => 'image/png']);
 
         $this->get(route('comparisons.show', $reception))
-            ->assertSee('Firmado por:', false)->assertSee('Jane')->assertSee('John Smith');
+            ->assertSee('Firmado por:', false)->assertSee('Jane')->assertSee('Front Desk');
         $this->get(route('comparisons.pdf', $reception))->assertOk();
     }
 }

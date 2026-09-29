@@ -275,8 +275,8 @@
                                     Sin fotografía
                                 </div>
                             @endforelse
-                            @if ($group['position'] === 'signature' && $delivery->returned_by_name)
-                                <p style="margin:6px 0 0;font-size:12.5px"><strong>Firmado por:</strong> {{ $delivery->returned_by_name }}</p>
+                            @if ($group['position'] === 'signature' && $delivery->keys_received_by_name)
+                                <p style="margin:6px 0 0;font-size:12.5px"><strong>Firmado por:</strong> {{ $delivery->keys_received_by_name }}</p>
                             @endif
                         </div>
                     </div>
