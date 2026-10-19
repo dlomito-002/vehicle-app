@@ -28,9 +28,9 @@ enum ConditionStatus: string
     public static function fieldLabels(): array
     {
         return [
-            'general_condition' => 'Estado general de la carrocería',
-            'windows_mirrors_lights' => 'Ventanas, espejos y luces',
-            'tires_condition' => 'Neumáticos',
+            'general_condition' => 'Carrocería (chasis, pintura y emblemas)',
+            'windows_mirrors_lights' => 'Ventanas, espejos, vidrios y luces',
+            'tires_condition' => 'Neumáticos y llantas',
             'dashboard_indicators' => 'Tablero / indicadores',
         ];
     }

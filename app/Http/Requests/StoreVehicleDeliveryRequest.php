@@ -71,16 +71,14 @@ class StoreVehicleDeliveryRequest extends FormRequest
             $rules["position_photos.{$position->value}"] = ['nullable', 'image', 'max:10240', 'mimes:jpg,jpeg,png,webp'];
         }
 
-        // 26-item "chequeo general" equipment checklist, each Sí/No with an optional photo.
-        foreach (EquipmentItem::cases() as $item) {
+        // Equipment checklist, each item Sí/No (see EquipmentItem::formItems()).
+        foreach (EquipmentItem::formItems() as $item) {
             $rules["equipment_checks.{$item->value}"] = ['required', 'boolean'];
-            $rules["equipment_photos.{$item->value}"] = ['nullable', 'image', 'max:10240', 'mimes:jpg,jpeg,png,webp'];
         }
 
-        // 12-component "estado general del vehículo" checklist, each rated with an optional photo.
-        foreach (ConditionComponent::cases() as $component) {
+        // Components not covered by the general condition fields (see ConditionComponent::formItems()).
+        foreach (ConditionComponent::formItems() as $component) {
             $rules["condition_items.{$component->value}"] = ['required', Rule::enum(ConditionStatus::class)];
-            $rules["condition_photos.{$component->value}"] = ['nullable', 'image', 'max:10240', 'mimes:jpg,jpeg,png,webp'];
         }
 
         return $rules;

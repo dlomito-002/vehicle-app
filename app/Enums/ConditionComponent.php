@@ -20,6 +20,18 @@ enum ConditionComponent: string
     case PideVias = 'pide_vias';
     case Llantas = 'llantas';
 
+    /**
+     * Components still rated on the forms. The rest are covered by the general
+     * condition fields in ConditionStatus::fieldLabels() (body, glass and
+     * lights, tires, dashboard), so they are not asked twice.
+     *
+     * @return self[]
+     */
+    public static function formItems(): array
+    {
+        return [self::PideVias, self::Tapiceria];
+    }
+
     public function label(): string
     {
         return match ($this) {
