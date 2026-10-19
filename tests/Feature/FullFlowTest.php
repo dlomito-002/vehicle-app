@@ -31,14 +31,6 @@ class FullFlowTest extends TestCase
             ->all();
     }
 
-    private function checklistPhotos(): array
-    {
-        return [
-            'equipment_photos' => [EquipmentItem::cases()[0]->value => UploadedFile::fake()->image('eq.jpg')],
-            'condition_photos' => [ConditionComponent::cases()[0]->value => UploadedFile::fake()->image('cond.jpg')],
-        ];
-    }
-
     private function formPayload(array $overrides = []): array
     {
         return array_merge([
@@ -58,7 +50,7 @@ class FullFlowTest extends TestCase
             'equipment_checks' => collect(EquipmentItem::cases())->mapWithKeys(fn ($i) => [$i->value => '1'])->all(),
             'condition_items' => collect(ConditionComponent::cases())->mapWithKeys(fn ($i) => [$i->value => 'ok'])->all(),
             'position_photos' => $this->positionPhotos(),
-        ], $this->checklistPhotos(), $overrides);
+        ], $overrides);
     }
 
     public function test_reception_and_delivery_forms_offer_camera_capture_for_every_photo_field(): void
@@ -80,8 +72,6 @@ class FullFlowTest extends TestCase
 
         $expected = [
             ...array_map(fn ($p) => "position_photos[{$p->value}]", PhotoPosition::standardPositions()),
-            ...array_map(fn ($i) => "equipment_photos[{$i->value}]", EquipmentItem::cases()),
-            ...array_map(fn ($c) => "condition_photos[{$c->value}]", ConditionComponent::cases()),
             'anomaly_photos[]',
         ];
 
@@ -121,8 +111,9 @@ class FullFlowTest extends TestCase
         $this->assertCount(8, $reception->photos);
         $this->assertNotNull($reception->signaturePhoto());
         $reception->photos->each(fn ($p) => Storage::disk('public')->assertExists($p->path));
-        $this->assertNotNull($reception->equipmentChecks->firstWhere('photo_path', '!=', null));
-        $this->assertNotNull($reception->conditionItems->firstWhere('photo_path', '!=', null));
+        // Checklist rows are stored without per-item photos: the fields were removed from the form.
+        $this->assertNull($reception->equipmentChecks->firstWhere('photo_path', '!=', null));
+        $this->assertNull($reception->conditionItems->firstWhere('photo_path', '!=', null));
 
         $this->actingAs($user)->get(route('receptions.show', $reception))->assertOk();
         $this->actingAs($user)->get(route('receptions.index'))->assertOk();

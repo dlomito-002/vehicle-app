@@ -169,8 +169,8 @@ class VehicleDeliveryController extends Controller
             ]);
 
             $this->storeDocumentation($delivery, $data['documentation'], DocumentType::forDelivery());
-            $this->storeEquipmentChecks($delivery, $data['equipment_checks'], $request);
-            $this->storeConditionItems($delivery, $data['condition_items'], $request);
+            $this->storeEquipmentChecks($delivery, $data['equipment_checks']);
+            $this->storeConditionItems($delivery, $data['condition_items']);
             $this->storePhotos($delivery, $request);
             $this->storeSignature($delivery, $request);
 

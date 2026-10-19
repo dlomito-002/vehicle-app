@@ -36,6 +36,27 @@ enum EquipmentItem: string
     case Extinguidor = 'extinguidor';
     // Removed: AireAcondicionado (septiembre 2026, solicitud del cliente).
 
+    /**
+     * Items asked on the reception and delivery forms. Left out:
+     * - "Copia tarjeta de circulación": the registration card is already
+     *   checked in the documentation section.
+     * - Remolcador, Parrilla and Sunroof: equipment for pickups, trucks or
+     *   specific trims, not for the company car fleet.
+     *
+     * @return self[]
+     */
+    public static function formItems(): array
+    {
+        $excluded = [
+            self::CopiaTarjetaCirculacion,
+            self::Remolcador,
+            self::Parrilla,
+            self::Sunroof,
+        ];
+
+        return array_values(array_filter(self::cases(), fn (self $item) => ! in_array($item, $excluded, true)));
+    }
+
     public function label(): string
     {
         return match ($this) {

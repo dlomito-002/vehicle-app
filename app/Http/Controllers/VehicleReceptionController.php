@@ -73,8 +73,8 @@ class VehicleReceptionController extends Controller
             ]);
 
             $this->storeDocumentation($reception, $data['documentation'], DocumentType::forReception());
-            $this->storeEquipmentChecks($reception, $data['equipment_checks'], $request);
-            $this->storeConditionItems($reception, $data['condition_items'], $request);
+            $this->storeEquipmentChecks($reception, $data['equipment_checks']);
+            $this->storeConditionItems($reception, $data['condition_items']);
             $this->storePhotos($reception, $request);
             $this->storeSignature($reception, $request);
 

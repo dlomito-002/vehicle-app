@@ -223,8 +223,8 @@ class VehicleDeliveryTest extends TestCase
 
         $delivery = $reception->fresh()->delivery;
 
-        $this->assertCount(count(EquipmentItem::cases()), $delivery->equipmentChecks);
-        $this->assertCount(count(ConditionComponent::cases()), $delivery->conditionItems);
+        $this->assertCount(count(EquipmentItem::formItems()), $delivery->equipmentChecks);
+        $this->assertCount(count(ConditionComponent::formItems()), $delivery->conditionItems);
     }
 
     public function test_blank_canvas_data_uri_is_rejected_with_a_friendly_message(): void

@@ -69,8 +69,8 @@ class VehicleReceptionTest extends TestCase
 
         $reception = VehicleReception::first();
         $this->assertCount(3, $reception->documentation);
-        $this->assertCount(count(EquipmentItem::cases()), $reception->equipmentChecks);
-        $this->assertCount(count(ConditionComponent::cases()), $reception->conditionItems);
+        $this->assertCount(count(EquipmentItem::formItems()), $reception->equipmentChecks);
+        $this->assertCount(count(ConditionComponent::formItems()), $reception->conditionItems);
     }
 
     public function test_reception_accepts_each_of_the_three_fuel_types_and_rejects_others(): void
