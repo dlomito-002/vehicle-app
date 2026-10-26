@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\AuditLog;
 use App\Models\User;
 use App\Models\Vehicle;
+use App\Support\Ecosystem;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;
@@ -22,7 +23,7 @@ class EcosystemShellTest extends TestCase
             ->assertOk()
             ->assertSee('data-sidebar-toggle', false)
             ->assertSee('class="sidebar-version"', false)
-            ->assertSee('Ecosistema v1.2.0')
+            ->assertSee('Ecosistema v'.Ecosystem::ecosystemVersion())
             ->assertSee('data-notifications', false)
             ->assertSee('class="help-fab"', false)
             ->assertSee('portal-btn', false)

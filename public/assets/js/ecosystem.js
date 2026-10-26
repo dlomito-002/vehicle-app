@@ -1,5 +1,5 @@
 /* Ecosistema Carrousel · comportamiento visual compartido
- * @version 1.2.0 (misma versión que ecosystem.css; historial en docs/ECOSISTEMA.md)
+ * @version 1.2.1 (misma versión que ecosystem.css; historial en docs/ECOSISTEMA.md)
  * Archivo IDÉNTICO en todas las apps. Solo presentación: no envía datos ni cambia lógica.
  */
 (()=>{'use strict';

@@ -7,11 +7,11 @@ Este archivo es **idéntico en todas las apps**: si se cambia aquí, se copia a 
 
 | App | Repositorio | Versión de la app | Ecosistema |
 |---|---|---|---|
-| Helpdesk | FernandoZL/helpdesk-carrousel | `config/config.php` → `APP_VERSION` | 1.2.0 |
-| Caja Chica | FernandoZL/caja-chica-carrousel | archivo `VERSION` | 1.2.0 |
-| Rendimientos de Máquinas | FernandoZL/rendimientos-maquinas-carrousel | archivo `VERSION.txt` (primera línea) | 1.2.0 |
-| Destrucción de Tickets | FernandoZL/tickets-destruccion-carrousel | archivo `VERSION` | 1.2.0 |
-| Control de Vehículos | dlomito-002/vehicle-app | archivo `VERSION` | 1.2.0 |
+| Helpdesk | FernandoZL/helpdesk-carrousel | `config/config.php` → `APP_VERSION` | 1.2.1 |
+| Caja Chica | FernandoZL/caja-chica-carrousel | archivo `VERSION` | 1.2.1 |
+| Rendimientos de Máquinas | FernandoZL/rendimientos-maquinas-carrousel | archivo `VERSION.txt` (primera línea) | 1.2.1 |
+| Destrucción de Tickets | FernandoZL/tickets-destruccion-carrousel | archivo `VERSION` | 1.2.1 |
+| Control de Vehículos | dlomito-002/vehicle-app | archivo `VERSION` | 1.2.1 |
 
 Cada app muestra al pie del menú lateral su versión y la del ecosistema que tiene instalada
 (por ejemplo, `Caja Chica v1.0.42 · Ecosistema v1.0.0`). Si dos apps muestran versiones de ecosistema distintas,
@@ -73,6 +73,10 @@ estado Git, actualizar desde GitHub, validar, respaldar, validar SMTP, commit, p
 Los menús anteriores (`CAJA_CHICA_ADMIN.bat`, `RENDIMIENTOS_ADMIN.bat`) se conservan solo como acceso que abre `MAIN.bat`.
 
 ## Historial
+
+### 1.2.1 · 2026-10-26
+- Versión al pie del menú siempre visible: queda fija abajo aunque el menú sea largo. Con el menú en riel de íconos (colapsado o entre 901 y 1180 px) muestra solo la versión de la app; el texto completo aparece al pasar el cursor. Usa una consulta de contenedor sobre `.sidebar` (`container-type:inline-size`).
+- Se agregan Destrucción de Tickets y Control de Vehículos a la tabla de apps.
 
 ### 1.2.0 · 2026-10-22
 - Acceso: misma pantalla de login y código OTP en todas las apps (§9), autocontenida y con modo oscuro; botón de tema `data-eco-theme-toggle` en `ecosystem.js`.
