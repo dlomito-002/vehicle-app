@@ -8,7 +8,9 @@ set "LOCAL_URL=http://localhost/ControlVehiculosCarrousel/public/"
 set "PORTAL_URL=https://portal.carrousel-apps.com/portal/"
 set "REPO_URL=https://github.com/dlomito-002/vehicle-app"
 set "MYSQLDUMP=C:\xampp\mysql\bin\mysqldump.exe"
-set "PHP=C:\xampp\php\php.exe"
+rem Laravel requiere PHP 8.2+: se prefiere el php82 que usa Apache.
+set "PHP=C:\xampp\php82\php.exe"
+if not exist "%PHP%" set "PHP=C:\xampp\php\php.exe"
 if not exist "%PHP%" set "PHP=php"
 
 if not exist "artisan" (
