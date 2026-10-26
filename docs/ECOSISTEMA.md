@@ -72,6 +72,10 @@ Misma estructura en todas las apps: encabezado con versión y rama, opciones num
 estado Git, actualizar desde GitHub, validar, respaldar, validar SMTP, commit, push, abrir GitHub) y `[0] Salir`.
 Los menús anteriores (`CAJA_CHICA_ADMIN.bat`, `RENDIMIENTOS_ADMIN.bat`) se conservan solo como acceso que abre `MAIN.bat`.
 
+**PHP de las consolas y tareas programadas**: el mismo que usa Apache. En el servidor `C:\xampp\php` es PHP 8.0 y Apache usa
+`C:\xampp\php82` (PHP 8.2, requerido por Cumpleaños y Control de Vehículos). Todo `.bat`, `.cmd` o `.ps1` busca primero
+`C:\xampp\php82\php.exe`, luego `C:\xampp\php\php.exe` y al final `php` del PATH. En una PC sin `php82` usa el de XAMPP.
+
 ## Correos
 
 Todos los correos del sistema (código de acceso, avisos, alertas, prueba de correo) usan **la misma plantilla que Helpdesk**
@@ -103,6 +107,7 @@ tarjeta, "Corporación Carrousel".
 ### 1.2.1 · 2026-10-26
 - Versión al pie del menú siempre visible: queda fija abajo aunque el menú sea largo. Con el menú en riel de íconos (colapsado o entre 901 y 1180 px) muestra solo la versión de la app; el texto completo aparece al pasar el cursor. Usa una consulta de contenedor sobre `.sidebar` (`container-type:inline-size`).
 - Se agregan Destrucción de Tickets y Control de Vehículos a la tabla de apps.
+- Consolas y tareas programadas usan el PHP de Apache (`php82` en el servidor) antes que `C:\xampp\php`.
 - Correos: misma plantilla que Helpdesk en las seis apps, asunto `<Asunto> | <App>` y logo liviano de 23 KB (sección Correos).
 
 ### 1.2.0 · 2026-10-22
