@@ -81,7 +81,7 @@ class ScreenHelp
                 'steps' => [
                     'Da acceso con nombre, correo y rol (Administrador o Agente).',
                     'Marca “Recibir notificaciones por correo” para quien deba recibir avisos.',
-                    'Nadie entra con contraseña: llega un código temporal al correo.',
+                    'El acceso es con un código temporal que llega al correo; no se usan contraseñas.',
                 ],
                 'tour' => [['.data-table-shell', 'Usuarios', 'Accesos, roles y avisos por correo.', '']],
             ],
