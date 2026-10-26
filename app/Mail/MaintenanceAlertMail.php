@@ -20,7 +20,7 @@ class MaintenanceAlertMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Control de Vehículos — Alerta de mantenimiento: '.$this->schedule->vehicle->displayName(),
+            subject: 'Alerta de mantenimiento: '.$this->schedule->vehicle->displayName().' | Control de Vehículos',
         );
     }
 

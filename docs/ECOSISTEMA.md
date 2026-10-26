@@ -72,11 +72,38 @@ Misma estructura en todas las apps: encabezado con versión y rama, opciones num
 estado Git, actualizar desde GitHub, validar, respaldar, validar SMTP, commit, push, abrir GitHub) y `[0] Salir`.
 Los menús anteriores (`CAJA_CHICA_ADMIN.bat`, `RENDIMIENTOS_ADMIN.bat`) se conservan solo como acceso que abre `MAIN.bat`.
 
+## Correos
+
+Todos los correos del sistema (código de acceso, avisos, alertas, prueba de correo) usan **la misma plantilla que Helpdesk**
+(`app/Services/MailService.php` → `layout()`). Cada app la tiene en su propio código:
+
+| App | Dónde |
+|---|---|
+| Helpdesk | `app/Services/MailService.php` → `layout()` |
+| Caja Chica | `app/Services/MailService.php` → `layout()` (y `template()` para lotes y accesos) |
+| Rendimientos | `includes/otp_mailer.php` → `authMailLayout()` |
+| Cumpleaños | `app/Mailer.php` → `layout()` |
+| Destrucción de Tickets | `inc/mail_layout.php` → `eco_mail_layout()` |
+| Control de Vehículos | `resources/views/emails/layout.blade.php` |
+
+Estructura: fondo `#eef3f9`; tarjeta blanca de 620 px con borde `#d7deea` y radio 18 px; franja de 4 px con el degradado
+`#2748a0 → #773db8 → #eb2f7d → #f6a800`; logo de 108 px a la izquierda y etiqueta en mayúsculas a la derecha; título de 24 px
+`#14213d`; texto de 15 px `#475467`; botón opcional `#1677ff`; nota de pie "Mensaje automático de &lt;App&gt;." y, fuera de la
+tarjeta, "Corporación Carrousel".
+
+- **Logo**: `email-logo.png` (216 px, ~23 KB), incrustado como `cid:carrousel-logo`. No usar el logo de pantalla (~290 KB por correo).
+- **Asunto**: `<Asunto> | <App>` (por ejemplo, `Código de acceso | Caja Chica Carrousel`).
+- **Código de acceso**: etiqueta "Acceso", título "Tu código de acceso", texto "Usa este código temporal para ingresar. No necesitas contraseña.",
+  caja "Tu código" y "Vence en N minutos. Si no solicitaste este acceso, puedes ignorar este mensaje."
+- **Prueba de correo**: etiqueta "Prueba", título "El correo funciona".
+- Excepción: los correos a **clientes** de Cumpleaños (cupón, campañas, cumpleaños) conservan su diseño festivo; solo usan el mismo logo liviano.
+
 ## Historial
 
 ### 1.2.1 · 2026-10-26
 - Versión al pie del menú siempre visible: queda fija abajo aunque el menú sea largo. Con el menú en riel de íconos (colapsado o entre 901 y 1180 px) muestra solo la versión de la app; el texto completo aparece al pasar el cursor. Usa una consulta de contenedor sobre `.sidebar` (`container-type:inline-size`).
 - Se agregan Destrucción de Tickets y Control de Vehículos a la tabla de apps.
+- Correos: misma plantilla que Helpdesk en las seis apps, asunto `<Asunto> | <App>` y logo liviano de 23 KB (sección Correos).
 
 ### 1.2.0 · 2026-10-22
 - Acceso: misma pantalla de login y código OTP en todas las apps (§9), autocontenida y con modo oscuro; botón de tema `data-eco-theme-toggle` en `ecosystem.js`.

@@ -41,10 +41,8 @@ class MailController extends Controller
         $to = $request->validated('to');
 
         try {
-            Mail::raw(
-                'Prueba de correo de Control de Vehículos enviada el '.now()->format('d/m/Y H:i').' por '.$request->user()->email.'. Si lees esto, el envío funciona.',
-                fn ($message) => $message->to($to)->subject('Prueba de correo · Control de Vehículos')
-            );
+            Mail::send('emails.test', ['sentBy' => $request->user()->email],
+                fn ($message) => $message->to($to)->subject('Prueba de correo | Control de Vehículos'));
         } catch (\Throwable $e) {
             Audit::record('mail_test', null, ['resultado' => 'falló', 'error' => mb_substr($e->getMessage(), 0, 300)], 'Correo', $to);
 

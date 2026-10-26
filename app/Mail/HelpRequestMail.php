@@ -21,7 +21,7 @@ class HelpRequestMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Control de Vehículos — Reporte de problema de '.$this->reporter->name,
+            subject: 'Reporte de problema de '.$this->reporter->name.' | Control de Vehículos',
         );
     }
 
