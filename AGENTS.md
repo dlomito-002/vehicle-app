@@ -134,9 +134,22 @@ La llave SSH privada `2402` fue retirada de `luis/setup-local`, pero existió en
 
 ### Próximos pasos de `luis/setup-local`
 
-1. Limpiar `MAIN.bat` y retirar `tools/APLICAR_RONDA_4A_HELPDESK.ps1`.
+1. ~~Limpiar `MAIN.bat` y retirar `tools/APLICAR_RONDA_4A_HELPDESK.ps1`.~~ Hecho (2026-10-26): `MAIN.bat` con el formato del ecosistema.
 2. Actualizar `index.html`.
 3. Implementar búsqueda global visible + `Ctrl+K` + `/buscar?q=`.
 4. Agregar búsquedas server-side `?q=` a listados paginados.
 5. Reconciliar cambios con `Claudio`.
 6. Ejecutar build/tests completos antes de cualquier PR hacia `main`.
+
+### Ecosistema Carrousel (2026-10-26)
+
+La app forma parte del Ecosistema Carrousel (Helpdesk, Caja Chica, Rendimientos, Destrucción de Tickets). Ver `docs/ECOSISTEMA.md`.
+
+- `public/assets/css/ecosystem.css` y `public/assets/js/ecosystem.js` son **copias idénticas** de las otras apps: no se editan aquí; se cambian en una app y se copian a todas.
+- Ajustes propios del shell (riel de íconos, campana, panel de ayuda, recorrido, pantallas de Administración): `public/assets/css/vehiculos-ecosistema.css` y `public/assets/js/vehiculos-ecosistema.js`. No pasan por Vite.
+- Versión de la app: archivo `VERSION`; se muestra al pie del menú junto con la del ecosistema (`App\Support\Ecosystem`).
+- Campana: vehículos sin devolver y mantenimiento por atender (`Ecosystem::attention()`, caché de 60 s).
+- Ayuda "?" por pantalla y pasos del recorrido: `App\Support\ScreenHelp` (selector, título, texto). El formulario de Ayuda queda como "Reportar un problema" dentro del panel.
+- Auditoría: tabla `audit_logs`; altas, cambios y bajas de usuarios, vehículos, recepciones, devoluciones y mantenimientos se registran solos (observadores en `AppServiceProvider`), además de ingresos, salidas y códigos OTP. Nunca se guardan contraseñas ni tokens.
+- Administración agrega Auditoría (`/admin/auditoria`) y Correo y notificaciones (`/admin/correo`, con correo de prueba).
+- Acceso: estructura §9 del ecosistema (`auth-body-v2`), textos comunes y botón ← Portal (`PORTAL_URL`, por defecto el Portal de producción).

@@ -34,8 +34,8 @@ class VehicleMovementMail extends Mailable
 
         return new Envelope(
             subject: $this->isReception()
-                ? "Control de Vehículos — Recepción de vehículo: {$plate}"
-                : "Control de Vehículos — Devolución de vehículo: {$plate}",
+                ? "Recepción de vehículo: {$plate} | Control de Vehículos"
+                : "Devolución de vehículo: {$plate} | Control de Vehículos",
         );
     }
 

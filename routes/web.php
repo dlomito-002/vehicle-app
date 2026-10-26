@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Admin\AuditController;
+use App\Http\Controllers\Admin\MailController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\DashboardController;
@@ -66,5 +68,10 @@ Route::middleware('auth')->group(function () {
         Route::post('/vehicles/{vehicle}/maintenance-schedules/{category}/complete', [VehicleMaintenanceScheduleController::class, 'complete'])->name('maintenance-schedules.complete');
 
         Route::resource('users', UserController::class)->except(['show']);
+
+        // Ecosystem standard Administración screens.
+        Route::get('/admin/auditoria', [AuditController::class, 'index'])->name('admin.audit.index');
+        Route::get('/admin/correo', [MailController::class, 'index'])->name('admin.mail.index');
+        Route::post('/admin/correo/prueba', [MailController::class, 'test'])->name('admin.mail.test');
     });
 });

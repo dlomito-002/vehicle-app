@@ -19,7 +19,7 @@
     </script>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.9/dist/cdn.min.js" defer></script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
@@ -48,23 +48,19 @@
                 'links' => [
                     ['route' => 'vehicles.index', 'label' => 'Vehículos', 'icon' => '◇'],
                     ['route' => 'users.index', 'label' => 'Usuarios', 'icon' => '♟'],
+                    ['route' => 'admin.audit.index', 'label' => 'Auditoría', 'icon' => '◉'],
+                    ['route' => 'admin.mail.index', 'label' => 'Correo y notificaciones', 'icon' => '✉'],
                 ],
             ];
         }
 
-        $navSections[] = [
-            'label' => null,
-            'links' => [
-                ['route' => 'help.create', 'label' => 'Ayuda', 'icon' => '?'],
-            ],
-        ];
+        $attentionCount = collect($ecoAttention ?? [])->sum('count');
+        $ecoVersion = \App\Support\Ecosystem::ecosystemVersion();
+        $appVersion = \App\Support\Ecosystem::appVersion();
     @endphp
 
-    <div class="app-shell" x-data="{ open: false, collapsed: (function () { try { return localStorage.getItem('carrousel-sidebar-collapsed') === '1'; } catch (e) { return false; } })() }" :class="{ 'is-collapsed': collapsed }">
-        <div class="sidebar-backdrop" x-show="open" x-cloak @click="open = false"
-             style="display:none;position:fixed;inset:4px 0 0;background:rgba(15,23,42,.42);z-index:1300"></div>
-
-        <aside class="sidebar" :class="{ 'is-open': open }">
+    <div class="app-shell">
+        <aside class="sidebar" id="app-sidebar" aria-label="Navegación principal">
             <div class="sidebar-brand">
                 <img src="{{ asset('images/logo.png') }}" alt="Corporación Carrousel" style="width:40px;height:40px;object-fit:contain;background:#fff;border-radius:8px;padding:3px;">
                 <div>
@@ -73,49 +69,79 @@
                 </div>
             </div>
 
-            <nav style="padding-bottom:20px">
+            <nav>
                 @foreach ($navSections as $section)
-                    @if ($section['label'])
-                        <div class="nav-section">{{ $section['label'] }}</div>
-                    @endif
+                    <div class="nav-section">{{ $section['label'] }}</div>
                     @foreach ($section['links'] as $link)
                         @php
-                            $isActive = request()->routeIs($link['route']) || request()->routeIs(str($link['route'])->before('.').'.*');
+                            $isActive = request()->routeIs($link['route']) || request()->routeIs(str($link['route'])->beforeLast('.').'.*');
                         @endphp
-                        <a href="{{ route($link['route']) }}" class="side-link {{ $isActive ? 'active' : '' }}">
+                        <a href="{{ route($link['route']) }}" class="side-link {{ $isActive ? 'active' : '' }}" title="{{ $link['label'] }}">
                             <span class="side-icon" aria-hidden="true">{{ $link['icon'] }}</span>
                             <span class="side-label">{{ $link['label'] }}</span>
                         </a>
                     @endforeach
                 @endforeach
             </nav>
+
+            <div class="sidebar-version" title="Control de Vehículos v{{ $appVersion }}{{ $ecoVersion ? ' · Ecosistema Carrousel v'.$ecoVersion : '' }}">
+                <span><strong>Control de Vehículos</strong> v{{ $appVersion }}</span>
+                @if ($ecoVersion)
+                    <span>Ecosistema v{{ $ecoVersion }}</span>
+                @endif
+            </div>
         </aside>
+        <div class="sidebar-backdrop" data-sidebar-backdrop hidden></div>
 
         <div class="main-wrap">
             <header class="topbar">
                 <div class="topbar-left">
-                    <button class="sidebar-toggle theme-toggle" type="button" @click="open = !open" aria-label="Abrir menu">☰</button>
-                    <button class="sidebar-toggle-desktop theme-toggle" type="button"
-                            @click="collapsed = !collapsed; try { localStorage.setItem('carrousel-sidebar-collapsed', collapsed ? '1' : '0') } catch (e) {}"
-                            title="Ocultar/mostrar panel" aria-label="Ocultar/mostrar panel">☰</button>
+                    <button class="theme-toggle sidebar-toggle-eco" type="button" data-sidebar-toggle aria-controls="app-sidebar" aria-expanded="true" aria-label="Ocultar menú" title="Ocultar menú lateral">☰</button>
                     <a href="{{ route('dashboard') }}" class="topbar-title">
-                        <span class="topbar-section">Control de Vehiculos</span>
+                        <span class="topbar-section">Control de Vehículos</span>
                         <strong class="topbar-page">@yield('title', 'Panel')</strong>
                     </a>
                 </div>
 
                 <div class="topbar-user">
-                    <a href="{{ route('receptions.create') }}" class="btn btn-primary btn-sm topbar-primary-action" title="Nueva recepcion">
+                    <a href="{{ route('receptions.create') }}" class="btn btn-primary btn-sm topbar-primary-action" title="Nueva recepción">
                         <span aria-hidden="true">＋</span>
-                        <span class="topbar-primary-label">Nueva recepcion</span>
+                        <span class="topbar-primary-label">Nueva recepción</span>
                     </a>
+
+                    <div class="shell-notifications" data-notifications>
+                        <button class="theme-toggle shell-icon-btn" type="button" data-notifications-toggle aria-expanded="false" aria-label="Ver notificaciones" title="Notificaciones">🔔@if ($attentionCount > 0)<span class="shell-notification-badge">{{ $attentionCount > 99 ? '99+' : $attentionCount }}</span>@endif</button>
+                        <div class="shell-notification-menu" data-notifications-menu hidden>
+                            <div class="shell-notification-head">
+                                <div><strong>Notificaciones</strong><span>{{ $attentionCount > 0 ? $attentionCount.' pendientes' : 'Todo al día' }}</span></div>
+                            </div>
+                            @if (! empty($ecoAttention))
+                                <div class="shell-attention-section">
+                                    <div class="shell-attention-title">Pendientes <span>{{ $attentionCount }}</span></div>
+                                    <div class="shell-notification-list">
+                                        @foreach ($ecoAttention as $item)
+                                            <a class="shell-notification-item attention" href="{{ $item['href'] }}">
+                                                <span class="shell-notification-dot"></span>
+                                                <span><strong>{{ $item['label'] }}</strong><small>{{ $item['detail'] }}</small></span>
+                                                <span class="shell-notification-count">{{ $item['count'] }}</span>
+                                            </a>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @else
+                                <div class="shell-notification-empty"><strong>Sin pendientes</strong>Aquí aparecerán los vehículos sin devolver y los mantenimientos por atender.</div>
+                            @endif
+                        </div>
+                    </div>
+
                     <button class="theme-toggle" type="button" data-theme-toggle title="Cambiar apariencia" aria-label="Cambiar apariencia">◐</button>
-                    <a class="btn btn-outline-secondary btn-sm portal-btn" href="https://portal.carrousel-apps.com/portal/" title="Volver al Portal">
+                    <a class="btn btn-outline-secondary btn-sm portal-btn" href="{{ \App\Support\Ecosystem::portalUrl() }}" title="Volver al Portal">
                         <span aria-hidden="true">←</span>
                         <span class="portal-label">Portal</span>
                     </a>
                     <div class="user-summary">
                         <strong>{{ auth()->user()->name }}</strong>
+                        <span class="user-role">{{ auth()->user()->role->label() }}</span>
                     </div>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
@@ -148,6 +174,29 @@
             </main>
         </div>
     </div>
+
+    @php($help = $ecoHelp ?? ['title' => 'Ayuda', 'steps' => [], 'tour' => []])
+    <button class="help-fab" type="button" data-help-open aria-label="Abrir ayuda" aria-controls="eco-help" aria-expanded="false" title="Ayuda">?</button>
+    <div class="help-backdrop" data-help-backdrop hidden></div>
+    <aside class="help-panel" id="eco-help" data-help-panel role="dialog" aria-modal="true" aria-labelledby="eco-help-title" aria-hidden="true">
+        <div class="help-panel-head">
+            <div><span class="help-kicker">Ayuda de esta pantalla</span><h2 id="eco-help-title">{{ $help['title'] }}</h2></div>
+            <button class="help-close" type="button" data-help-close aria-label="Cerrar ayuda">×</button>
+        </div>
+        <p class="help-intro">Consulta la guía rápida o inicia el recorrido guiado para ver cada parte directamente sobre la pantalla.</p>
+        <ol class="help-steps">
+            @foreach ($help['steps'] as $step)
+                <li>{{ $step }}</li>
+            @endforeach
+        </ol>
+        <div class="help-actions">
+            <button class="btn btn-primary" type="button" data-tour-start>Iniciar tutorial</button>
+            <a class="btn btn-outline-secondary" href="{{ route('help.create') }}">Reportar un problema</a>
+        </div>
+        <div class="help-shortcuts"><span><kbd>Esc</kbd> Cerrar</span></div>
+        <div class="help-contact">¿Aún necesitas ayuda? <strong>sistemas@carrousel.com.gt</strong></div>
+    </aside>
+    <script>window.ECO_TOUR = @json($help['tour'] ?? []);</script>
 @else
     <main class="min-h-full flex items-center justify-center px-4">
         <div class="w-full max-w-2xl py-10">
@@ -156,17 +205,9 @@
     </main>
 @endauth
 
-<script>
-    (function () {
-        var btn = document.querySelector('[data-theme-toggle]');
-        if (!btn) return;
-        btn.addEventListener('click', function () {
-            var current = document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
-            var next = current === 'dark' ? 'light' : 'dark';
-            document.documentElement.dataset.theme = next;
-            try { localStorage.setItem('carrousel-theme', next); } catch (e) {}
-        });
-    })();
-</script>
+<link rel="stylesheet" href="{{ \App\Support\Ecosystem::asset('assets/css/vehiculos-ecosistema.css') }}">
+<link rel="stylesheet" href="{{ \App\Support\Ecosystem::asset('assets/css/ecosystem.css') }}">
+<script src="{{ \App\Support\Ecosystem::asset('assets/js/vehiculos-ecosistema.js') }}"></script>
+<script src="{{ \App\Support\Ecosystem::asset('assets/js/ecosystem.js') }}"></script>
 </body>
 </html>

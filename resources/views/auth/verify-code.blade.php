@@ -3,9 +3,9 @@
 @section('title', 'Verificar código')
 
 @section('content')
-    <span class="auth-eyebrow">Acceso seguro</span>
-    <h2>Verifica tu código</h2>
-    <p class="auth-lead">Ingresa el código de 6 dígitos que enviamos a <strong>{{ $email }}</strong>.</p>
+    <span class="auth-eyebrow">Verificación</span>
+    <h2>Escribe tu código</h2>
+    <p class="auth-lead">Enviado a <strong>{{ $email }}</strong>.</p>
 
     @if ($errors->any())
         <div class="alert alert-danger">{{ $errors->first() }}</div>
@@ -15,31 +15,29 @@
         <div class="alert alert-success">{{ session('status') }}</div>
     @endif
 
-    <form method="POST" action="{{ route('login.verify') }}" class="space-y-4">
+    <form method="POST" action="{{ route('login.verify') }}" class="auth-form-v2" data-single-submit>
         @csrf
 
-        <div>
-            <label for="code" class="block text-sm font-medium mb-1" style="color:var(--ink)">Código de verificación</label>
-            <input id="code" type="text" name="code" inputmode="numeric" autocomplete="one-time-code"
-                   maxlength="6" pattern="\d{6}" required autofocus
-                   class="w-full rounded-md text-sm font-data text-center"
-                   style="min-height:48px;font-size:24px;font-weight:800;letter-spacing:.33em;padding:11px 13px 11px calc(13px + .33em);">
-        </div>
+        <label for="code">Código de 6 dígitos
+            <input id="code" class="form-control otp-input-v2" type="text" name="code" inputmode="numeric" autocomplete="one-time-code"
+                   maxlength="6" pattern="\d{6}" required autofocus placeholder="000000">
+        </label>
 
-        <button type="submit" class="btn btn-primary w-full">Verificar e iniciar sesión</button>
+        <button type="submit" class="btn btn-primary auth-primary">Ingresar</button>
     </form>
 
-    <div class="auth-actions" style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-top:18px">
-        <form method="POST" action="{{ route('login') }}" onsubmit="this.querySelector('[type=submit]').disabled = true">
-            @csrf
-            <input type="hidden" name="email" value="{{ $email }}">
-            <button type="submit" class="btn btn-outline-secondary btn-sm">Reenviar código</button>
-        </form>
+    <div class="auth-helper-v2"><span>i</span><div>Si expiró o no llegó, solicita uno nuevo. El código vence en 10 minutos y solo puede usarse una vez.</div></div>
+    <p class="auth-security-v2">El código OTP es temporal. No lo compartas: el personal de Carrousel nunca te lo pedirá.</p>
 
-        <a href="{{ route('login') }}" class="btn btn-outline-secondary btn-sm">Usar otro correo</a>
-
-        <button class="theme-toggle" type="button" data-theme-toggle title="Cambiar apariencia" aria-label="Cambiar apariencia">◐</button>
+    <div class="auth-actions-v2">
+        <div class="auth-action-group">
+            <a href="{{ route('login') }}" class="btn btn-outline-secondary btn-sm">Cambiar correo</a>
+            <form method="POST" action="{{ route('login') }}" data-single-submit>
+                @csrf
+                <input type="hidden" name="email" value="{{ $email }}">
+                <button type="submit" class="btn btn-outline-secondary btn-sm">Reenviar código</button>
+            </form>
+        </div>
+        <button class="btn btn-outline-secondary btn-sm theme-btn" type="button" data-eco-theme-toggle title="Cambiar apariencia" aria-label="Cambiar apariencia">◐</button>
     </div>
-
-    <p class="auth-security">El código vence en 10 minutos y solo puede usarse una vez.</p>
 @endsection

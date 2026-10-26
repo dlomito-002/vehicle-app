@@ -19,7 +19,7 @@ class LoginVerificationCodeMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Control de Vehículos — Código de verificación',
+            subject: 'Código de acceso | Control de Vehículos',
         );
     }
 
