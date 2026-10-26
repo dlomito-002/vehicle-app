@@ -29,3 +29,6 @@ yarn-error.log
 /.claude/
 /skills-lock.json
 /tatus --short
+
+# Respaldos de la consola MAIN.bat
+/backups

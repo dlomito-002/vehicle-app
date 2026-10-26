@@ -1,0 +1,123 @@
+/* Control de Vehículos · ajustes del shell del Ecosistema Carrousel.
+ * Archivo propio de esta app (no compartido). Se carga antes de ecosystem.css y no requiere compilar con Vite.
+ * Cubre: menú colapsable a riel de íconos (76 px), versión al pie del menú, campana, panel de ayuda,
+ * recorrido guiado y las pantallas de Administración (Auditoría, Correo).
+ */
+
+/* 1. Menú lateral: columna con versión al pie; colapsado = riel de íconos de 76 px */
+.sidebar{display:flex;flex-direction:column}
+.sidebar nav{flex:1 1 auto;min-height:0;overflow-y:auto;padding-bottom:12px}
+.sidebar-version{flex:0 0 auto}
+.sidebar-backdrop{position:fixed;inset:4px 0 0;background:rgba(15,23,42,.42);z-index:1300}
+.sidebar-backdrop[hidden]{display:none}
+.sidebar-toggle,.sidebar-toggle-desktop{display:none!important}
+@media (min-width:901px){
+  .sidebar,.main-wrap{transition:width .18s ease,margin-left .18s ease}
+  body.sidebar-collapsed .sidebar{width:76px;transform:none}
+  body.sidebar-collapsed .main-wrap{margin-left:76px;width:calc(100% - 76px)}
+  body.sidebar-collapsed .sidebar-brand{justify-content:center;padding:18px 8px}
+  body.sidebar-collapsed .sidebar-brand > div,
+  body.sidebar-collapsed .side-label{display:none}
+  body.sidebar-collapsed .nav-section{padding:12px 0 2px;text-align:center;font-size:0;height:14px}
+  body.sidebar-collapsed .nav-section::after{content:"";display:block;width:28px;margin:6px auto 0;border-top:1px solid rgba(255,255,255,.18)}
+  body.sidebar-collapsed .side-link{justify-content:center;padding:10px 0;margin:2px 10px}
+}
+@media (max-width:900px){
+  .sidebar.is-open{box-shadow:0 18px 45px rgba(0,0,0,.35)}
+}
+
+/* 2. Barra superior: campana con contador */
+.shell-notifications{position:relative;display:inline-flex}
+.shell-notifications .shell-icon-btn{position:relative}
+.user-summary .user-role{display:block;font-size:11px;color:var(--muted);font-weight:500}
+
+/* 3. Panel de ayuda (la burbuja "?" está en ecosystem.css §8) */
+.help-backdrop{position:fixed;inset:0;background:rgba(15,23,42,.35);z-index:995}
+.help-backdrop[hidden]{display:none}
+.help-panel{position:fixed;top:0;right:0;z-index:996;width:min(390px,92vw);height:100vh;overflow:auto;padding:26px;
+  background:var(--card);color:var(--ink);border-left:1px solid var(--border);box-shadow:-16px 0 45px rgba(16,24,40,.2);
+  transform:translateX(105%);transition:transform .2s ease;visibility:hidden}
+.help-panel.open{transform:none;visibility:visible}
+.help-panel-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;border-bottom:1px solid var(--border);padding-bottom:16px}
+.help-panel h2{margin:2px 0 0;font-size:22px;font-weight:750}
+.help-kicker{font-size:11px;text-transform:uppercase;letter-spacing:.1em;font-weight:800;color:var(--brand)}
+.help-close{border:1px solid var(--border);background:var(--card);color:var(--ink);border-radius:10px;width:36px;height:36px;font-size:20px;cursor:pointer}
+.help-intro{margin:16px 0 8px;color:var(--muted);font-size:13px;line-height:1.5}
+.help-steps{margin:0 0 18px;padding-left:20px;display:grid;gap:8px;font-size:13.5px;line-height:1.5}
+.help-actions{display:grid;gap:8px}
+.help-actions .btn{width:100%;justify-content:center}
+.help-shortcuts{margin-top:16px;font-size:12px;color:var(--muted)}
+.help-shortcuts kbd{border:1px solid var(--border);border-radius:5px;padding:1px 5px;font-size:11px}
+.help-contact{margin-top:14px;padding-top:14px;border-top:1px solid var(--border);font-size:12px;color:var(--muted)}
+body.help-open{overflow:hidden}
+@media (max-width:760px){.help-panel{width:100%;padding:22px 18px}}
+
+/* 4. Recorrido guiado */
+body.tour-open{overflow:hidden}
+.tour-overlay{position:fixed;inset:0;z-index:1500;background:rgba(7,18,48,.5);opacity:0;visibility:hidden;transition:opacity .15s}
+.tour-overlay.show{opacity:1;visibility:visible}
+.tour-highlight{position:relative;z-index:1501!important;outline:3px solid #1677ff!important;outline-offset:4px!important;border-radius:10px;box-shadow:0 0 0 8px rgba(22,119,255,.18)!important;background-color:var(--card)}
+.tour-popover{position:fixed;z-index:1502;max-width:440px;padding:18px;border-radius:14px;background:var(--card);color:var(--ink);border:1px solid var(--border);box-shadow:0 24px 60px rgba(3,18,52,.35);opacity:0;visibility:hidden}
+.tour-popover.show{opacity:1;visibility:visible}
+.tour-popover h3{margin:7px 0;font-size:19px;line-height:1.25}
+.tour-popover>p{margin:0;font-size:13.5px;line-height:1.55}
+.tour-progress{display:inline-block;padding:3px 9px;border-radius:999px;border:1px solid color-mix(in srgb,var(--brand) 35%,transparent);color:var(--brand);font-size:11px;font-weight:800}
+.tour-tip{display:grid;gap:3px;margin-top:11px;padding:10px 11px;border-radius:10px;border:1px solid var(--border);background:color-mix(in srgb,var(--brand) 6%,var(--card) 94%)}
+.tour-tip strong{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--brand)}
+.tour-tip span{font-size:12px}
+.tour-actions{display:grid;grid-template-columns:auto 1fr auto auto;gap:8px;margin-top:14px;align-items:center}
+@media (max-width:640px){
+  .tour-popover{left:10px!important;right:10px!important;top:auto!important;bottom:10px!important;width:auto!important;max-height:54vh;overflow:auto}
+  .tour-actions{grid-template-columns:1fr}
+  .tour-actions>span{display:none}
+}
+
+/* 5. Administración: encabezado, totales, filtros y detalle */
+.page-kicker{display:block;margin:0 0 4px;font-size:11px;font-weight:850;letter-spacing:.08em;text-transform:uppercase;color:var(--brand-2,var(--brand))}
+.audit-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:16px}
+.audit-stats>.card{padding:14px 16px;margin:0}
+.audit-stats>.card>span{display:block;font-size:10.5px;font-weight:850;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.audit-stats>.card>strong{display:block;margin-top:6px;font-size:26px;font-weight:750;color:var(--brand)}
+.audit-stats>.card.is-alert>strong{color:var(--danger)}
+.audit-filter-card{padding:16px;margin-bottom:16px}
+.audit-filter-grid{display:grid;grid-template-columns:2fr 1.4fr 1fr 1fr auto;gap:12px;align-items:end}
+.audit-filter-grid input,.audit-filter-grid select{width:100%}
+.audit-filter-actions{display:flex;gap:8px}
+.audit-details summary{cursor:pointer;color:var(--blue);font-weight:600}
+.audit-details pre{white-space:pre-wrap;max-width:420px;font-size:11.5px;margin:6px 0 0;text-align:left}
+.audit-pagination{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:12px}
+.audit-pagination div{display:flex;gap:8px}
+.eco-two-col{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:start;margin-bottom:16px}
+.eco-two-col>.card{margin:0}
+.eco-detail{display:grid;gap:12px;margin:0}
+.eco-detail dt{font-size:10.5px;font-weight:850;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 3px}
+.eco-detail dd{margin:0;overflow-wrap:anywhere}
+.eco-actions-row{display:flex;justify-content:flex-end;margin-top:12px}
+.muted{color:var(--muted)}
+@media (max-width:1000px){
+  .audit-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .audit-filter-grid{grid-template-columns:1fr 1fr}
+  .eco-two-col{grid-template-columns:1fr}
+}
+@media (max-width:640px){
+  .audit-filter-grid{grid-template-columns:1fr}
+  .audit-filter-actions .btn{flex:1}
+}
+
+/* 6. Barra superior en celular: caben ☰, título, ＋, campana, tema, Portal y Salir sin desbordar */
+@media (max-width:640px){
+  .topbar{gap:6px}
+  .topbar-left{min-width:0;flex:1 1 auto;gap:6px}
+  .topbar-title{min-width:0}
+  .topbar-user{gap:4px;flex:0 0 auto}
+  .topbar-user .theme-toggle,.topbar-user .btn-sm{min-width:34px;height:34px;padding:0 8px}
+  .topbar-user form .btn-sm{padding:0 9px}
+}
+@media (max-width:400px){
+  .topbar-user [data-theme-toggle]{display:none}
+}
+@media (max-width:640px){
+  /* Pasos de Nueva recepción: en celular se acomodan en varias líneas en vez de salirse de la pantalla */
+  .step-indicator{flex-wrap:wrap;row-gap:8px}
+  .step-indicator-item{min-width:0}
+}

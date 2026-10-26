@@ -4,8 +4,8 @@
 
 @section('content')
     <span class="auth-eyebrow">Acceso seguro</span>
-    <h2>Ingresa al sistema</h2>
-    <p class="auth-lead">Te enviaremos un código temporal a tu correo. Sin contraseñas.</p>
+    <h2>Ingresa a Control de Vehículos</h2>
+    <p class="auth-lead">Te enviaremos un código temporal de seis dígitos a tu correo.</p>
 
     @if ($errors->any())
         <div class="alert alert-danger">{{ $errors->first() }}</div>
@@ -15,31 +15,32 @@
         <div class="alert alert-success">{{ session('status') }}</div>
     @endif
 
-    <form method="POST" action="{{ route('login') }}" class="space-y-4" onsubmit="this.querySelector('[type=submit]').disabled = true">
+    <form method="POST" action="{{ route('login') }}" class="auth-form-v2" data-single-submit>
         @csrf
 
-        <div>
-            <label for="email" class="block text-sm font-medium mb-1" style="color:var(--ink)">Correo electrónico</label>
-            <input id="email" type="email" name="email" value="{{ old('email') }}" required autofocus
-                   placeholder="nombre@carrousel.com.gt"
-                   class="w-full rounded-md text-sm" style="min-height:48px;padding:11px 13px;">
-        </div>
-
-        <label class="flex items-center gap-2 text-sm" style="color:var(--muted)">
-            <input type="checkbox" name="remember">
-            Recordarme
+        <label for="email">Correo electrónico
+            <input id="email" class="form-control" type="email" name="email" value="{{ old('email') }}" required autofocus autocomplete="email"
+                   placeholder="nombre@carrousel.com.gt">
         </label>
 
-        <button type="submit" class="btn btn-primary w-full">Continuar</button>
+        <label for="remember" style="display:flex;align-items:center;gap:8px;font-weight:500">
+            <input id="remember" type="checkbox" name="remember">
+            Recordarme en este equipo
+        </label>
+
+        <button type="submit" class="btn btn-primary auth-primary">Enviar código</button>
     </form>
 
-    <div class="auth-helper">
+    <div class="auth-helper-v2">
         <span>i</span>
-        <div><strong>¿Aún no tienes acceso?</strong> Contacta a un administrador para que te dé de alta en el sistema.</div>
+        <div><strong>¿Aún no tienes acceso?</strong> Tu cuenta debe estar habilitada por un administrador de la aplicación.</div>
     </div>
-    <p class="auth-security">El código es temporal y de un solo uso. No lo compartas.</p>
+    <p class="auth-security-v2">El código OTP es temporal. No lo compartas: el personal de Carrousel nunca te lo pedirá.</p>
 
-    <div class="mt-4 flex items-center justify-end">
-        <button class="theme-toggle" type="button" data-theme-toggle title="Cambiar apariencia" aria-label="Cambiar apariencia">◐</button>
+    <div class="auth-actions-v2">
+        <div class="auth-action-group">
+            <a class="btn btn-outline-secondary btn-sm" href="{{ \App\Support\Ecosystem::portalUrl() }}">← Portal</a>
+        </div>
+        <button class="btn btn-outline-secondary btn-sm theme-btn" type="button" data-eco-theme-toggle title="Cambiar apariencia" aria-label="Cambiar apariencia">◐</button>
     </div>
 @endsection

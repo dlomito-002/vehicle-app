@@ -51,4 +51,15 @@ return [
 
     'login_code_cooldown_seconds' => (int) env('LOGIN_CODE_COOLDOWN_SECONDS', 60),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Ecosistema Carrousel
+    |--------------------------------------------------------------------------
+    |
+    | "← Portal" button in the top bar and on the login screen.
+    |
+    */
+
+    'portal_url' => env('PORTAL_URL', 'https://portal.carrousel-apps.com/portal/'),
+
 ];

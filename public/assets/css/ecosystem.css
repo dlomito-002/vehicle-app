@@ -1,0 +1,243 @@
+/* Ecosistema Carrousel · capa visual compartida
+ * @version 1.2.0
+ * Historial y reglas: docs/ECOSISTEMA.md (al cambiar este archivo, subir @version aquí y en ecosystem.js).
+ * Archivo IDÉNTICO en todas las apps (Helpdesk, Caja Chica y las que se agreguen).
+ * Solo presentación: no cambia rutas, formularios ni lógica de cada app.
+ * Se carga al final, después de las hojas propias de la app.
+ * Clases que usa: .data-table, .data-table-wrap, .data-table-actions, .data-table-nowrap,
+ * .btn, .badge, .row-action-disclosure (ver ecosystem.js para .is-overflowing).
+ */
+
+/* 1. Tablas: nunca partir palabras, fechas, montos, etiquetas ni botones */
+.data-table thead th{font-size:10px!important;letter-spacing:.055em}
+.data-table tbody td{font-size:12px}
+.data-table thead th{white-space:normal!important;overflow-wrap:normal!important}
+.data-table tbody td{overflow-wrap:break-word!important;word-break:normal!important}
+.data-table tbody td.data-table-nowrap,
+.data-table tbody td.num,
+.data-table tbody td.data-table-number,
+.data-table td .btn,
+.data-table td .badge{white-space:nowrap!important}
+.data-table td .badge{max-width:none}
+@media(min-width:761px){
+  /* Si la tabla no cabe, se desplaza dentro de su tarjeta en vez de salirse */
+  .data-table-wrap{overflow-x:auto!important}
+}
+
+/* 2. Acciones de fila: un solo estilo en todas las apps (texto azul sin fondo) */
+.data-table td.data-table-actions .btn,
+.data-table tbody td:last-child:has(.btn) .btn,
+.data-table .btn-row,
+.data-table .row-action-disclosure>summary.btn{
+  display:inline-flex;align-items:center;gap:5px;vertical-align:middle;
+  min-height:32px;padding:5px 8px!important;margin:0!important;
+  color:var(--brand)!important;background:transparent!important;
+  border:1px solid transparent!important;border-radius:7px;box-shadow:none!important;
+  font-family:inherit;font-size:12px;font-weight:850;line-height:1.2;text-decoration:none;cursor:pointer;
+}
+.data-table td.data-table-actions .btn:hover,
+.data-table tbody td:last-child:has(.btn) .btn:hover,
+.data-table .btn-row:hover,
+.data-table .row-action-disclosure[open]>summary.btn{background:var(--info-bg)!important}
+/* Acciones destructivas: mismo formato, en rojo */
+.data-table td.data-table-actions .btn:is(.btn-danger,.btn-danger-soft,.danger-link),
+.data-table tbody td:last-child:has(.btn) .btn:is(.btn-danger,.btn-danger-soft,.danger-link){color:var(--danger,#b42318)!important}
+.data-table td.data-table-actions .btn:is(.btn-danger,.btn-danger-soft,.danger-link):hover,
+.data-table tbody td:last-child:has(.btn) .btn:is(.btn-danger,.btn-danger-soft,.danger-link):hover{background:var(--danger-bg,#fef3f2)!important}
+/* Acciones en una sola línea */
+.data-table td.data-table-actions form,
+.data-table tbody td:last-child:has(.btn) form{display:inline-block;margin:0!important}
+.data-table td.data-table-actions>div,
+.data-table tbody td:last-child:has(.btn)>div{display:inline-flex!important;flex-wrap:nowrap!important;align-items:center;gap:2px!important;width:auto!important}
+.data-table .row-action-disclosure{vertical-align:middle}
+.data-table .row-action-disclosure>summary .disclosure-chevron{color:inherit;opacity:.7}
+@media(min-width:761px){
+  .data-table td.data-table-actions,
+  .data-table tbody td:last-child:has(.btn){white-space:nowrap!important;padding-top:5px!important;padding-bottom:5px!important}
+}
+
+/* 3. Tablas anchas: la columna de acciones queda fija a la derecha (ecosystem.js marca .is-overflowing) */
+@media(min-width:761px){
+  .data-table-wrap.is-overflowing>.data-table:has(tbody td:last-child:is(.data-table-actions,:has(.btn))) th:last-child,
+  .data-table-wrap.is-overflowing>.data-table:has(tbody td:last-child:is(.data-table-actions,:has(.btn))) td:last-child{
+    position:sticky;right:0;z-index:1;background:var(--card);
+    box-shadow:-10px 0 12px -12px rgba(16,24,40,.35);
+  }
+  .data-table-wrap.is-overflowing>.data-table:has(tbody td:last-child:is(.data-table-actions,:has(.btn))) th:last-child{background:color-mix(in srgb,var(--card) 94%,var(--bg) 6%)}
+  .data-table-wrap.is-overflowing>.data-table:has(tbody td:last-child:is(.data-table-actions,:has(.btn))) tbody tr:hover td:last-child{background:color-mix(in srgb,var(--brand) 3%,var(--card) 97%)}
+}
+
+/* 4. Menú "Más acciones" abierto sobre la pantalla (ecosystem.js lo posiciona) */
+.row-action-disclosure-panel.is-floating{position:fixed!important;z-index:1500!important;margin:0!important}
+
+/* 5. Barra superior en celular: título completo e íconos visibles */
+@media(max-width:760px){
+  .topbar-title .topbar-section{display:none!important}
+  .topbar-user .shell-icon-btn{font-size:16px!important}
+}
+
+/* 6. Campana de notificaciones: mismo botón y mismo panel en todas las apps (diseño de Helpdesk).
+ * Estructura: .shell-notifications > .shell-icon-btn (+ .shell-notification-badge)
+ *             .shell-notification-menu > .shell-notification-head (div: strong + span)
+ *             eventos: .shell-notification-list.shell-notification-events > a.shell-notification-item
+ *             pendientes: .shell-attention-section > .shell-attention-title + .shell-notification-list
+ */
+.shell-notifications{position:relative}
+.shell-icon-btn{position:relative;min-width:40px;width:40px;height:40px;padding:0;border-radius:10px;justify-content:center}
+.shell-notification-badge{position:absolute;right:-5px;top:-6px;min-width:19px;height:19px;padding:0 5px;border-radius:999px;background:#d92d20;color:#fff;border:2px solid var(--card);font-size:10px;line-height:15px;font-weight:850;display:grid;place-items:center}
+.shell-notification-menu{position:absolute;right:0;top:calc(100% + 10px);z-index:1200;width:min(430px,calc(100vw - 24px));max-height:min(720px,calc(100vh - 92px));overflow:auto;background:var(--card);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow-lg);text-align:left}
+.shell-notification-menu[hidden]{display:none!important}
+.shell-notification-head{position:sticky;top:0;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px;background:var(--card);border-bottom:1px solid var(--border)}
+.shell-notification-head>div{min-width:0}
+.shell-notification-head strong{display:block;font-size:15px;color:var(--ink)}
+.shell-notification-head span{display:block;margin-top:2px;font-size:11px;color:var(--muted)}
+.shell-notification-list{display:grid}
+.shell-notification-events{max-height:390px;overflow:auto}
+.shell-notification-item{position:relative;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;padding:13px 15px;color:inherit;text-decoration:none;border-bottom:1px solid var(--border)}
+.shell-notification-events .shell-notification-item{grid-template-columns:auto minmax(0,1fr)}
+.shell-notification-item:last-child{border-bottom:0}
+.shell-notification-item:hover{background:color-mix(in srgb,var(--card) 92%,#eaf0ff 8%)}
+.shell-notification-item.unread{background:color-mix(in srgb,var(--brand) 7%,var(--card) 93%)}
+.shell-notification-item.unread:before{content:"";position:absolute;left:0;top:8px;bottom:8px;width:3px;border-radius:999px;background:var(--brand)}
+.shell-notification-item.attention{background:color-mix(in srgb,var(--card) 97%,var(--bg) 3%)}
+.shell-notification-dot{width:9px;height:9px;border-radius:50%;background:var(--brand)}
+.shell-notification-item.unread .shell-notification-dot{background:#1677ff;box-shadow:0 0 0 4px color-mix(in srgb,#1677ff 12%,transparent)}
+.shell-notification-item.notif-warning .shell-notification-dot{background:#f2a900}
+.shell-notification-item.notif-danger .shell-notification-dot{background:#d92d20}
+.shell-notification-item.notif-success .shell-notification-dot{background:#12b76a}
+.shell-notification-item strong,.shell-notification-item small{display:block}
+.shell-notification-item strong{font-size:13px;color:var(--ink)}
+.shell-notification-item small{margin-top:2px;color:var(--muted);font-size:11px;line-height:1.4}
+.shell-notification-item time{display:block;margin-top:5px;color:var(--muted);font-size:10px}
+.shell-notification-count{min-width:28px;height:28px;border-radius:999px;display:grid;place-items:center;padding:0 8px;background:var(--info-bg);color:var(--brand);font-weight:850;font-size:12px}
+.shell-notification-empty{padding:24px 16px;text-align:center;color:var(--muted);font-size:13px}
+.shell-notification-empty strong{display:block;color:var(--ink);font-size:14px;margin-bottom:3px}
+.shell-attention-section{border-top:1px solid var(--border);background:color-mix(in srgb,var(--card) 95%,var(--bg) 5%)}
+.shell-attention-section:first-child{border-top:0}
+.shell-attention-title{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:10px 15px 7px;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.065em;font-weight:850}
+.shell-attention-title span{display:grid;place-items:center;min-width:23px;height:23px;padding:0 6px;border-radius:999px;background:var(--card);border:1px solid var(--border);color:var(--brand)}
+html[data-theme="dark"] .shell-notification-menu,
+html[data-theme="dark"] .shell-notification-head{background:var(--dark-surface,#171e28);border-color:var(--dark-border,#2c3746)}
+html[data-theme="dark"] .shell-notification-item{color:#e8eef5}
+html[data-theme="dark"] .shell-notification-item:hover{background:var(--dark-surface-hover,#1d2836)}
+html[data-theme="dark"] .shell-notification-item.unread{background:#17243a}
+html[data-theme="dark"] .shell-attention-section{background:#0f1620;border-top-color:var(--dark-border,#2c3746)}
+html[data-theme="dark"] .shell-notification-empty{color:var(--dark-muted,#9aa8ba)}
+@media(max-width:760px){
+  .shell-notification-menu{position:fixed;top:68px;left:10px;right:10px;width:auto;max-height:calc(100vh - 82px)}
+  .shell-notification-events{max-height:46vh}
+}
+
+/* 7. Versión al pie del menú lateral: "<App> vX · Ecosistema vY" (se oculta con el menú colapsado) */
+.sidebar-version{margin-top:auto;padding:10px 18px 12px;border-top:1px solid rgba(255,255,255,.08);color:rgba(232,236,255,.55);font-size:10.5px;line-height:1.45;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sidebar-version span{display:block;overflow:hidden;text-overflow:ellipsis}
+.sidebar-version strong{color:rgba(232,236,255,.8);font-weight:750}
+@media(min-width:901px){body.sidebar-collapsed .sidebar-version{display:none}}
+@media(min-width:901px) and (max-width:1180px){.sidebar-version{display:none}}
+
+/* 8. Ayuda: burbuja "?" flotante abajo a la derecha, igual en todas las apps.
+ * Abre el panel de ayuda de la pantalla (contexto, recorrido guiado y manual). */
+.help-fab{position:fixed;right:22px;bottom:22px;z-index:990;display:grid;place-items:center;width:48px;height:48px;padding:0;border:0;border-radius:50%;background:var(--brand);color:#fff;font-family:inherit;font-size:22px;font-weight:900;line-height:1;box-shadow:0 10px 28px rgba(16,24,40,.24);cursor:pointer;transition:transform .15s ease,box-shadow .15s ease}
+.help-fab:hover{transform:translateY(-1px);box-shadow:0 12px 30px rgba(16,24,40,.3)}
+.help-fab:focus-visible{outline:3px solid color-mix(in srgb,var(--brand) 45%,transparent);outline-offset:3px}
+html[data-theme="dark"] .help-fab{background:#3f73e0;color:#fff}
+html[data-theme="dark"] .help-fab:hover{box-shadow:0 12px 30px rgba(0,0,0,.45),0 0 0 3px rgba(127,167,255,.14)}
+@media print{.help-fab{display:none}}
+
+/* 9. Acceso (login y código OTP): misma pantalla en todas las apps (diseño de Helpdesk).
+ * Autocontenida: no depende de los estilos propios de cada app. Estructura:
+ * body.auth-body-v2 > .brand-strip + main.auth-layout-v2
+ *   > section.auth-brand-v2 > .auth-brand-content (img.auth-brand-logo, .auth-product-pill, h1, p, .auth-points-v2 > span)
+ *   > section.auth-panel-v2 > .auth-card-v2 (.auth-mobile-brand-v2, .auth-eyebrow, h2, .auth-lead, .alert, form.auth-form-v2,
+ *       .auth-helper-v2, .auth-security-v2, .auth-actions-v2 > .auth-action-group + button[data-eco-theme-toggle])
+ */
+.auth-body-v2{min-height:100vh;margin:0;display:flex;align-items:center;justify-content:center;padding:28px;position:relative;box-sizing:border-box;background:radial-gradient(circle at 15% 15%,#315f9b 0,#173d75 34%,#0c294f 74%);color:#1f2937;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;font-size:15px;line-height:1.5}
+.auth-body-v2 *,.auth-body-v2 *:before,.auth-body-v2 *:after{box-sizing:border-box}
+.auth-body-v2 .brand-strip{position:fixed;inset:0 0 auto;height:4px;z-index:30;background:linear-gradient(90deg,#1d5fd1,#8c3ca3,#e63e8d,#f2c94c)}
+.auth-layout-v2{width:min(1080px,100%);min-height:620px;margin:auto;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(390px,.85fr);overflow:hidden;border-radius:26px;box-shadow:0 35px 100px rgba(7,24,48,.32);background:#fff}
+.auth-brand-v2{position:relative;overflow:hidden;display:flex;align-items:center;padding:58px 54px;color:#fff;background:linear-gradient(145deg,rgba(255,255,255,.10),rgba(255,255,255,.025)),#123563}
+.auth-brand-v2:before{content:"";position:absolute;width:330px;height:330px;border:62px solid rgba(230,62,141,.16);border-radius:50%;right:-145px;bottom:-160px;pointer-events:none}
+.auth-brand-v2:after{content:"";position:absolute;width:170px;height:170px;border-radius:50%;background:rgba(242,201,76,.10);left:-70px;top:-60px;pointer-events:none}
+.auth-brand-content{position:relative;z-index:1;max-width:560px}
+.auth-brand-logo{display:block;width:165px;max-height:92px;object-fit:contain;background:#fff;border-radius:15px;padding:9px;margin-bottom:34px}
+.auth-product-pill{display:inline-flex;align-items:center;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.11);border-radius:999px;padding:7px 12px;font-size:12px;font-weight:800;letter-spacing:.02em}
+.auth-brand-v2 h1{max-width:520px;margin:18px 0;color:#fff;font-size:42px;line-height:1.08;font-weight:800;letter-spacing:-.025em}
+.auth-brand-v2 p{max-width:540px;margin:0;color:#d8e5f4;font-size:16px;line-height:1.65}
+.auth-points-v2{display:flex;flex-wrap:wrap;gap:8px;margin-top:26px}
+.auth-points-v2 span{display:inline-flex;align-items:center;min-height:31px;padding:6px 11px;border:1px solid rgba(255,255,255,.19);border-radius:999px;color:#f4f7fb;background:rgba(255,255,255,.06);font-size:11px;font-weight:700}
+.auth-panel-v2{display:flex;min-width:0;background:#fff}
+.auth-card-v2{width:100%;min-width:0;display:flex;flex-direction:column;justify-content:center;padding:54px 44px;background:#fff;color:#1f2937}
+.auth-mobile-brand-v2{display:none}
+.auth-card-v2 .auth-eyebrow{display:block;margin:0 0 7px;color:#e63e8d;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
+.auth-card-v2 h2{margin:0 0 8px;color:#132f5e;font-size:26px;line-height:1.2;font-weight:800;letter-spacing:-.015em}
+.auth-card-v2 .auth-lead{margin:0 0 25px;color:#66758a;font-size:14px;line-height:1.5}
+.auth-card-v2 .auth-lead strong{color:#253650;overflow-wrap:anywhere}
+.auth-form-v2{display:grid;gap:17px;margin:0}
+.auth-form-v2 label{display:grid;gap:7px;margin:0;color:#253650;font-size:13px;font-weight:700}
+.auth-form-v2 label small{font-weight:500;color:#8692a2}
+.auth-form-v2 .form-control{width:100%;min-height:48px;border:1px solid #cbd6e3;border-radius:11px;background:#fff;color:#1f2937;padding:11px 13px;outline:0;font:inherit;font-size:14px;transition:border-color .16s ease,box-shadow .16s ease}
+.auth-form-v2 .form-control:focus{border-color:#5b8fc7;box-shadow:0 0 0 4px rgba(34,91,157,.11)}
+.auth-card-v2 .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:40px;padding:8px 14px;border:1px solid transparent;border-radius:10px;font:inherit;font-size:13px;font-weight:800;line-height:1.2;text-decoration:none;cursor:pointer;transition:background .15s ease,border-color .15s ease}
+.auth-card-v2 .btn-primary{background:#173d75;border-color:#173d75;color:#fff}
+.auth-card-v2 .btn-primary:hover,.auth-card-v2 .btn-primary:focus-visible{background:#102f5e;border-color:#102f5e;color:#fff}
+.auth-card-v2 .btn-outline-secondary{background:#fff;border-color:#cbd6e3;color:#253650}
+.auth-card-v2 .btn-outline-secondary:hover{background:#f3f6fa}
+.auth-card-v2 .btn-sm{min-height:36px;padding:7px 11px;font-size:12px}
+.auth-form-v2 .auth-primary,.auth-card-v2>.auth-primary{width:100%;min-height:48px;margin-top:2px;border-radius:11px;font-size:14px;box-shadow:0 7px 18px rgba(23,61,117,.20)}
+.auth-card-v2 .otp-input-v2{text-align:center;font-size:24px;font-weight:800;letter-spacing:.33em;padding-left:calc(13px + .33em);font-variant-numeric:tabular-nums}
+.auth-card-v2 .alert{display:block;margin:0 0 18px;padding:12px 14px;border:1px solid #b2ddff;border-radius:10px;background:#eff8ff;color:#175cd3;font-size:13px;line-height:1.45}
+.auth-card-v2 .alert:is(.alert-danger,.alert-error){background:#fef3f2;border-color:#fecdca;color:#b42318}
+.auth-card-v2 .alert-success{background:#ecfdf3;border-color:#abefc6;color:#067647}
+.auth-card-v2 .alert-warning{background:#fffaeb;border-color:#fedf89;color:#93370d}
+.auth-helper-v2{display:flex;align-items:flex-start;gap:8px;margin-top:18px;padding:12px 13px;border:1px solid #e2e8f0;border-radius:11px;background:#f8fafc;color:#66758a;font-size:12px;line-height:1.5}
+.auth-helper-v2>span{color:#225b9d;font-weight:900}
+.auth-helper-v2 strong{color:#253650}
+.auth-security-v2{margin:26px 0 0;padding-top:18px;border-top:1px solid #e7ecf2;color:#8692a2;font-size:11px;line-height:1.55}
+.auth-actions-v2{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-top:18px}
+.auth-actions-v2 .auth-action-group{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.auth-actions-v2 form{margin:0}
+.auth-card-v2 .theme-btn{min-width:38px;padding:7px 9px}
+/* Pantalla "procesando" de cada app */
+.auth-body-v2 .busy-overlay{position:fixed;inset:0;z-index:2000;display:grid;place-items:center;padding:18px;background:rgba(9,30,61,.28);backdrop-filter:blur(2px)}
+.auth-body-v2 .busy-overlay:is([hidden],.hidden){display:none}
+.auth-body-v2 .busy-card{display:grid;justify-items:center;gap:8px;min-width:220px;padding:18px 20px;border-radius:14px;background:rgba(255,255,255,.97);color:#173d75;box-shadow:0 18px 45px rgba(7,24,48,.24);text-align:center;font-size:13px}
+.auth-body-v2 .busy-card .spinner{width:24px;height:24px;border:3px solid #d7e3f1;border-top-color:#173d75;border-radius:50%;animation:eco-auth-spin .75s linear infinite}
+@keyframes eco-auth-spin{to{transform:rotate(360deg)}}
+/* Modo oscuro */
+html[data-theme="dark"] .auth-layout-v2{box-shadow:0 28px 80px rgba(0,0,0,.42);background:#171e28}
+html[data-theme="dark"] .auth-brand-v2{background:linear-gradient(145deg,rgba(255,255,255,.05),rgba(255,255,255,.015)),#0f172a}
+html[data-theme="dark"] :is(.auth-panel-v2,.auth-card-v2){background:#171e28;color:#e8eef5}
+html[data-theme="dark"] .auth-card-v2 h2,html[data-theme="dark"] .auth-card-v2 .auth-lead strong,html[data-theme="dark"] .auth-form-v2 label,html[data-theme="dark"] .auth-helper-v2 strong{color:#e8eef5}
+html[data-theme="dark"] :is(.auth-card-v2 .auth-lead,.auth-helper-v2,.auth-security-v2,.auth-form-v2 label small){color:#9aa8ba}
+html[data-theme="dark"] .auth-form-v2 .form-control{background:#111827;color:#e8eef5;border-color:#2c3746}
+html[data-theme="dark"] .auth-helper-v2{background:#1d2836;border-color:#2c3746}
+html[data-theme="dark"] .auth-security-v2{border-color:#2c3746}
+html[data-theme="dark"] .auth-card-v2 .btn-primary{background:#3f73e0;border-color:#3f73e0}
+html[data-theme="dark"] .auth-card-v2 .btn-outline-secondary{background:transparent;border-color:#3a4658;color:#e8eef5}
+html[data-theme="dark"] .auth-card-v2 .alert{background:#14243b;border-color:#35547b;color:#b6ceff}
+html[data-theme="dark"] .auth-card-v2 .alert:is(.alert-danger,.alert-error){background:#351b20;border-color:#6b2a2f;color:#ff9d98}
+html[data-theme="dark"] .auth-card-v2 .alert-success{background:#0f2e22;border-color:#1f6b45;color:#7ee2a8}
+html[data-theme="dark"] .auth-body-v2 .busy-card{background:rgba(23,30,40,.97);color:#e8eef5}
+@media(max-width:900px){
+  .auth-body-v2{padding:18px}
+  .auth-layout-v2{display:block;width:min(520px,100%);min-height:0;border-radius:22px}
+  .auth-brand-v2{display:none}
+  .auth-card-v2{padding:38px 32px}
+  .auth-mobile-brand-v2{display:flex;align-items:center;gap:12px;margin-bottom:30px}
+  .auth-mobile-brand-v2 img{width:76px;height:50px;object-fit:contain;padding:4px;background:#fff;border-radius:9px}
+  .auth-mobile-brand-v2 strong{color:#173d75;font-size:15px}
+  html[data-theme="dark"] .auth-mobile-brand-v2 strong{color:#e8eef5}
+}
+@media(max-width:640px){
+  .auth-body-v2{align-items:flex-start;padding:12px}
+  .auth-layout-v2{margin-top:18px;border-radius:18px}
+  .auth-card-v2{padding:28px 21px}
+  .auth-card-v2 h2{font-size:23px}
+  .auth-actions-v2{display:grid;grid-template-columns:1fr;align-items:stretch}
+  .auth-actions-v2 .auth-action-group{display:grid;grid-template-columns:1fr}
+  .auth-actions-v2 .btn,.auth-actions-v2 form,.auth-actions-v2 form .btn{width:100%}
+  .auth-card-v2 .otp-input-v2{font-size:21px;letter-spacing:.25em}
+}
+/* Ajustes finales del acceso: misma alineación y mismo fondo oscuro en todas las apps */
+.auth-card-v2 .auth-eyebrow,.auth-card-v2 h2,.auth-card-v2 .auth-lead{text-align:left}
+html[data-theme="dark"] body.auth-body-v2{background:radial-gradient(circle at 15% 15%,#1b2a44 0,#0f172a 42%,#0b0f17 80%)}

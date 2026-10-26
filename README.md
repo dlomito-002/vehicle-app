@@ -4,6 +4,10 @@ Aplicacion web para administrar la recepcion, uso y devolucion de vehiculos. Per
 
 El proyecto esta construido con Laravel 12.69.x, PHP 8.2+, Blade, Tailwind CSS, Vite y Dompdf.
 
+## Ecosistema Carrousel
+
+Comparte con Helpdesk, Caja Chica, Rendimientos y Destrucción de Tickets el mismo acceso por código, menú lateral con riel de íconos, campana, ayuda "?" con recorrido guiado, botón ← Portal y la sección Administración (Usuarios, Vehículos, Auditoría y Correo y notificaciones). Ver `docs/ECOSISTEMA.md`. `MAIN.bat` es la consola local de Windows con el formato común (abrir, Git, actualizar, validar, migrar, respaldar, SMTP, commit, push).
+
 ## Funcionalidades
 
 - Inicio de sesion y cierre de sesion.

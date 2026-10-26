@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Mail\LoginVerificationCodeMail;
 use App\Models\LoginVerificationCode;
 use App\Models\User;
+use App\Support\Audit;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -88,6 +89,8 @@ class LoginController extends Controller
             Mail::to($email)->send(new LoginVerificationCodeMail($plainCode));
         }
 
+        Audit::record('login_code_requested', null, [], 'Usuario', $email);
+
         $request->session()->put('login.pending_email', $email);
         $request->session()->put('login.remember', $request->boolean('remember'));
 
@@ -143,6 +146,7 @@ class LoginController extends Controller
         if (! $codeModel->matches((string) $request->input('code'))) {
             $codeModel->registerFailedAttempt();
             RateLimiter::hit($throttleKey, self::VERIFY_DECAY_SECONDS);
+            Audit::record('login_code_failed', null, [], 'Usuario', $email);
 
             throw ValidationException::withMessages([
                 'code' => 'El código no es válido.',

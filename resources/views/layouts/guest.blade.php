@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="es" class="h-full">
+<html lang="es">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="color-scheme" content="light dark">
     <meta name="theme-color" content="#173d75">
-    <title>@yield('title', 'Acceso')  &middot; Control de Vehículos Carrousel</title>
+    <title>@yield('title', 'Acceso') &middot; Control de Vehículos Carrousel</title>
 
     <script>
         try {
@@ -17,54 +17,44 @@
         } catch (e) {}
     </script>
 
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+    {{-- Ecosistema Carrousel §9: pantalla de acceso autocontenida, igual en todas las apps. --}}
+    <link rel="stylesheet" href="{{ \App\Support\Ecosystem::asset('assets/css/ecosystem.css') }}">
 </head>
-<body class="h-full font-sans">
+<body class="auth-body-v2">
 <div class="brand-strip"></div>
-<main class="auth-body">
-    <div class="auth-layout">
-        <section class="auth-brand" aria-label="Control de Vehículos Carrousel">
-            <div class="auth-brand-content">
-                <img src="{{ asset('images/logo.png') }}" alt="Corporación Carrousel"
-                     style="display:block;width:150px;max-height:84px;object-fit:contain;background:#fff;border-radius:14px;padding:8px;margin-bottom:28px;">
-                <span class="auth-product-pill">Control de Vehículos</span>
-                <h1>Recepción y devolución de vehículos, con evidencia en cada paso.</h1>
-                <p>Registra el estado del vehículo al salir y al volver, compara ambos momentos y mantén el mantenimiento al día.</p>
-                <div class="auth-points">
-                    <span>Trazabilidad</span>
-                    <span>Fotografías</span>
-                    <span>Mantenimiento</span>
-                </div>
+<main class="auth-layout-v2">
+    <section class="auth-brand-v2" aria-label="Control de Vehículos Carrousel">
+        <div class="auth-brand-content">
+            <img class="auth-brand-logo" src="{{ asset('images/logo.png') }}" alt="Corporación Carrousel">
+            <span class="auth-product-pill">Control de Vehículos</span>
+            <h1>Recepción y devolución de vehículos, con evidencia en cada paso.</h1>
+            <p>Registra el estado del vehículo al salir y al volver, compara ambos momentos y mantén el mantenimiento al día.</p>
+            <div class="auth-points-v2">
+                <span>Trazabilidad</span>
+                <span>Fotografías</span>
+                <span>Mantenimiento</span>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <section class="auth-panel">
-            <div class="auth-card">
-                <div class="auth-mobile-brand">
-                    <img src="{{ asset('images/logo.png') }}" alt="Corporación Carrousel" style="width:70px;height:46px;object-fit:contain;padding:4px;background:#fff;border-radius:9px;">
-                    <strong>Control de Vehículos</strong>
-                </div>
-
-                @yield('content')
+    <section class="auth-panel-v2">
+        <div class="auth-card-v2">
+            <div class="auth-mobile-brand-v2">
+                <img src="{{ asset('images/logo.png') }}" alt="Corporación Carrousel">
+                <strong>Control de Vehículos</strong>
             </div>
-        </section>
-    </div>
+
+            @yield('content')
+        </div>
+    </section>
 </main>
-
+<script src="{{ \App\Support\Ecosystem::asset('assets/js/ecosystem.js') }}"></script>
 <script>
-    (function () {
-        var btn = document.querySelector('[data-theme-toggle]');
-        if (!btn) return;
-        btn.addEventListener('click', function () {
-            var current = document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
-            var next = current === 'dark' ? 'light' : 'dark';
-            document.documentElement.dataset.theme = next;
-            try { localStorage.setItem('carrousel-theme', next); } catch (e) {}
+    document.querySelectorAll('form[data-single-submit]').forEach(function (form) {
+        form.addEventListener('submit', function () {
+            form.querySelectorAll('[type=submit]').forEach(function (btn) { btn.disabled = true; });
         });
-    })();
+    });
 </script>
 </body>
 </html>
