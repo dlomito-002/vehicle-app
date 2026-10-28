@@ -77,7 +77,7 @@ class LoginCodeRateLimitTest extends TestCase
         }
 
         $this->assertSame($code->id, LoginVerificationCode::activeFor('a@example.com')->id);
-        $this->assertSame(1, RateLimiter::attempts('login-code:10.0.0.1|a@example.com'));
+        $this->assertSame(1, RateLimiter::attempts('login-code:'.sha1('a@example.com')));
     }
 
     public function test_unknown_email_gets_the_same_cooldown_response(): void
@@ -142,5 +142,84 @@ class LoginCodeRateLimitTest extends TestCase
         $this->request('a@example.com')->assertSessionHasNoErrors();
 
         Mail::assertSentCount(2);
+    }
+
+    public function test_five_request_limit_is_shared_across_ips_and_sessions(): void
+    {
+        User::factory()->create(['email' => 'a@example.com']);
+        foreach (range(1, 5) as $number) {
+            $this->flushSession();
+            $this->request('a@example.com', '10.0.0.'.$number)->assertSessionHasNoErrors();
+            $this->travel(61)->seconds();
+        }
+        $this->flushSession();
+        $this->request('A@Example.com', '10.0.0.99')->assertSessionHasErrors('email');
+        Mail::assertSentCount(5);
+        $this->assertSame(5, LoginVerificationCode::count());
+        $this->assertSame('Pediste varios códigos seguidos. Espera unos minutos e inténtalo de nuevo.', session('errors')->first('email'));
+    }
+
+    public function test_successful_login_does_not_reset_request_quota(): void
+    {
+        User::factory()->create(['email' => 'a@example.com']);
+        foreach (range(1, 5) as $number) {
+            $this->request('a@example.com')->assertSessionHasNoErrors();
+            if ($number < 5) {
+                $this->travel(61)->seconds();
+            }
+        }
+        $plain = Mail::sent(LoginVerificationCodeMail::class)->last()->code;
+        $this->post(route('login.verify'), ['code' => $plain])->assertSessionHasNoErrors();
+        $this->assertAuthenticated();
+        $this->post(route('logout'));
+        $this->travel(61)->seconds();
+        $this->request('a@example.com')->assertSessionHasErrors('email');
+        Mail::assertSentCount(5);
+    }
+
+    public function test_new_code_gets_five_fresh_attempts_after_previous_code_is_exhausted(): void
+    {
+        User::factory()->create(['email' => 'a@example.com']);
+        $this->request('a@example.com');
+        $old = LoginVerificationCode::activeFor('a@example.com');
+        foreach (range(1, 5) as $number) {
+            $this->post(route('login.verify'), ['code' => 'wrong'])->assertSessionHasErrors('code');
+        }
+        $this->assertSame('Demasiados intentos con este código. Solicita uno nuevo.', session('errors')->first('code'));
+        $this->assertNotNull($old->fresh()->consumed_at);
+        $this->travel(61)->seconds();
+        $this->request('a@example.com')->assertSessionHasNoErrors();
+        $plain = Mail::sent(LoginVerificationCodeMail::class)->last()->code;
+        $this->post(route('login.verify'), ['code' => $plain])->assertSessionHasNoErrors();
+        $this->assertAuthenticated();
+        $this->assertSame(2, LoginVerificationCode::count());
+    }
+
+    public function test_request_quota_expires_after_fifteen_minutes(): void
+    {
+        User::factory()->create(['email' => 'a@example.com']);
+        foreach (range(1, 5) as $number) {
+            $this->request('a@example.com');
+            $this->travel(61)->seconds();
+        }
+        $this->request('a@example.com')->assertSessionHasErrors('email');
+        $this->travel(901)->seconds();
+        $this->flushSession();
+        $this->request('a@example.com')->assertSessionHasNoErrors();
+        Mail::assertSentCount(6);
+    }
+
+    public function test_previous_verification_throttle_does_not_block_a_replacement_code(): void
+    {
+        User::factory()->create(['email' => 'a@example.com']);
+        $this->request('a@example.com');
+        foreach (range(1, 5) as $number) {
+            $this->post(route('login.verify'), ['code' => 'wrong']);
+        }
+        $this->travel(61)->seconds();
+        $this->request('a@example.com');
+        $plain = Mail::sent(LoginVerificationCodeMail::class)->last()->code;
+        $this->post(route('login.verify'), ['code' => $plain])->assertSessionHasNoErrors();
+        $this->assertAuthenticated();
     }
 }

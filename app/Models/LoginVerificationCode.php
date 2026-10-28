@@ -84,6 +84,10 @@ class LoginVerificationCode extends Model
     public function registerFailedAttempt(): void
     {
         $this->increment('attempts');
+
+        if ($this->isLockedOut()) {
+            $this->markConsumed();
+        }
     }
 
     public function markConsumed(): void

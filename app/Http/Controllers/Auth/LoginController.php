@@ -26,7 +26,7 @@ use Illuminate\View\View;
  */
 class LoginController extends Controller
 {
-    /** How many codes a given email+IP may request within the decay window (Ecosistema: 5 cada 15 minutos). */
+    /** How many codes a given email may request within the decay window (Ecosistema: 5 cada 15 minutos). */
     private const MAX_CODE_REQUESTS = 5;
 
     private const CODE_REQUEST_DECAY_SECONDS = 900;
@@ -51,7 +51,7 @@ class LoginController extends Controller
 
         $email = mb_strtolower(trim($data['email']));
 
-        $throttleKey = $this->codeRequestThrottleKey($request, $email);
+        $throttleKey = $this->codeRequestThrottleKey($email);
 
         if (RateLimiter::tooManyAttempts($throttleKey, self::MAX_CODE_REQUESTS)) {
             throw ValidationException::withMessages([
@@ -117,15 +117,14 @@ class LoginController extends Controller
             'code' => ['required', 'string'],
         ]);
 
-        $throttleKey = $this->verifyThrottleKey($request, $email);
+        $codeModel = LoginVerificationCode::activeFor($email);
+        $throttleKey = $this->verifyThrottleKey($request, $email, $codeModel?->id ?? 0);
 
         if (RateLimiter::tooManyAttempts($throttleKey, self::MAX_VERIFY_ATTEMPTS)) {
             throw ValidationException::withMessages([
                 'code' => 'Demasiados intentos con este código. Solicita uno nuevo.',
             ]);
         }
-
-        $codeModel = LoginVerificationCode::activeFor($email);
 
         if (! $codeModel || $codeModel->isLockedOut()) {
             RateLimiter::hit($throttleKey, self::VERIFY_DECAY_SECONDS);
@@ -141,7 +140,9 @@ class LoginController extends Controller
             Audit::record('login_code_failed', null, [], 'Usuario', $email);
 
             throw ValidationException::withMessages([
-                'code' => 'El código no es correcto.',
+                'code' => $codeModel->isLockedOut()
+                    ? 'Demasiados intentos con este código. Solicita uno nuevo.'
+                    : 'El código no es correcto.',
             ]);
         }
 
@@ -155,7 +156,6 @@ class LoginController extends Controller
 
         $codeModel->markConsumed();
         RateLimiter::clear($throttleKey);
-        RateLimiter::clear($this->codeRequestThrottleKey($request, $email));
 
         $request->session()->forget('login.pending_email');
 
@@ -196,13 +196,13 @@ class LoginController extends Controller
         return max(1, (int) Cache::get($key, 0) - now()->timestamp);
     }
 
-    private function codeRequestThrottleKey(Request $request, string $email): string
+    private function codeRequestThrottleKey(string $email): string
     {
-        return 'login-code:'.$request->ip().'|'.$email;
+        return 'login-code:'.sha1($email);
     }
 
-    private function verifyThrottleKey(Request $request, string $email): string
+    private function verifyThrottleKey(Request $request, string $email, int $codeId): string
     {
-        return 'login-verify:'.$request->ip().'|'.$email;
+        return 'login-verify:'.$request->ip().'|'.$email.'|'.$codeId;
     }
 }

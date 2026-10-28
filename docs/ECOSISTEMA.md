@@ -15,7 +15,17 @@ Este archivo es **idéntico en todas las apps**: si se cambia aquí, se copia a 
 | Carrousel Campañas (Cumpleaños) | FernandoZL/carrousel-cumple | archivo `VERSION` | 1.3.0 |
 | Compras | FernandoZL/compras-carrousel | archivo `VERSION` | 1.3.0 |
 | Control de Documentos | FernandoZL/control-documentos-carrousel | archivo `VERSION` | 1.3.0 |
-| Portal de Sistemas | FernandoZL/portal-carrousel | último commit | 1.3.0 |
+| Portal de Sistemas | FernandoZL/portal-carrousel | archivo `VERSION` | 1.3.0 |
+| Control IT | FernandoZL/control-it-carrousel | archivo `VERSION` | 1.3.0 |
+| Tu Voz Carrousel | FernandoZL/tu-voz-carrousel | archivo `VERSION.txt` | 1.3.0 |
+
+## Alcance acordado
+
+Se mantienen fuera de esta integración `payout`, `PayOutParques` y las versiones anteriores `CajaChica` y `Helpdesk`. Sus reemplazos vigentes son `caja_chica_carrousel` y `HelpdeskCarrousel`.
+
+Las funciones propias se conservan. Tu Voz mantiene el envío público de sugerencias y su seguimiento por código; el acceso administrativo sigue limitado por rol. El Portal conserva su acceso público como punto de entrada.
+
+Auditoría Interna y Supervisión de Parques usan el mismo diseño mediante `EcoStyles.html` y `EcoScripts.html`, generados desde Helpdesk. Su código se gestiona en Apps Script; publicar se revisa por separado de los repositorios PHP.
 
 Cada app muestra al pie del menú lateral su versión y la del ecosistema que tiene instalada
 (por ejemplo, `Caja Chica v1.0.42 · Ecosistema v1.0.0`). Si dos apps muestran versiones de ecosistema distintas,
@@ -130,6 +140,8 @@ Todos los correos del sistema (código de acceso, avisos, alertas, prueba de cor
 | Control de Vehículos | `resources/views/emails/layout.blade.php` |
 | Compras | `mail_layout.php` → `eco_mail_layout()` |
 | Control de Documentos | `includes/mail_layout.php` → `eco_mail_layout()` |
+| Control IT | `includes/mail_layout.php` → `eco_mail_layout()` |
+| Tu Voz Carrousel | `includes/mail_layout.php` → `eco_mail_layout()` |
 
 Estructura: fondo `#eef3f9`; tarjeta blanca de 620 px con borde `#d7deea` y radio 18 px; franja de 4 px con el degradado
 `#2748a0 → #773db8 → #eb2f7d → #f6a800`; logo de 108 px a la izquierda y etiqueta en mayúsculas a la derecha; título de 24 px
@@ -143,7 +155,22 @@ tarjeta, "Corporación Carrousel".
 - **Prueba de correo**: etiqueta "Prueba", título "El correo funciona".
 - Excepción: los correos a **clientes** de Cumpleaños (cupón, campañas, cumpleaños) conservan su diseño festivo; solo usan el mismo logo liviano.
 
+## Integración y verificación del acceso
+
+Control IT conserva `usuarios_it` y `auth_codigos`: su migración aditiva agrega `intentos` y requiere respaldo previo (`tools/migrate_ecosystem.php`). No migrar ni normalizar los registros operativos para cambiar el diseño.
+
+Tu Voz conserva los datos históricos de casos. Sus códigos actuales y cuotas viven en `config/private/otp/`, fuera del acceso web y de Git, con bloqueo de archivo para serializar solicitudes. La auditoría nueva vive en almacenamiento privado; no sustituye el historial de casos. Respaldar ese almacenamiento junto con la configuración privada y los adjuntos.
+
+Las cuotas se conservan incluso cuando el acceso resulta correcto o falla el envío SMTP. El quinto fallo invalida el código inmediatamente. No ejecutar envíos SMTP ni tareas de datos durante una validación automática.
+
 ## Historial
+
+### Revisión de consistencia · 2026-10-28
+- Se integran Control IT y Tu Voz; se documentan las carpetas excluidas.
+- Se corrige la invalidación en el quinto fallo en Compras, Documentos y Tickets; Rendimientos conserva la cuota tras consumir el código o fallar SMTP.
+- Vehículos aplica la cuota por correo entre distintas IP y conserva la espera de 60 segundos; un nuevo código no hereda el bloqueo del anterior.
+- Caja Chica fija los valores comunes del OTP también en servidor, correo y configuración; Campañas usa una ventana móvil para solicitudes OTP.
+- El Portal muestra versión propia y del ecosistema; su consola prefiere php82 como las demás.
 
 ### 1.3.0 · 2026-10-28
 - Movimiento (§10 y sección Movimiento): "Procesando", avisos, botones guardando y diálogos con la misma animación en todas las apps; `window.EcoUI` con `busy()`, `idle()` y `toast()` (crea el marcado si falta) y cierre del "Procesando" al volver con "Atrás".
