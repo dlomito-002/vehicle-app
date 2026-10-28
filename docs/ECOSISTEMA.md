@@ -7,11 +7,15 @@ Este archivo es **idéntico en todas las apps**: si se cambia aquí, se copia a 
 
 | App | Repositorio | Versión de la app | Ecosistema |
 |---|---|---|---|
-| Helpdesk | FernandoZL/helpdesk-carrousel | `config/config.php` → `APP_VERSION` | 1.2.1 |
-| Caja Chica | FernandoZL/caja-chica-carrousel | archivo `VERSION` | 1.2.1 |
-| Rendimientos de Máquinas | FernandoZL/rendimientos-maquinas-carrousel | archivo `VERSION.txt` (primera línea) | 1.2.1 |
-| Destrucción de Tickets | FernandoZL/tickets-destruccion-carrousel | archivo `VERSION` | 1.2.1 |
-| Control de Vehículos | dlomito-002/vehicle-app | archivo `VERSION` | 1.2.1 |
+| Helpdesk | FernandoZL/helpdesk-carrousel | `config/config.php` → `APP_VERSION` | 1.3.0 |
+| Caja Chica | FernandoZL/caja-chica-carrousel | archivo `VERSION` | 1.3.0 |
+| Rendimientos de Máquinas | FernandoZL/rendimientos-maquinas-carrousel | archivo `VERSION.txt` (primera línea) | 1.3.0 |
+| Destrucción de Tickets | FernandoZL/tickets-destruccion-carrousel | archivo `VERSION` | 1.3.0 |
+| Control de Vehículos | dlomito-002/vehicle-app | archivo `VERSION` | 1.3.0 |
+| Carrousel Campañas (Cumpleaños) | FernandoZL/carrousel-cumple | archivo `VERSION` | 1.3.0 |
+| Compras | FernandoZL/compras-carrousel | archivo `VERSION` | 1.3.0 |
+| Control de Documentos | FernandoZL/control-documentos-carrousel | archivo `VERSION` | 1.3.0 |
+| Portal de Sistemas | FernandoZL/portal-carrousel | último commit | 1.3.0 |
 
 Cada app muestra al pie del menú lateral su versión y la del ecosistema que tiene instalada
 (por ejemplo, `Caja Chica v1.0.42 · Ecosistema v1.0.0`). Si dos apps muestran versiones de ecosistema distintas,
@@ -76,6 +80,36 @@ Los menús anteriores (`CAJA_CHICA_ADMIN.bat`, `RENDIMIENTOS_ADMIN.bat`) se cons
 `C:\xampp\php82` (PHP 8.2, requerido por Cumpleaños y Control de Vehículos). Todo `.bat`, `.cmd` o `.ps1` busca primero
 `C:\xampp\php82\php.exe`, luego `C:\xampp\php\php.exe` y al final `php` del PATH. En una PC sin `php82` usa el de XAMPP.
 
+## Movimiento
+
+Las animaciones son las mismas en todas las apps y viven en `ecosystem.css` §10 y `ecosystem.js` (`window.EcoUI`).
+Ninguna app define sus propias ruedas de carga, avisos ni animaciones de entrada.
+
+| Qué | Cómo se ve | Cómo se usa |
+|---|---|---|
+| Procesando | Fondo oscuro translúcido con fundido de .14 s; tarjeta con rueda de 42 px que gira cada .75 s, "Procesando información" y el mensaje. En el acceso, tarjeta compacta. Para procesos largos, barra de avance `.global-action-progress` y paso actual en `small`. | `EcoUI.busy('Guardando…')` / `EcoUI.idle()` (o el marcado `#global-action-status` con la clase `.show`) |
+| Avisos | Arriba a la derecha (en celular, a lo ancho), franja izquierda de color por tipo, entran en .18 s y se cierran solos a los 3,6 s | `EcoUI.toast('Guardado', 'success')`; tipos `info`, `success`, `warning`, `danger` |
+| Botón guardando | Deshabilitado, opacidad .65 y texto "Procesando…" | Formularios con `data-single-submit` (o lo hace la app al enviar) |
+| Diálogos | Entran en .14 s desde 8 px más abajo | Clase `.eco-dialog` (o `.admin-record-dialog`) en el `<dialog>` |
+
+Si el equipo pide reducir movimiento (`prefers-reduced-motion`), todo aparece sin animación.
+
+## Acceso y código OTP
+
+Misma pantalla (§9) y mismas reglas en todas las apps; solo cambian el nombre, la frase y las tres etiquetas de la izquierda.
+
+- **Pantalla de correo**: "Acceso seguro" · "Ingresa a &lt;App&gt;" · "Te enviaremos un código temporal de seis dígitos a tu correo." ·
+  campo "Correo electrónico" con ejemplo `nombre@carrousel.com.gt` · botón "Enviar código" · recuadro "¿Aún no tienes acceso? …" ·
+  aviso "El código OTP es temporal. No lo compartas: el personal de Carrousel nunca te lo pedirá." · "← Portal" y botón de tema.
+- **Pantalla de código**: "Verificación" · "Escribe tu código" · "Si &lt;correo&gt; tiene acceso, recibirás el código en unos segundos." ·
+  campo "Código de 6 dígitos" (`.otp-input-v2`) · "Ingresar" · "Cambiar correo" y "Reenviar código".
+- **Reglas**: código de 6 dígitos guardado con `password_hash`; vence en **10 minutos**; **5 intentos** por código (al quinto se invalida);
+  máximo **5 códigos cada 15 minutos** por correo; pedir uno nuevo invalida el anterior; la respuesta es la misma exista o no el correo
+  (no se revela quién tiene acceso); al entrar se regenera la sesión.
+- **Mensajes**: "El código no es correcto." · "El código venció o ya se usó. Solicita uno nuevo." ·
+  "Demasiados intentos con este código. Solicita uno nuevo." · "Pediste varios códigos seguidos. Espera unos minutos e inténtalo de nuevo."
+- El correo del código usa la plantilla de abajo (etiqueta "Acceso").
+
 ## Correos
 
 Todos los correos del sistema (código de acceso, avisos, alertas, prueba de correo) usan **la misma plantilla que Helpdesk**
@@ -89,6 +123,8 @@ Todos los correos del sistema (código de acceso, avisos, alertas, prueba de cor
 | Cumpleaños | `app/Mailer.php` → `layout()` |
 | Destrucción de Tickets | `inc/mail_layout.php` → `eco_mail_layout()` |
 | Control de Vehículos | `resources/views/emails/layout.blade.php` |
+| Compras | `mail_layout.php` → `eco_mail_layout()` |
+| Control de Documentos | `includes/mail_layout.php` → `eco_mail_layout()` |
 
 Estructura: fondo `#eef3f9`; tarjeta blanca de 620 px con borde `#d7deea` y radio 18 px; franja de 4 px con el degradado
 `#2748a0 → #773db8 → #eb2f7d → #f6a800`; logo de 108 px a la izquierda y etiqueta en mayúsculas a la derecha; título de 24 px
@@ -103,6 +139,11 @@ tarjeta, "Corporación Carrousel".
 - Excepción: los correos a **clientes** de Cumpleaños (cupón, campañas, cumpleaños) conservan su diseño festivo; solo usan el mismo logo liviano.
 
 ## Historial
+
+### 1.3.0 · 2026-10-28
+- Movimiento (§10 y sección Movimiento): "Procesando", avisos, botones guardando y diálogos con la misma animación en todas las apps; `window.EcoUI` con `busy()`, `idle()` y `toast()` (crea el marcado si falta) y cierre del "Procesando" al volver con "Atrás".
+- Acceso y código OTP: textos, mensajes y reglas comunes (10 minutos, 5 intentos, 5 códigos cada 15 minutos).
+- Se agregan Carrousel Campañas, Compras, Control de Documentos y el Portal a la tabla de apps; Compras y Control de Documentos usan la plantilla de correos.
 
 ### 1.2.1 · 2026-10-26
 - Versión al pie del menú siempre visible: queda fija abajo aunque el menú sea largo. Con el menú en riel de íconos (colapsado o entre 901 y 1180 px) muestra solo la versión de la app; el texto completo aparece al pasar el cursor. Usa una consulta de contenedor sobre `.sidebar` (`container-type:inline-size`).

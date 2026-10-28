@@ -12,9 +12,6 @@
   const desktopSidebar=window.matchMedia('(min-width:901px)');
   const sidebar=document.getElementById('app-sidebar');
   const sidebarBackdrop=document.querySelector('[data-sidebar-backdrop]');
-  const actionStatus=document.getElementById('global-action-status');
-  const actionMessage=actionStatus?actionStatus.querySelector('[data-action-message]'):null;
-  const toastContainer=document.getElementById('app-toast-container');
 
   function store(key,value){try{if(value===undefined)return localStorage.getItem(key);localStorage.setItem(key,value);}catch(e){}return null;}
   function escapeHtml(v){return String(v).replace(/[&<>'"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));}
@@ -29,18 +26,10 @@
   }
 
   /* ===== Avisos y estado de envío ===== */
-  function notify(message,type='info',duration=3600){
-    if(!message||!toastContainer)return;
-    const toast=document.createElement('div');
-    toast.className='app-toast '+type;
-    const text=document.createElement('span');text.className='app-toast-message';text.textContent=String(message);
-    const close=document.createElement('button');close.className='app-toast-close';close.type='button';close.setAttribute('aria-label','Cerrar');close.textContent='×';
-    toast.append(text,close);toastContainer.appendChild(toast);
-    const remove=()=>toast.remove();close.addEventListener('click',remove);if(duration>0)window.setTimeout(remove,duration);
-  }
-  window.EcoUI=Object.freeze({notify});
-  function startAction(message){if(!actionStatus)return;if(actionMessage)actionMessage.textContent=message||'Procesando…';actionStatus.classList.add('show');actionStatus.setAttribute('aria-hidden','false');}
-  function stopAction(){if(!actionStatus)return;actionStatus.classList.remove('show');actionStatus.setAttribute('aria-hidden','true');}
+  // "Procesando" y avisos comunes del ecosistema (ecosystem.js → EcoUI; ecosystem.css §10).
+  function notify(message,type='info',duration=3600){window.EcoUI?.toast(message,type,duration);}
+  function startAction(message){window.EcoUI?.busy(message||'Procesando…');}
+  function stopAction(){window.EcoUI?.idle();}
 
   /* ===== Menú lateral ===== */
   function updateSidebarToggle(){

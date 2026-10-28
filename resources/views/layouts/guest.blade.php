@@ -53,6 +53,7 @@
     document.querySelectorAll('form[data-single-submit]').forEach(function (form) {
         form.addEventListener('submit', function () {
             form.querySelectorAll('[type=submit]').forEach(function (btn) { btn.disabled = true; });
+            if (window.EcoUI) window.EcoUI.busy(form.dataset.actionMessage || 'Procesando…');
         });
     });
 </script>

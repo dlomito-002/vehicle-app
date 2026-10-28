@@ -15,7 +15,7 @@
         <div class="alert alert-success">{{ session('status') }}</div>
     @endif
 
-    <form method="POST" action="{{ route('login') }}" class="auth-form-v2" data-single-submit>
+    <form method="POST" action="{{ route('login') }}" class="auth-form-v2" data-single-submit data-action-message="Enviando código de acceso…">
         @csrf
 
         <label for="email">Correo electrónico

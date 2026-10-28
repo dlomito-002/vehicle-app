@@ -26,10 +26,10 @@ use Illuminate\View\View;
  */
 class LoginController extends Controller
 {
-    /** How many codes a given email+IP may request within the decay window. */
-    private const MAX_CODE_REQUESTS = 3;
+    /** How many codes a given email+IP may request within the decay window (Ecosistema: 5 cada 15 minutos). */
+    private const MAX_CODE_REQUESTS = 5;
 
-    private const CODE_REQUEST_DECAY_SECONDS = 600;
+    private const CODE_REQUEST_DECAY_SECONDS = 900;
 
     /** How many failed verification submissions a given email+IP may make within the decay window. */
     private const MAX_VERIFY_ATTEMPTS = 5;
@@ -55,10 +55,7 @@ class LoginController extends Controller
 
         if (RateLimiter::tooManyAttempts($throttleKey, self::MAX_CODE_REQUESTS)) {
             throw ValidationException::withMessages([
-                'email' => sprintf(
-                    'Demasiadas solicitudes de código. Intenta de nuevo en %d minuto(s).',
-                    (int) ceil(RateLimiter::availableIn($throttleKey) / 60)
-                ),
+                'email' => 'Pediste varios códigos seguidos. Espera unos minutos e inténtalo de nuevo.',
             ]);
         }
 
@@ -94,7 +91,7 @@ class LoginController extends Controller
         $request->session()->put('login.pending_email', $email);
         $request->session()->put('login.remember', $request->boolean('remember'));
 
-        return redirect()->route('login.verify')->with('status', 'Si el correo tiene una cuenta, te enviamos un código de verificación.');
+        return redirect()->route('login.verify');
     }
 
     /** Step 2: enter the code. */
@@ -126,10 +123,7 @@ class LoginController extends Controller
 
         if (RateLimiter::tooManyAttempts($throttleKey, self::MAX_VERIFY_ATTEMPTS)) {
             throw ValidationException::withMessages([
-                'code' => sprintf(
-                    'Demasiados intentos. Intenta de nuevo en %d minuto(s) o solicita un nuevo código.',
-                    (int) ceil(RateLimiter::availableIn($throttleKey) / 60)
-                ),
+                'code' => 'Demasiados intentos con este código. Solicita uno nuevo.',
             ]);
         }
 
@@ -139,7 +133,7 @@ class LoginController extends Controller
             RateLimiter::hit($throttleKey, self::VERIFY_DECAY_SECONDS);
 
             throw ValidationException::withMessages([
-                'code' => 'El código no es válido o ya expiró. Solicita uno nuevo.',
+                'code' => 'El código venció o ya se usó. Solicita uno nuevo.',
             ]);
         }
 
@@ -149,7 +143,7 @@ class LoginController extends Controller
             Audit::record('login_code_failed', null, [], 'Usuario', $email);
 
             throw ValidationException::withMessages([
-                'code' => 'El código no es válido.',
+                'code' => 'El código no es correcto.',
             ]);
         }
 
@@ -157,7 +151,7 @@ class LoginController extends Controller
 
         if (! $user) {
             throw ValidationException::withMessages([
-                'code' => 'No se encontró una cuenta con ese correo electrónico.',
+                'code' => 'Tu acceso fue desactivado. Consulta con un administrador.',
             ]);
         }
 

@@ -1,5 +1,5 @@
 /* Ecosistema Carrousel · capa visual compartida
- * @version 1.2.1
+ * @version 1.3.0
  * Historial y reglas: docs/ECOSISTEMA.md (al cambiar este archivo, subir @version aquí y en ecosystem.js).
  * Archivo IDÉNTICO en todas las apps (Helpdesk, Caja Chica y las que se agreguen).
  * Solo presentación: no cambia rutas, formularios ni lógica de cada app.
@@ -246,3 +246,55 @@ html[data-theme="dark"] .auth-body-v2 .busy-card{background:rgba(23,30,40,.97);c
 /* Ajustes finales del acceso: misma alineación y mismo fondo oscuro en todas las apps */
 .auth-card-v2 .auth-eyebrow,.auth-card-v2 h2,.auth-card-v2 .auth-lead{text-align:left}
 html[data-theme="dark"] body.auth-body-v2{background:radial-gradient(circle at 15% 15%,#1b2a44 0,#0f172a 42%,#0b0f17 80%)}
+
+/* 10. Movimiento: misma animación en todas las apps (valores de Helpdesk).
+ *  - "Procesando": #global-action-status.global-action-status > .global-action-card > .global-action-spinner + strong + span[data-action-message].
+ *    Aparece con fundido de .14s; la rueda gira cada .75s. Se muestra con la clase .show (ecosystem.js → EcoUI.busy()).
+ *    Opcional para procesos largos: .global-action-progress > span (ancho = avance) y small con el paso actual.
+ *  - Avisos: #app-toast-container.app-toast-container > .app-toast.{info|success|warning|danger}; entran en .18s (EcoUI.toast()).
+ *  - Botones guardando: deshabilitados con opacidad .65 y el texto "Procesando…".
+ *  - Diálogos (.eco-dialog, .admin-record-dialog): entran en .14s.
+ *  - Si el equipo pide reducir movimiento, todo aparece sin animación. */
+@keyframes eco-spin{to{transform:rotate(360deg)}}
+@keyframes eco-toast-in{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+@keyframes eco-dialog-in{from{opacity:0;transform:translateY(8px) scale(.99)}to{opacity:1;transform:none}}
+.global-action-status{position:fixed;inset:0;z-index:5000;background:rgba(15,23,42,.35);backdrop-filter:blur(2px);display:grid;place-items:center;padding:18px;opacity:0;visibility:hidden;transition:opacity .14s ease,visibility .14s ease}
+.global-action-status.show{opacity:1;visibility:visible}
+.global-action-card{display:block;width:min(390px,94vw);min-width:0;max-width:none;background:var(--card,#fff);color:var(--ink,#1f2937);border:1px solid var(--border,#d0d5dd);border-radius:18px;box-shadow:0 18px 45px rgba(16,24,40,.16);padding:24px;text-align:center}
+.global-action-spinner{width:42px;height:42px;border-radius:50%;border:4px solid #d7e3f1;border-top-color:#213a8f;display:block;margin:0 auto 14px;animation:eco-spin .75s linear infinite}
+.global-action-card strong{display:block;font-size:18px;color:inherit}
+.global-action-card span[data-action-message]{display:block;color:var(--muted,#667085);font-size:13px;margin-top:5px}
+.global-action-progress{height:6px;margin:14px 0 8px;border-radius:999px;background:#e4e7ec;overflow:hidden}
+.global-action-progress>span{display:block;width:0;height:100%;border-radius:inherit;background:#213a8f;transition:width .3s ease}
+.global-action-card small{display:block;color:var(--muted,#667085);font-size:12px}
+html[data-theme="dark"] .global-action-progress{background:#263446}
+html[data-theme="dark"] .global-action-progress>span{background:#9db9ff}
+html[data-theme="dark"] .global-action-status{background:rgba(4,7,12,.62)}
+html[data-theme="dark"] .global-action-card{background:#121821;color:#f2f5f9;border-color:#2a3545}
+html[data-theme="dark"] .global-action-spinner{border-color:#324158;border-top-color:#9db9ff}
+html[data-theme="dark"] .global-action-card span[data-action-message]{color:#9eacbd}
+/* En el acceso (login y código) la tarjeta es compacta, como en Helpdesk */
+body.auth-body-v2 .global-action-card{width:auto;min-width:220px;max-width:320px;padding:18px 20px;border-radius:14px}
+body.auth-body-v2 .global-action-spinner{width:24px;height:24px;border-width:3px;margin:0 auto 6px}
+body.auth-body-v2 .global-action-card strong{font-size:13px;color:#173d75}
+body.auth-body-v2 .global-action-card span[data-action-message]{font-size:11px;margin-top:2px}
+html[data-theme="dark"] body.auth-body-v2 .global-action-card strong{color:#f2f5f9}
+.app-toast-container{position:fixed;right:18px;top:86px;left:auto;bottom:auto;z-index:4800;display:grid;gap:8px;width:min(360px,calc(100vw - 36px));pointer-events:none}
+.app-toast{pointer-events:auto;background:var(--card,#fff);color:var(--ink,#1f2937);border:1px solid var(--border,#d0d5dd);border-left:4px solid #213a8f;border-radius:11px;box-shadow:0 18px 45px rgba(16,24,40,.16);padding:11px 12px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:start;animation:eco-toast-in .18s ease-out}
+.app-toast.success{border-left-color:#067647}
+.app-toast.warning{border-left-color:#f2a900}
+.app-toast.danger,.app-toast.error{border-left-color:#d92d20}
+.app-toast-message{font-size:13px;line-height:1.45}
+.app-toast-close{border:0;background:transparent;color:var(--muted,#667085);font-size:19px;line-height:1;cursor:pointer;padding:0}
+html[data-theme="dark"] .app-toast{background:#18212e;color:#f2f5f9;border-color:#2a3545}
+html[data-theme="dark"] .app-toast.info{border-left-color:#9db9ff}
+@media (max-width:760px){.app-toast-container{left:12px;right:12px;top:72px;width:auto}}
+/* En el acceso (sin barra superior) los avisos van arriba y por encima del "Procesando", como en Helpdesk */
+body.auth-body-v2 .app-toast-container{top:18px;right:18px;z-index:5100}
+@media (max-width:760px){body.auth-body-v2 .app-toast-container{left:12px;right:12px;top:12px}}
+.btn:disabled,.btn[aria-disabled="true"],.btn.is-busy{opacity:.65;cursor:not-allowed}
+.eco-dialog[open],.admin-record-dialog[open]{animation:eco-dialog-in .14s ease-out}
+@media (prefers-reduced-motion:reduce){
+  .global-action-status,.app-toast,.eco-dialog[open],.admin-record-dialog[open]{transition:none;animation:none}
+  .global-action-spinner{animation-duration:1.5s}
+}
