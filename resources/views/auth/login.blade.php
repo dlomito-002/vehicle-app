@@ -23,11 +23,6 @@
                    placeholder="nombre@carrousel.com.gt">
         </label>
 
-        <label for="remember" style="display:flex;align-items:center;gap:8px;font-weight:500">
-            <input id="remember" type="checkbox" name="remember">
-            Recordarme en este equipo
-        </label>
-
         <button type="submit" class="btn btn-primary auth-primary">Enviar código</button>
     </form>
 

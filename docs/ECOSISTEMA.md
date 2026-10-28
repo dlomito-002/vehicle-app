@@ -109,6 +109,11 @@ Misma pantalla (§9) y mismas reglas en todas las apps; solo cambian el nombre, 
 - **Mensajes**: "El código no es correcto." · "El código venció o ya se usó. Solicita uno nuevo." ·
   "Demasiados intentos con este código. Solicita uno nuevo." · "Pediste varios códigos seguidos. Espera unos minutos e inténtalo de nuevo."
 - El correo del código usa la plantilla de abajo (etiqueta "Acceso").
+- **Excepciones acordadas**:
+  - **Helpdesk** es público: cualquiera reporta sin iniciar sesión. A un correo sin cuenta se le dice que puede enviar su solicitud sin
+    entrar; para iniciar sesión después hay que crear el usuario en la app.
+  - **Carrousel Campañas** le indica a un correo no registrado que pida acceso a Soporte de TI (su prueba `tests/production.php` lo exige).
+  - **Control de Vehículos** pide esperar 60 s entre dos códigos del mismo correo (evita el doble clic); no tiene "Recordarme".
 
 ## Correos
 

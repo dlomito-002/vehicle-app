@@ -68,7 +68,6 @@ class LoginController extends Controller
 
         if ($cooldownRemaining > 0) {
             $request->session()->put('login.pending_email', $email);
-            $request->session()->put('login.remember', $request->boolean('remember'));
 
             return redirect()->route('login.verify')->withErrors([
                 'email' => sprintf('Espera %d segundo(s) antes de solicitar otro código. Revisa el correo que ya te enviamos.', $cooldownRemaining),
@@ -89,7 +88,6 @@ class LoginController extends Controller
         Audit::record('login_code_requested', null, [], 'Usuario', $email);
 
         $request->session()->put('login.pending_email', $email);
-        $request->session()->put('login.remember', $request->boolean('remember'));
 
         return redirect()->route('login.verify');
     }
@@ -159,10 +157,9 @@ class LoginController extends Controller
         RateLimiter::clear($throttleKey);
         RateLimiter::clear($this->codeRequestThrottleKey($request, $email));
 
-        $remember = (bool) $request->session()->pull('login.remember', false);
         $request->session()->forget('login.pending_email');
 
-        Auth::login($user, $remember);
+        Auth::login($user);
         $request->session()->regenerate();
 
         return redirect()->intended(route('dashboard'));
