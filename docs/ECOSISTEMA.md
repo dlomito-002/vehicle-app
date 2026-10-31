@@ -7,17 +7,17 @@ Este archivo es **idéntico en todas las apps**: si se cambia aquí, se copia a 
 
 | App | Repositorio | Versión de la app | Ecosistema |
 |---|---|---|---|
-| Helpdesk | FernandoZL/helpdesk-carrousel | `config/config.php` → `APP_VERSION` | 1.3.0 |
-| Caja Chica | FernandoZL/caja-chica-carrousel | archivo `VERSION` | 1.3.0 |
-| Rendimientos de Máquinas | FernandoZL/rendimientos-maquinas-carrousel | archivo `VERSION.txt` (primera línea) | 1.3.0 |
-| Destrucción de Tickets | FernandoZL/tickets-destruccion-carrousel | archivo `VERSION` | 1.3.0 |
-| Control de Vehículos | dlomito-002/vehicle-app | archivo `VERSION` | 1.3.0 |
-| Carrousel Campañas (Cumpleaños) | FernandoZL/carrousel-cumple | archivo `VERSION` | 1.3.0 |
-| Compras | FernandoZL/compras-carrousel | archivo `VERSION` | 1.3.0 |
-| Control de Documentos | FernandoZL/control-documentos-carrousel | archivo `VERSION` | 1.3.0 |
-| Portal de Sistemas | FernandoZL/portal-carrousel | archivo `VERSION` | 1.3.0 |
-| Control IT | FernandoZL/control-it-carrousel | archivo `VERSION` | 1.3.0 |
-| Tu Voz Carrousel | FernandoZL/tu-voz-carrousel | archivo `VERSION.txt` | 1.3.0 |
+| Helpdesk | FernandoZL/helpdesk-carrousel | `config/config.php` → `APP_VERSION` | 1.5.0 |
+| Caja Chica | FernandoZL/caja-chica-carrousel | archivo `VERSION` | 1.5.0 |
+| Rendimientos de Máquinas | FernandoZL/rendimientos-maquinas-carrousel | archivo `VERSION.txt` (primera línea) | 1.5.0 |
+| Destrucción de Tickets | FernandoZL/tickets-destruccion-carrousel | archivo `VERSION` | 1.5.0 |
+| Control de Vehículos | dlomito-002/vehicle-app | archivo `VERSION` | 1.5.0 |
+| Carrousel Campañas (Cumpleaños) | FernandoZL/carrousel-cumple | archivo `VERSION` | 1.5.0 |
+| Compras | FernandoZL/compras-carrousel | archivo `VERSION` | 1.5.0 |
+| Control de Documentos | FernandoZL/control-documentos-carrousel | archivo `VERSION` | 1.5.0 |
+| Portal de Sistemas | FernandoZL/portal-carrousel | archivo `VERSION` | 1.5.0 |
+| Control IT | FernandoZL/control-it-carrousel | archivo `VERSION` | 1.5.0 |
+| Tu Voz Carrousel | FernandoZL/tu-voz-carrousel | archivo `VERSION.txt` | 1.5.0 |
 
 ## Alcance acordado
 
@@ -25,7 +25,8 @@ Se mantienen fuera de esta integración `payout`, `PayOutParques` y las versione
 
 Las funciones propias se conservan. Tu Voz mantiene el envío público de sugerencias y su seguimiento por código; el acceso administrativo sigue limitado por rol. El Portal conserva su acceso público como punto de entrada.
 
-Auditoría Interna y Supervisión de Parques usan el mismo diseño mediante `EcoStyles.html` y `EcoScripts.html`, generados desde Helpdesk. Su código se gestiona en Apps Script; publicar se revisa por separado de los repositorios PHP.
+Auditoría Interna y Supervisión de Parques usan el mismo diseño mediante `EcoStyles.html` y `EcoScripts.html`, generados desde Helpdesk con
+`php tools/GENERAR_ECOSYSTEM_UI.php --apps-script <carpeta clasp>` (mismas hojas y orden que las apps PHP). Su código se gestiona en Apps Script; publicar (`clasp push` y nueva versión) se revisa por separado de los repositorios PHP.
 
 Cada app muestra al pie del menú lateral su versión y la del ecosistema que tiene instalada
 (por ejemplo, `Caja Chica v1.0.42 · Ecosistema v1.0.0`). Si dos apps muestran versiones de ecosistema distintas,
@@ -33,16 +34,42 @@ falta copiar los archivos compartidos a alguna.
 
 ## Archivos compartidos
 
+- `public/assets/css/ecosystem-ui.css`: capa base de Helpdesk (shell, acceso, componentes, modo oscuro). **Generado**.
+- `public/assets/css/ecosystem-ui-final.css`: densidad, tablas, diálogos y selects buscables. **Generado**.
 - `public/assets/css/ecosystem.css`
 - `public/assets/js/ecosystem.js`
 - `docs/ECOSISTEMA.md` (este archivo)
 
-En Rendimientos de Máquinas la carpeta pública es la raíz, así que viven en `assets/css/` y `assets/js/`;
-sus ajustes propios del shell están en `assets/css/ecosystem-rend.css` y los datos del Portal y versiones en `includes/ecosystem.php`.
+Los dos `ecosystem-ui*.css` se generan en Helpdesk con `php tools/GENERAR_ECOSYSTEM_UI.php` a partir de sus hojas originales
+(`app.css`, `shell-v2.css`, `visual-system.css`, `auth-v2.css`, `data-tables.css`…), en el mismo orden en que Helpdesk las carga.
+No se editan a mano: se cambia la hoja original en Helpdesk, se regenera y se copia.
+
+Copia y verificación en todas las apps (desde el Portal): `powershell -ExecutionPolicy Bypass -File _admincosistema\sincronizar_diseno.ps1`
+(`-SoloVerificar` solo compara). Falla si alguna app quedó con un archivo distinto.
+
+Rutas: en Rendimientos y Compras viven en `assets/css/` y `assets/js/`; en Carrousel Campañas, en `public/assets/helpdesk/`;
+en el Portal, en `assets/`. Los datos del Portal y versiones de Rendimientos están en `includes/ecosystem.php`.
+
+### Orden de carga (igual en todas las apps)
+
+```
+ecosystem-ui.css → hojas propias de la app → ecosystem-ui-final.css → ecosystem.css
+```
+
+- En el acceso (login y OTP): `ecosystem-ui.css` → (hoja propia, si la hay) → `ecosystem.css`.
+- Helpdesk, que es la fuente, sigue cargando sus hojas originales una por una; el resultado es el mismo.
+- Control de Vehículos (Tailwind): `@vite` va **antes** de `ecosystem-ui.css` para que el reinicio de Tailwind no borre la base común.
+- Hojas propias por app: Caja Chica `caja.css`, Rendimientos `rend.css`, Tickets `tickets.css`, Compras `compras.css`,
+  Control de Documentos `app.css`, Control IT `app.css` + `controlit-ecosystem.css`, Campañas `cumple.css` + `cumple-ecosystem.css`,
+  Tu Voz `app.css` + `tu-voz-shell.css`, Vehículos `resources/css/app.css` + `vehiculos-ecosistema.css`, Portal `portal.css`.
+- **Las hojas propias no redefinen clases comunes** (`.btn`, `.card`, `.sidebar`, `.side-link`, `.topbar`, `.data-table`, `.help-panel`…).
+  Solo estilizan clases propias de sus pantallas. Si una app necesita otro aspecto en algo común, se cambia en Helpdesk para todas.
+- Estilos de elementos sueltos (`button`, `table`, `input` sin clase) de una app van limitados a su contenido:
+  `:where(.main-wrap .content) button{…}`, para no tocar el menú, la barra ni el acceso.
 
 Reglas:
 
-1. Se cargan **al final**, después de las hojas y scripts propios de cada app.
+1. Se cargan en el orden de arriba; `ecosystem.css` siempre al final.
 2. Solo presentación: no cambian rutas, formularios, permisos ni lógica de negocio.
 3. Se editan en una app y se copian sin cambios a las demás.
 4. Cada cambio sube `@version` en `ecosystem.css` y `ecosystem.js` y agrega una entrada abajo.
@@ -52,7 +79,7 @@ Reglas:
 
 ## Agregar una app nueva
 
-1. Copiar los tres archivos compartidos.
+1. Copiar los archivos compartidos (agregar la app a `sincronizar_diseno.ps1` del Portal) y cargarlos en el orden de arriba.
 2. Usar el shell de Helpdesk: `.sidebar`, `.side-link` / `.side-icon` / `.side-label`, `.topbar`, botón ☰ con `data-sidebar-toggle`
    (colapsa a riel de íconos de 76 px, guarda `<app>:sidebar-collapsed` en localStorage) y botón `← Portal` en la misma pestaña.
 3. Tablas con `.data-table-wrap > .data-table`; acciones de fila en la última columna (`.data-table-actions`).
@@ -103,6 +130,23 @@ Ninguna app define sus propias ruedas de carga, avisos ni animaciones de entrada
 | Diálogos | Entran en .14 s desde 8 px más abajo | Clase `.eco-dialog` (o `.admin-record-dialog`) en el `<dialog>` |
 
 Si el equipo pide reducir movimiento (`prefers-reduced-motion`), todo aparece sin animación.
+
+## Componentes
+
+Alertas, confirmaciones, interruptores y selects se ven y se comportan igual en todas las apps (`ecosystem.css` §11 y `ecosystem.js`).
+Ninguna app usa `alert()` ni `confirm()` del navegador.
+
+| Qué | Cómo se ve | Cómo se usa |
+|---|---|---|
+| Alertas en la página | Recuadro con borde y fondo suave; azul (información), verde (éxito), amarillo (atención) y rojo (error), también en modo oscuro | `<div class="alert alert-success">…</div>`; variantes `alert-info`, `alert-success`, `alert-warning`, `alert-danger` |
+| Avisos pasajeros | Los de **Movimiento** | `EcoUI.toast('Ingresa un correo válido.', 'warning')` en lugar de `alert()` |
+| Confirmaciones | Diálogo centrado con ícono, título, pregunta y botones Cancelar / Confirmar. Si la pregunta habla de eliminar, quitar, retirar, desactivar, anular, rechazar, descartar o revocar, el ícono y el botón son rojos («Sí, continuar») y el foco queda en Cancelar | `data-confirm="¿Eliminar…?"` en el formulario, su botón de envío, un enlace o un `button type="button"` (opcionales `data-confirm-title`, `data-confirm-ok`, `data-confirm-danger="1"`/`"0"`); desde código `if (!(await EcoUI.confirm('¿…?'))) return;` |
+| Interruptores | Píldora de 42×24 px, azul de la marca cuando está activa | `<label class="eco-switch"><input type="checkbox" name="activo" value="1"><span>Activo</span></label>` para activar o desactivar; las casillas de selección siguen siendo casillas |
+| Selects | Misma flecha, borde y anillo de foco | Automático en todo `select` (menos `multiple`, `size` y `.eco-native`) |
+| Campos | Mismo anillo de foco azul | Automático |
+
+Las clases de alerta anteriores (`.flash.ok|warn|fail`, `.callout`, `.admin-alert.success|error`, `.app-alert.success|error`, `.alert.ok|bad|error|success`)
+se ven igual mientras cada app termina de migrar su marcado; el marcado nuevo usa siempre `.alert-*`.
 
 ## Acceso y código OTP
 
@@ -164,6 +208,22 @@ Tu Voz conserva los datos históricos de casos. Sus códigos actuales y cuotas v
 Las cuotas se conservan incluso cuando el acceso resulta correcto o falla el envío SMTP. El quinto fallo invalida el código inmediatamente. No ejecutar envíos SMTP ni tareas de datos durante una validación automática.
 
 ## Historial
+
+### 1.5.0 · 2026-10-31
+- Diseño idéntico en las 11 apps del Portal: la capa base de Helpdesk pasa a `ecosystem-ui.css` y `ecosystem-ui-final.css`, generados con
+  `tools/GENERAR_ECOSYSTEM_UI.php` y copiados sin cambios con `_admin/ecosistema/sincronizar_diseno.ps1` (Portal).
+- Se retiran las copias e imitaciones locales: `css/helpdesk/*` (Tickets, Compras, Control de Documentos, Control IT, Campañas),
+  `helpdesk-alignment.css` y sus variantes en Caja Chica, los parches `r33/r34` de Rendimientos, el estilo en línea del Portal y la
+  réplica del shell en Vehículos y Tu Voz. Cada app queda con una hoja propia sin clases comunes.
+- Rendimientos, Vehículos y el Portal cargaban solo `ecosystem.css` en el acceso; ahora cargan la misma base que Helpdesk.
+- Campañas carga `page-standard.css` (encabezados y tarjetas de totales), que le faltaba.
+- Tu Voz usa la estructura del shell de Helpdesk (`.app-shell`, `.main-wrap`, `.content`, `.topbar-left/.topbar-user`) y el panel de ayuda lateral.
+- El Portal agrega el contenedor `.app-shell`.
+- Apps Script: `--apps-script` genera `EcoStyles.html` y actualiza `EcoScripts.html` con la misma versión.
+
+### 1.4.0 · 2026-10-30
+- Componentes (§11 y sección Componentes): alertas, diálogo de confirmación común (`data-confirm` y `EcoUI.confirm()`), interruptores `.eco-switch`, flecha de los selects y anillo de foco de los campos.
+- Se reemplazan en todas las apps los `confirm()` y `alert()` del navegador por el diálogo común y `EcoUI.toast()`.
 
 ### Revisión de consistencia · 2026-10-28
 - Se integran Control IT y Tu Voz; se documentan las carpetas excluidas.

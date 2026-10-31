@@ -39,7 +39,7 @@
                                     @endcan
                                     @can('delete', $vehicle)
                                         <form method="POST" action="{{ route('vehicles.destroy', $vehicle) }}" style="display:inline"
-                                              onsubmit="return confirm('¿Eliminar el vehículo {{ $vehicle->license_plate }}?');">
+                                              data-confirm="¿Eliminar el vehículo {{ $vehicle->license_plate }}?">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" style="color:var(--danger);font-weight:800;background:none;border:0;cursor:pointer;padding:0;font:inherit">Eliminar</button>

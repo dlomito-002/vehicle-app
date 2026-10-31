@@ -42,7 +42,7 @@
                                 <a href="{{ route('users.edit', $user) }}">Editar</a>
                                 @if (! $user->is(auth()->user()))
                                     <form method="POST" action="{{ route('users.destroy', $user) }}" style="display:inline"
-                                          onsubmit="return confirm('¿Eliminar a {{ $user->name }}?');">
+                                          data-confirm="¿Eliminar a {{ $user->name }}?">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" style="color:var(--danger);font-weight:800;background:none;border:0;cursor:pointer;padding:0;font:inherit">Eliminar</button>

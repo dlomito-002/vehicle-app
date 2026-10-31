@@ -217,13 +217,11 @@
     setHelp(false);closeNotifications();closeMobileSidebar();
   });
 
-  // Confirmación antes de enviar acciones definitivas (guardar un día cerrado, eliminar, etc.).
+  // Envío único y "Procesando". Las confirmaciones (data-confirm) las muestra ecosystem.js con el diálogo común.
   document.addEventListener('submit',function(e){
     const form=e.target instanceof HTMLFormElement?e.target:null;
     if(!form)return;
     const submitter=e.submitter instanceof HTMLElement?e.submitter:null;
-    const question=(submitter&&submitter.dataset.confirm)||form.dataset.confirm||'';
-    if(question&&!window.confirm(question)){e.preventDefault();return;}
     if(!form.matches('[data-single-submit]'))return;
     if(form.dataset.submitting==='1'){e.preventDefault();return;}
     if(!form.checkValidity())return;

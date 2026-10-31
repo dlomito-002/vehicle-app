@@ -64,7 +64,7 @@ window.submitFormOnce = async (form) => {
 	} catch (error) {
 		delete form.dataset.submitting;
 		submitButton?.removeAttribute('disabled');
-		window.alert(error.message);
+		if (window.EcoUI) window.EcoUI.toast(error.message, 'danger', 6000); else window.alert(error.message);
 		return;
 	}
 

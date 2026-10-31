@@ -19,6 +19,7 @@
     </script>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <link rel="stylesheet" href="{{ \App\Support\Ecosystem::asset('assets/css/ecosystem-ui.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.9/dist/cdn.min.js" defer></script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -96,7 +97,7 @@
         <div class="main-wrap">
             <header class="topbar">
                 <div class="topbar-left">
-                    <button class="theme-toggle sidebar-toggle-eco" type="button" data-sidebar-toggle aria-controls="app-sidebar" aria-expanded="true" aria-label="Ocultar menú" title="Ocultar menú lateral">☰</button>
+                    <button class="btn btn-outline-secondary sidebar-toggle" type="button" data-sidebar-toggle aria-controls="app-sidebar" aria-expanded="true" aria-label="Ocultar menú" title="Ocultar menú lateral">☰</button>
                     <a href="{{ route('dashboard') }}" class="topbar-title">
                         <span class="topbar-section">Control de Vehículos</span>
                         <strong class="topbar-page">@yield('title', 'Panel')</strong>
@@ -110,7 +111,7 @@
                     </a>
 
                     <div class="shell-notifications" data-notifications>
-                        <button class="theme-toggle shell-icon-btn" type="button" data-notifications-toggle aria-expanded="false" aria-label="Ver notificaciones" title="Notificaciones">🔔@if ($attentionCount > 0)<span class="shell-notification-badge">{{ $attentionCount > 99 ? '99+' : $attentionCount }}</span>@endif</button>
+                        <button class="btn btn-outline-secondary btn-sm shell-icon-btn" type="button" data-notifications-toggle aria-expanded="false" aria-label="Ver notificaciones" title="Notificaciones">🔔@if ($attentionCount > 0)<span class="shell-notification-badge">{{ $attentionCount > 99 ? '99+' : $attentionCount }}</span>@endif</button>
                         <div class="shell-notification-menu" data-notifications-menu hidden>
                             <div class="shell-notification-head">
                                 <div><strong>Notificaciones</strong><span>{{ $attentionCount > 0 ? $attentionCount.' pendientes' : 'Todo al día' }}</span></div>
@@ -134,7 +135,7 @@
                         </div>
                     </div>
 
-                    <button class="theme-toggle" type="button" data-theme-toggle title="Cambiar apariencia" aria-label="Cambiar apariencia">◐</button>
+                    <button class="btn btn-outline-secondary btn-sm theme-btn shell-icon-btn" type="button" data-theme-toggle title="Cambiar apariencia" aria-label="Cambiar apariencia">◐</button>
                     <a class="btn btn-outline-secondary btn-sm portal-btn" href="{{ \App\Support\Ecosystem::portalUrl() }}" title="Volver al Portal">
                         <span aria-hidden="true">←</span>
                         <span class="portal-label">Portal</span>
@@ -206,6 +207,7 @@
 @endauth
 
 <link rel="stylesheet" href="{{ \App\Support\Ecosystem::asset('assets/css/vehiculos-ecosistema.css') }}">
+<link rel="stylesheet" href="{{ \App\Support\Ecosystem::asset('assets/css/ecosystem-ui-final.css') }}">
 <link rel="stylesheet" href="{{ \App\Support\Ecosystem::asset('assets/css/ecosystem.css') }}">
 <script src="{{ \App\Support\Ecosystem::asset('assets/js/vehiculos-ecosistema.js') }}"></script>
 <script src="{{ \App\Support\Ecosystem::asset('assets/js/ecosystem.js') }}"></script>

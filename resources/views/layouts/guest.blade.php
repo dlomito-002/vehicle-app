@@ -18,6 +18,7 @@
     </script>
 
     {{-- Ecosistema Carrousel §9: pantalla de acceso autocontenida, igual en todas las apps. --}}
+    <link rel="stylesheet" href="{{ \App\Support\Ecosystem::asset('assets/css/ecosystem-ui.css') }}">
     <link rel="stylesheet" href="{{ \App\Support\Ecosystem::asset('assets/css/ecosystem.css') }}">
 </head>
 <body class="auth-body-v2">
