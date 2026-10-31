@@ -104,6 +104,32 @@ document.addEventListener('keydown',e=>{
 window.addEventListener('pageshow',syncSearchClear);
 syncSearchClear();
 
+// Campana (.shell-notifications): ÚNICO manejador para abrir y cerrar (las apps no deben tener otro).
+// Marcado: [data-notifications] > button[data-notifications-toggle] + [data-notifications-menu].
+// Clic en la campana abre/cierra, clic fuera o Escape cierra. El contenido lo arma cada app.
+function closeNotificationMenus(except){
+  document.querySelectorAll('[data-notifications]').forEach(root=>{
+    if(root===except)return;
+    const menu=root.querySelector('[data-notifications-menu]');if(menu)menu.hidden=true;
+    root.querySelector('[data-notifications-toggle]')?.setAttribute('aria-expanded','false');
+  });
+}
+document.addEventListener('click',e=>{
+  const target=e.target instanceof Element?e.target:null;if(!target)return;
+  const toggle=target.closest('[data-notifications-toggle]');
+  if(toggle){
+    const root=toggle.closest('[data-notifications]'),menu=root?.querySelector('[data-notifications-menu]');
+    if(!menu)return;
+    e.preventDefault();
+    const open=menu.hidden;
+    closeNotificationMenus(root);
+    menu.hidden=!open;toggle.setAttribute('aria-expanded',String(open));
+    return;
+  }
+  if(!target.closest('[data-notifications]'))closeNotificationMenus();
+});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeNotificationMenus();});
+
 // "Procesando" y avisos: misma animación en todas las apps (ecosystem.css §10).
 // EcoUI.busy('Guardando…'), EcoUI.idle() y EcoUI.toast('Listo', 'success'|'warning'|'danger'|'info', ms).
 // Si la pantalla no trae el marcado, se crea al primer uso.

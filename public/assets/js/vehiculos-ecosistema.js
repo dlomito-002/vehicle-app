@@ -81,13 +81,6 @@
     if(menu instanceof HTMLElement)menu.hidden=true;
     if(toggle instanceof HTMLElement)toggle.setAttribute('aria-expanded','false');
   }
-  function toggleNotifications(){
-    const menu=document.querySelector('[data-notifications-menu]');
-    const toggle=document.querySelector('[data-notifications-toggle]');
-    if(!(menu instanceof HTMLElement))return;
-    const open=menu.hidden;menu.hidden=!open;
-    if(toggle instanceof HTMLElement)toggle.setAttribute('aria-expanded',open?'true':'false');
-  }
 
   /* ===== Ayuda ===== */
   function setHelp(open){
@@ -190,8 +183,7 @@
     if(target.closest('[data-tour-stop]')){stopTour();return;}
     if(target.closest('[data-tour-prev]')){tourIndex=Math.max(0,tourIndex-1);renderTour();return;}
     if(target.closest('[data-tour-next]')){if(tourIndex>=tourSteps.length-1){stopTour();return;}tourIndex+=1;renderTour();return;}
-    if(target.closest('[data-notifications-toggle]')){toggleNotifications();return;}
-    if(!target.closest('[data-notifications]'))closeNotifications();
+    /* Campana: abrir/cerrar lo maneja ecosystem.js (único manejador del ecosistema) */
 
     const row=target.closest('tr[data-row-href]');
     if(row instanceof HTMLElement&&!target.closest('a,button,input,select,textarea,label,form,summary')&&e.button===0){
