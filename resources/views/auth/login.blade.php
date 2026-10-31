@@ -36,6 +36,6 @@
         <div class="auth-action-group">
             <a class="btn btn-outline-secondary btn-sm" href="{{ \App\Support\Ecosystem::portalUrl() }}">← Portal</a>
         </div>
-        <button class="btn btn-outline-secondary btn-sm theme-btn" type="button" data-eco-theme-toggle title="Cambiar apariencia" aria-label="Cambiar apariencia">◐</button>
+        <button class="btn btn-outline-secondary btn-sm theme-btn" type="button" data-theme-toggle title="Cambiar apariencia" aria-label="Cambiar apariencia"><span data-theme-icon aria-hidden="true">◐</span></button>
     </div>
 @endsection

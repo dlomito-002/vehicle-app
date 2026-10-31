@@ -38,6 +38,6 @@
                 <button type="submit" class="btn btn-outline-primary btn-sm">Reenviar código</button>
             </form>
         </div>
-        <button class="btn btn-outline-secondary btn-sm theme-btn" type="button" data-eco-theme-toggle title="Cambiar apariencia" aria-label="Cambiar apariencia">◐</button>
+        <button class="btn btn-outline-secondary btn-sm theme-btn" type="button" data-theme-toggle title="Cambiar apariencia" aria-label="Cambiar apariencia"><span data-theme-icon aria-hidden="true">◐</span></button>
     </div>
 @endsection

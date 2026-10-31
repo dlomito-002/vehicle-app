@@ -357,9 +357,13 @@
   .data-table tbody td::before{content:attr(data-label);color:var(--muted);font-size:9.5px;line-height:1.35;text-transform:uppercase;letter-spacing:.05em;font-weight:850}
   .data-table tbody td[data-label=""]::before{display:none}
   .data-table tbody td[data-label=""]{grid-template-columns:1fr}
+  /* Con varios elementos (nombre, teléfono, correo…) todo va en la columna del valor; la etiqueta queda a la izquierda */
+  .data-table tbody td:not([data-label=""])>*{grid-column:2;justify-self:start;max-width:100%;min-width:0;overflow-wrap:anywhere}
   .data-table-actions:not(td){justify-content:flex-start}
   .data-table td.data-table-actions>form,.data-table td.data-table-actions>a,.data-table td.data-table-actions>button{margin:0 6px 4px 0}
   .data-table-secondary{display:grid}
+  /* En tarjetas se ven todas las columnas, aunque en escritorio angosto se oculten algunas para que quepa la tabla */
+  .data-table tbody td:nth-child(n){display:grid}
   .data-table-empty{display:block!important;text-align:center!important}
   .data-table-empty::before{display:none!important}
   .report-detail-row td{display:block!important;padding:0!important}
@@ -369,6 +373,7 @@
 
 @media(max-width:430px){
   .data-table tbody td,.data-table tbody td.data-table-actions{grid-template-columns:1fr;gap:3px}
+  .data-table tbody td:not([data-label=""])>*{grid-column:1}
 }
 
 /* Filas que abren el caso con un clic */
@@ -462,6 +467,9 @@ tr.is-clickable-row:hover>td{background:color-mix(in srgb,var(--brand) 5%,var(--
 .smart-select-value.is-placeholder{color:var(--muted)}
 .smart-select-chevron{flex:0 0 auto;width:18px;height:18px;display:grid;place-items:center;color:var(--muted);transition:transform .14s ease}
 .smart-select.is-open .smart-select-chevron{transform:rotate(180deg)}
+/* Flecha dibujada: el carácter ⌄ se veía como una letra "v" con la fuente de las apps */
+.smart-select-chevron{font-size:0;line-height:0}
+.smart-select-chevron::before{content:"";width:7px;height:7px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:translateY(-2px) rotate(45deg)}
 .smart-select.is-invalid .smart-select-trigger{border-color:var(--danger);box-shadow:0 0 0 3px color-mix(in srgb,var(--danger) 15%,transparent)}
 .smart-select-menu{
   position:fixed;z-index:7000;display:none;min-width:180px;max-width:calc(100vw - 20px);overflow:hidden;

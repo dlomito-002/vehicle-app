@@ -135,7 +135,7 @@
                         </div>
                     </div>
 
-                    <button class="btn btn-outline-secondary btn-sm theme-btn shell-icon-btn" type="button" data-theme-toggle title="Cambiar apariencia" aria-label="Cambiar apariencia">◐</button>
+                    <button class="btn btn-outline-secondary btn-sm theme-btn shell-icon-btn" type="button" data-theme-toggle title="Cambiar apariencia" aria-label="Cambiar apariencia"><span data-theme-icon aria-hidden="true">◐</span></button>
                     <a class="btn btn-outline-secondary btn-sm portal-btn" href="{{ \App\Support\Ecosystem::portalUrl() }}" title="Volver al Portal">
                         <span aria-hidden="true">←</span>
                         <span class="portal-label">Portal</span>

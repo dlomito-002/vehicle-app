@@ -39,16 +39,33 @@ markOverflowingTables();
 // Algunas apps normalizan tablas después de cargar; se recalcula cuando todo terminó.
 window.addEventListener('load',markOverflowingTables);
 
-// Botón de tema del ecosistema (login y demás pantallas que lo usen): alterna claro/oscuro.
-// Misma clave en todas las apps, así el modo elegido se respeta al pasar de una a otra.
+// Botón de tema (ÚNICO manejador del ecosistema; las apps no deben tener otro): alterna claro ↔ oscuro.
+// Ícono fijo ◐; el título dice a qué modo cambia. Misma clave en todas las apps, así el modo se respeta
+// al pasar de una a otra. Sin preferencia guardada se usa el modo del sistema.
+const THEME_KEY='carrousel-theme';
+function syncThemeButtons(){
+  const dark=document.documentElement.dataset.theme==='dark';
+  document.querySelectorAll('[data-theme-toggle],[data-eco-theme-toggle]').forEach(b=>{
+    const label=dark?'Cambiar a modo claro':'Cambiar a modo oscuro';
+    b.title=label;b.setAttribute('aria-label',label);
+    b.querySelectorAll('[data-theme-icon]').forEach(i=>{i.textContent='◐';});
+  });
+}
+function applyTheme(mode,persist){
+  document.documentElement.dataset.theme=mode;
+  document.documentElement.dataset.themePreference=mode;
+  document.documentElement.style.colorScheme=mode;
+  if(persist){try{localStorage.setItem(THEME_KEY,mode);}catch(err){}}
+  syncThemeButtons();
+  window.dispatchEvent(new CustomEvent('carrousel:themechange',{detail:{preference:mode,resolved:mode}}));
+}
 document.addEventListener('click',e=>{
-  const btn=e.target instanceof Element?e.target.closest('[data-eco-theme-toggle]'):null;
+  const btn=e.target instanceof Element?e.target.closest('[data-theme-toggle],[data-eco-theme-toggle]'):null;
   if(!btn)return;
-  const next=document.documentElement.dataset.theme==='dark'?'light':'dark';
-  document.documentElement.dataset.theme=next;
-  document.documentElement.style.colorScheme=next;
-  try{localStorage.setItem('carrousel-theme',next);}catch(err){}
+  e.preventDefault();
+  applyTheme(document.documentElement.dataset.theme==='dark'?'light':'dark',true);
 });
+syncThemeButtons();
 
 // "Procesando" y avisos: misma animación en todas las apps (ecosystem.css §10).
 // EcoUI.busy('Guardando…'), EcoUI.idle() y EcoUI.toast('Listo', 'success'|'warning'|'danger'|'info', ms).

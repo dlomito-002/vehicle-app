@@ -22,7 +22,7 @@
   function applyTheme(pref){
     root.dataset.theme=pref==='system'?systemTheme():pref;
     root.dataset.themePreference=pref;
-    document.querySelectorAll('[data-theme-icon]').forEach(el=>{el.textContent=pref==='dark'?'☾':pref==='light'?'☀':'◐';});
+    document.querySelectorAll('[data-theme-icon]').forEach(el=>{el.textContent='◐';});
   }
 
   /* ===== Avisos y estado de envío ===== */
@@ -181,11 +181,7 @@
   document.addEventListener('click',function(e){
     const target=e.target instanceof Element?e.target:null;
     if(!target)return;
-    if(target.closest('[data-theme-toggle]')){
-      const current=readTheme();
-      const next=current==='system'?'light':current==='light'?'dark':'system';
-      store(THEME_KEY,next);applyTheme(next);return;
-    }
+    /* Tema: lo maneja ecosystem.js (único manejador del ecosistema) */
     if(target.closest('[data-sidebar-toggle]')){toggleSidebar();return;}
     if(target.matches('[data-sidebar-backdrop]')){closeMobileSidebar();return;}
     if(target.closest('[data-help-open]')){setHelp(true);closeNotifications();return;}
