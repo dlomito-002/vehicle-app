@@ -25,9 +25,24 @@ class VehicleReceptionController extends Controller
 
         $query = VehicleReception::query()->with(['vehicle', 'creator', 'delivery']);
 
-        $receptions = $query->latest('reception_date')->paginate(20);
+        // Búsqueda de la barra superior (?q=): placa, marca, modelo, quien recibe, motivo, lugar o quien registró.
+        $search = trim((string) $request->query('q', ''));
+        if ($search !== '') {
+            $like = '%'.$search.'%';
+            $query->where(function ($w) use ($like) {
+                $w->where('received_by_name', 'like', $like)
+                    ->orWhere('trip_reason', 'like', $like)
+                    ->orWhere('location', 'like', $like)
+                    ->orWhereHas('vehicle', fn ($v) => $v->where('license_plate', 'like', $like)
+                        ->orWhere('make', 'like', $like)
+                        ->orWhere('model', 'like', $like))
+                    ->orWhereHas('creator', fn ($u) => $u->where('name', 'like', $like));
+            });
+        }
 
-        return view('receptions.index', compact('receptions'));
+        $receptions = $query->latest('reception_date')->paginate(20)->withQueryString();
+
+        return view('receptions.index', compact('receptions', 'search'));
     }
 
     public function create(): View

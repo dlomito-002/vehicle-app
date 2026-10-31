@@ -362,3 +362,7 @@ select:disabled{cursor:not-allowed;opacity:.65}
 :is(select,textarea,input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="color"]):not([type="submit"]):not([type="button"]):not([type="reset"]):not([type="image"])):focus-visible{outline:none;border-color:#213a8f;box-shadow:0 0 0 3px rgba(33,58,143,.18)}
 html[data-theme="dark"] :is(select,textarea,input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="color"]):not([type="submit"]):not([type="button"]):not([type="reset"]):not([type="image"])):focus-visible{border-color:#7fa7ff;box-shadow:0 0 0 3px rgba(127,167,255,.25)}
 @media (prefers-reduced-motion:reduce){.eco-confirm[open]{animation:none}.eco-switch input[type="checkbox"],.eco-switch input[type="checkbox"]::before,input[type="checkbox"][role="switch"],input[type="checkbox"][role="switch"]::before{transition:none}}
+
+/* 12. Buscador de la barra (.topbar-search): mismo campo en todas las apps; el botón × es el común
+   (data-topbar-search-clear, manejado por ecosystem.js), así que se oculta la × nativa del navegador. */
+.topbar-search input::-webkit-search-cancel-button,.topbar-search input::-webkit-search-decoration{-webkit-appearance:none;appearance:none;display:none}

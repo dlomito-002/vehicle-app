@@ -67,6 +67,43 @@ document.addEventListener('click',e=>{
 });
 syncThemeButtons();
 
+// Buscador de la barra (.topbar-search): ÚNICO manejador del ecosistema (las apps no deben tener otro).
+// × limpia (y si la página muestra resultados de ?q= vuelve a la lista sin filtro), Escape también limpia,
+// Ctrl K enfoca; si el buscador está oculto (celular) Ctrl K abre la página de búsqueda.
+// Al limpiar se emite "input" para que los filtros en el navegador (Portal, Control IT…) se actualicen.
+function searchInput(form){return form?.querySelector('input[name="q"],input[type="search"],input[type="text"]')||null;}
+function syncSearchClear(){
+  document.querySelectorAll('.topbar-search').forEach(form=>{
+    const input=searchInput(form),clear=form.querySelector('[data-topbar-search-clear]');
+    if(input&&clear)clear.hidden=input.value.trim()==='';
+  });
+}
+function clearSearch(form){
+  const input=searchInput(form);if(!input)return;
+  const had=input.value.trim()!=='';
+  input.value='';
+  input.dispatchEvent(new Event('input',{bubbles:true}));
+  syncSearchClear();input.focus();
+  const showingResults=new URLSearchParams(location.search).has(input.name||'q');
+  if(had&&showingResults&&form instanceof HTMLFormElement&&(form.getAttribute('method')||'get').toLowerCase()==='get'&&form.getAttribute('action'))form.requestSubmit();
+}
+document.addEventListener('input',e=>{if(e.target instanceof Element&&e.target.closest('.topbar-search'))syncSearchClear();});
+document.addEventListener('click',e=>{
+  const btn=e.target instanceof Element?e.target.closest('.topbar-search [data-topbar-search-clear]'):null;
+  if(btn){e.preventDefault();clearSearch(btn.closest('.topbar-search'));}
+});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'&&e.target instanceof Element&&e.target.closest('.topbar-search')&&e.target.value){e.preventDefault();clearSearch(e.target.closest('.topbar-search'));return;}
+  if(!((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'))return;
+  const forms=[...document.querySelectorAll('.topbar-search')];if(!forms.length)return;
+  e.preventDefault();
+  const visible=forms.find(f=>f.offsetParent!==null&&searchInput(f));
+  if(visible){const input=searchInput(visible);input.focus();input.select();return;}
+  const action=forms[0].getAttribute('action');if(action)location.href=action;
+});
+window.addEventListener('pageshow',syncSearchClear);
+syncSearchClear();
+
 // "Procesando" y avisos: misma animación en todas las apps (ecosystem.css §10).
 // EcoUI.busy('Guardando…'), EcoUI.idle() y EcoUI.toast('Listo', 'success'|'warning'|'danger'|'info', ms).
 // Si la pantalla no trae el marcado, se crea al primer uso.

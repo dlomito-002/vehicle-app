@@ -104,6 +104,9 @@
                     </a>
                 </div>
 
+                @php($topbarQ = request()->routeIs('receptions.index') ? trim((string) request('q', '')) : '')
+                <form class="topbar-search" method="get" action="{{ route('receptions.index') }}" role="search"><span class="topbar-search-icon" aria-hidden="true">⌕</span><input type="text" name="q" value="{{ $topbarQ }}" placeholder="Buscar placa, vehículo o responsable…" autocomplete="off" enterkeyhint="search" aria-label="Buscar en Control de Vehículos"><button class="topbar-search-clear" type="button" data-topbar-search-clear aria-label="Limpiar búsqueda" title="Limpiar búsqueda" @if($topbarQ === '') hidden @endif>×</button><kbd>Ctrl K</kbd></form>
+
                 <div class="topbar-user">
                     <a href="{{ route('receptions.create') }}" class="btn btn-primary btn-sm topbar-primary-action" title="Nueva recepción">
                         <span aria-hidden="true">＋</span>
