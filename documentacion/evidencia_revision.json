@@ -1,0 +1,183 @@
+{
+  "application": "ControlVehiculosCarrousel",
+  "review_date": "2026-10-31",
+  "base_commit": "edb618f94dfa0434b30295e41125bfae3714f396",
+  "branch": "main",
+  "declared_version": "1.1.1",
+  "scope": "static_source_review_and_document_validation",
+  "business_tests_executed": false,
+  "database_read_or_modified": false,
+  "private_configuration_read": false,
+  "source_hashes": {
+    "AGENTS.md": "e692ea86153faeded313172828ba21424ebd57eedf0f3b43f1651092479ec376",
+    "README.md": "b7e493d799afbe705dd422aa974922fbe41cf5bb227099c7a7f979207398d8fe",
+    "app/Enums/MaintenanceCategory.php": "57867982d8d7fb24e38799276a660b153458e7b35a6b9905aaf8361de63cae6f",
+    "app/Http/Controllers/Concerns/HandlesVehicleFormUploads.php": "3a58cbed56210ddd76cc76401e2cc4c3012472102cde9d4a126a01af2a9c1f0d",
+    "app/Http/Controllers/VehicleDeliveryController.php": "40bfec2d9f81d527e29ea97703e3b93da08235df210ccc2a8bbf9e5846529a84",
+    "app/Http/Controllers/VehicleReceptionController.php": "7d275eadde8a7dbd7c0351ba489ff1b5c351043d37701c7cf3e912b276af763e",
+    "app/Support/VehicleComparisonBuilder.php": "d12f4dd38a0c3339aa08acfeb39febfa4c28db9372c655aade6558f6bd2e6b99",
+    "composer.json": "06cb66521e75ede69c196967cd2d9181354ede10a4b2c0831319fd7ca0de83f2",
+    "composer.lock": "d62c63abe22b287a14ac1731fc78d6f44986eded1b824366926464490ac970c4",
+    "config/vehicle.php": "901342edf424f1b6959614d1cc84761180e42be0691fb2843bbb86ba1cab2051",
+    "database/migrations/0001_01_01_000000_create_users_table.php": "10d79883bc08ce46510f9ad8b1830b4d06d586dc56ae2c8bac3b3e491f69a90f",
+    "database/migrations/0001_01_01_000001_create_cache_table.php": "20f769d3c11748c1cc42c41cd3789b0b9b2cd0db44ee22d378addac3ff8aed4f",
+    "database/migrations/0001_01_01_000002_create_jobs_table.php": "7c9c712adf4091c87bf2612f4d0dccdfa1df4501553e4ac068b83d7bd5462fa5",
+    "database/migrations/2025_01_01_000001_add_role_to_users_table.php": "944f4f3f990fbf722b5e5acf70b456ff5da5c8d0fbb8236743a7a5fea020d46b",
+    "database/migrations/2025_01_01_000002_create_vehicles_table.php": "74e709785d657eb6477c6f6d291266c21d552e177287c6e3fa70d955aa889000",
+    "database/migrations/2025_01_01_000003_create_vehicle_receptions_table.php": "2aae7f5cfda4aef305993e969f7c500d8ac31fe6e698dfac2430eb07c06d2643",
+    "database/migrations/2025_01_01_000004_create_vehicle_deliveries_table.php": "991452d7e69f14cc29cb2202446b0596e2b952450d3572bed5dd32a436f445eb",
+    "database/migrations/2025_01_01_000005_create_vehicle_photos_table.php": "e970d1014989668fea68d3184bdddc18bf7b003b9bac423c42b0716685d84acc",
+    "database/migrations/2025_01_01_000006_create_vehicle_documentations_table.php": "de073fea15e4db9beeee450ecf449288e5b911c731271eb26d0e955bf0cfba01",
+    "database/migrations/2026_09_03_000001_add_fuel_type_to_vehicle_receptions_and_deliveries_table.php": "7854bf6628eb17a1b09742c8286a794a7e609da1a6b402cff79d79fe8504019d",
+    "database/migrations/2026_09_03_000002_create_vehicle_equipment_checks_table.php": "5dad7d5a6a1fc0322a633d77bedc2bf7c3c37292642d4e13ce031e2a554c0063",
+    "database/migrations/2026_09_03_000003_create_vehicle_condition_items_table.php": "5a190866f39afcc55c8736c82c4f0ebcd1bd1fae1b69415c9bc17c116b324d58",
+    "database/migrations/2026_09_14_000001_add_location_and_washed_to_vehicle_receptions_table.php": "bc78932504884d67fc45f0790d36925cd7a97f647ae1786e98d985ffeef3dcb0",
+    "database/migrations/2026_09_14_000002_create_vehicle_services_table.php": "36192cb9c8b10cc80aced18e899d8aacc2841b037706d3571e28377116baae0d",
+    "database/migrations/2026_09_16_000001_add_location_to_vehicle_deliveries_table.php": "9e0f4600dd900d26e995135cb3cb6d40aa6d6b5e7f194688fd03e70963fc3956",
+    "database/migrations/2026_09_16_000002_create_vehicle_maintenance_schedules_table.php": "425b6a6dba811856c475decfbf20b0ba472c119e56c2329943f6e401ec345389",
+    "database/migrations/2026_09_16_000003_create_vehicle_maintenance_completions_table.php": "1f382b25499742c0845c76116e0ad0c71edafc94b1010318f4ef88f55d7546db",
+    "database/migrations/2026_09_16_000004_create_login_verification_codes_table.php": "d684ea1f0dcb6240f924ea83ac54fb12e91c93db23f11b1fdcfc4b85833da65b",
+    "database/migrations/2026_09_19_000001_remove_transmission_service_insurance_policy_and_legacy_fuel_type.php": "66cd2ac5d9b21e2e7d5775fcea766a700f98aae21758bad5346877bdab11945b",
+    "database/migrations/2026_09_25_000001_add_receives_notification_emails_to_users_table.php": "4817064dab92e0aa6ee6677d09e8e929b8fc5006a0c36e5a2ec08903925c5209",
+    "database/migrations/2026_09_25_000002_drop_cleanliness_from_receptions_and_deliveries.php": "a364fdced2f0eb16315b7ed287f09cfcd3a00994e1d97d45958c21d3d8de46a4",
+    "database/migrations/2026_09_25_000003_add_alert_progress_to_vehicle_maintenance_schedules_table.php": "01a3c92873bcea1311b9ef53b074348ade341c64ae7814bdeabbad4f000d8993",
+    "database/migrations/2026_10_26_000001_create_audit_logs_table.php": "a691529541eb37f16083663047e92930f171f10b555abd77c42b46f98b050335",
+    "routes/web.php": "1f3f3789f3ebe53d00cdf96b84b89fe7088dd1cdea6093d35dd9c0bc8d8c4138"
+  },
+  "php_lint": [
+    {
+      "file": "app/Enums/MaintenanceCategory.php",
+      "exit_code": 0
+    },
+    {
+      "file": "app/Http/Controllers/Concerns/HandlesVehicleFormUploads.php",
+      "exit_code": 0
+    },
+    {
+      "file": "app/Http/Controllers/VehicleDeliveryController.php",
+      "exit_code": 0
+    },
+    {
+      "file": "app/Http/Controllers/VehicleReceptionController.php",
+      "exit_code": 0
+    },
+    {
+      "file": "app/Support/VehicleComparisonBuilder.php",
+      "exit_code": 0
+    },
+    {
+      "file": "config/vehicle.php",
+      "exit_code": 0
+    },
+    {
+      "file": "database/migrations/0001_01_01_000000_create_users_table.php",
+      "exit_code": 0
+    },
+    {
+      "file": "database/migrations/0001_01_01_000001_create_cache_table.php",
+      "exit_code": 0
+    },
+    {
+      "file": "database/migrations/0001_01_01_000002_create_jobs_table.php",
+      "exit_code": 0
+    },
+    {
+      "file": "database/migrations/2025_01_01_000001_add_role_to_users_table.php",
+      "exit_code": 0
+    },
+    {
+      "file": "database/migrations/2025_01_01_000002_create_vehicles_table.php",
+      "exit_code": 0
+    },
+    {
+      "file": "database/migrations/2025_01_01_000003_create_vehicle_receptions_table.php",
+      "exit_code": 0
+    },
+    {
+      "file": "database/migrations/2025_01_01_000004_create_vehicle_deliveries_table.php",
+      "exit_code": 0
+    },
+    {
+      "file": "database/migrations/2025_01_01_000005_create_vehicle_photos_table.php",
+      "exit_code": 0
+    },
+    {
+      "file": "database/migrations/2025_01_01_000006_create_vehicle_documentations_table.php",
+      "exit_code": 0
+    },
+    {
+      "file": "database/migrations/2026_09_03_000001_add_fuel_type_to_vehicle_receptions_and_deliveries_table.php",
+      "exit_code": 0
+    },
+    {
+      "file": "database/migrations/2026_09_03_000002_create_vehicle_equipment_checks_table.php",
+      "exit_code": 0
+    },
+    {
+      "file": "database/migrations/2026_09_03_000003_create_vehicle_condition_items_table.php",
+      "exit_code": 0
+    },
+    {
+      "file": "database/migrations/2026_09_14_000001_add_location_and_washed_to_vehicle_receptions_table.php",
+      "exit_code": 0
+    },
+    {
+      "file": "database/migrations/2026_09_14_000002_create_vehicle_services_table.php",
+      "exit_code": 0
+    },
+    {
+      "file": "database/migrations/2026_09_16_000001_add_location_to_vehicle_deliveries_table.php",
+      "exit_code": 0
+    },
+    {
+      "file": "database/migrations/2026_09_16_000002_create_vehicle_maintenance_schedules_table.php",
+      "exit_code": 0
+    },
+    {
+      "file": "database/migrations/2026_09_16_000003_create_vehicle_maintenance_completions_table.php",
+      "exit_code": 0
+    },
+    {
+      "file": "database/migrations/2026_09_16_000004_create_login_verification_codes_table.php",
+      "exit_code": 0
+    },
+    {
+      "file": "database/migrations/2026_09_19_000001_remove_transmission_service_insurance_policy_and_legacy_fuel_type.php",
+      "exit_code": 0
+    },
+    {
+      "file": "database/migrations/2026_09_25_000001_add_receives_notification_emails_to_users_table.php",
+      "exit_code": 0
+    },
+    {
+      "file": "database/migrations/2026_09_25_000002_drop_cleanliness_from_receptions_and_deliveries.php",
+      "exit_code": 0
+    },
+    {
+      "file": "database/migrations/2026_09_25_000003_add_alert_progress_to_vehicle_maintenance_schedules_table.php",
+      "exit_code": 0
+    },
+    {
+      "file": "database/migrations/2026_10_26_000001_create_audit_logs_table.php",
+      "exit_code": 0
+    },
+    {
+      "file": "routes/web.php",
+      "exit_code": 0
+    }
+  ],
+  "generated_files": {
+    "Manual_Tecnico_ControlVehiculosCarrousel.docx": "36f02277a29debfa61f1a48ea07f1964cc461fd79f2d64c802c30a32160fdcbe",
+    "Manual_Tecnico_ControlVehiculosCarrousel.md": "3d5ebcf32ec8e2f511bdc0245943a8d165f2b08e52662c77a954e4de0a451f24"
+  },
+  "prior_worktree_changes": [],
+  "document_validation": {
+    "docx_zip_integrity": "PASS",
+    "required_sections": 12,
+    "embedded_diagrams": 2,
+    "source_paths": "PASS",
+    "source_hashes": "PASS",
+    "word_pagination": "NOT_COMPLETED: Word automation stalled; no visual certification",
+    "business_tests": "NOT_RUN"
+  }
+}
