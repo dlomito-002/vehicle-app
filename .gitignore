@@ -32,3 +32,6 @@ yarn-error.log
 
 # Respaldos de la consola MAIN.bat
 /backups
+
+# Archivos temporales de Office
+~$*
